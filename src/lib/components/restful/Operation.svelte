@@ -1,0 +1,89 @@
+<script lang="ts">
+	import { onMount } from "svelte";
+	import Button from "@smui/button";
+	import GeneralJsonCard from "$lib/components/common/GeneralJsonCard.svelte";
+	import ParamsForm from "$lib/components/restful/request/ParamsForm.svelte";
+	import { writable } from "svelte/store";
+	import type { RestfulOperation } from "$lib/restful/RestfulOperation";
+	import { CACHE_TYPE, getCacheKey } from "$lib/restful/BuiltInPlugins";
+	import {
+		type RestfulComponentConfig,
+		type SvelteCacheStore,
+	} from "$lib/restful/SvelteSupport";
+	import ResponseViiewer from "./response/ResponseViiewer.svelte";
+    import { createLink } from "$lib/utils/utils";
+    import { page } from "$app/stores";
+    import { PAGE } from "./RestfulApiContent.svelte";
+	export let config: RestfulComponentConfig;
+	export let currentOperation: RestfulOperation;
+	export let cacheStore: SvelteCacheStore;
+
+	let operation = currentOperation.getOperation();
+	let value: any = currentOperation.getInitialParameterValue();
+	let response: any = null;
+	let isErrorResponse = false;
+
+	const operationStore = writable(currentOperation);
+	$: {
+		operationStore.set(currentOperation);
+	}
+	onMount(async () => {
+		if (currentOperation.method == "get") {
+			const cacheKey = getCacheKey(
+				CACHE_TYPE.GET_RESPONSE,
+				currentOperation,
+				value,
+			);
+			response = cacheStore.get(CACHE_TYPE.GET_RESPONSE, cacheKey);
+		}
+	});
+	$: requestPath = currentOperation.getRequestPath(value);
+
+	const parameterHistories = config.storage.parameterHistories;
+	$: histories =
+		$parameterHistories[
+			getCacheKey(CACHE_TYPE.BODY_PARAMETER, currentOperation)
+		];
+
+	async function execute() {
+		const apiResponse = await currentOperation.execute(value);
+		response = apiResponse.responseBody;
+		isErrorResponse = !apiResponse.ok;
+
+		if (apiResponse.ok) {
+			let additionalSearch = currentOperation.getPathParameters().map(pathParam => `${pathParam}=${value[pathParam]}`) .join("&")
+			history.replaceState(
+				window.history.state,
+				"",
+				createLink($page.route.id + "", 
+					PAGE.OPERATION,
+					currentOperation.path,
+					currentOperation.method,
+					additionalSearch
+				),
+			);
+		}
+	}
+</script>
+
+<h3>{currentOperation.method} {currentOperation.path}</h3>
+<div>
+	{requestPath}
+</div>
+parameters={JSON.stringify(currentOperation.parameters)}
+
+<div>
+	{#if value}
+		<ParamsForm bind:value {currentOperation} {histories}></ParamsForm>
+	{/if}
+	<Button on:click={execute}>Execute</Button>
+</div>
+<ResponseViiewer
+	{config}
+	{cacheStore}
+	{currentOperation}
+	{response}
+	{isErrorResponse}
+></ResponseViiewer>
+
+<GeneralJsonCard data={operation} title="operation"></GeneralJsonCard>
