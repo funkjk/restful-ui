@@ -110,6 +110,9 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.4
+      '@vercel/speed-insights':
+        specifier: ^1.0.14
+        version: 1.0.14(@sveltejs/kit@2.5.27(@sveltejs/vite-plugin-svelte@3.1.2(svelte@4.2.19)(vite@5.4.6(sass@1.78.0)))(svelte@4.2.19)(vite@5.4.6(sass@1.78.0)))(svelte@4.2.19)
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -927,6 +930,29 @@ packages:
 
   '@types/pug@2.0.10':
     resolution: {integrity: sha512-Sk/uYFOBAB7mb74XcpizmH0KOR2Pv3D2Hmrh1Dmy5BmK3MpdSa5kqZcg6EKBdklU0bFXX9gCfzvpnyUehrPIuA==}
+
+  '@vercel/speed-insights@1.0.14':
+    resolution: {integrity: sha512-env1BkPddz1UaEZwBL4GmfRksMi2LbiYaKuoxMQjfLk83aEh7kkWMukkUhpQVs717NE6nnD+1+KO85GZHOZ4nQ==}
+    peerDependencies:
+      '@sveltejs/kit': ^1 || ^2
+      next: '>= 13'
+      react: ^18 || ^19 || ^19.0.0-rc
+      svelte: '>= 4'
+      vue: ^3
+      vue-router: ^4
+    peerDependenciesMeta:
+      '@sveltejs/kit':
+        optional: true
+      next:
+        optional: true
+      react:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+      vue-router:
+        optional: true
 
   acorn@8.12.1:
     resolution: {integrity: sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==}
@@ -3282,6 +3308,11 @@ snapshots:
   '@types/estree@1.0.5': {}
 
   '@types/pug@2.0.10': {}
+
+  '@vercel/speed-insights@1.0.14(@sveltejs/kit@2.5.27(@sveltejs/vite-plugin-svelte@3.1.2(svelte@4.2.19)(vite@5.4.6(sass@1.78.0)))(svelte@4.2.19)(vite@5.4.6(sass@1.78.0)))(svelte@4.2.19)':
+    optionalDependencies:
+      '@sveltejs/kit': 2.5.27(@sveltejs/vite-plugin-svelte@3.1.2(svelte@4.2.19)(vite@5.4.6(sass@1.78.0)))(svelte@4.2.19)(vite@5.4.6(sass@1.78.0))
+      svelte: 4.2.19
 
   acorn@8.12.1: {}
 
