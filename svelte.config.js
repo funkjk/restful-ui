@@ -11,9 +11,6 @@ const config = {
 			pages: 'build',
 			fallback: 'index.html' // may differ from host to host
 		}),
-		paths: {
-			base: "/"
-		},
 		prerender: {
 			handleHttpError: ({ path, referrer, message }) => {
 				// ignore
