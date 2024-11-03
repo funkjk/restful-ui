@@ -12,7 +12,7 @@ const config = {
 			fallback: 'index.html' // may differ from host to host
 		}),
 		paths: {
-			base: "/app"
+			base: "/"
 		},
 		prerender: {
 			handleHttpError: ({ path, referrer, message }) => {
