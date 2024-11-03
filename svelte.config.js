@@ -12,7 +12,7 @@ const config = {
 			fallback: 'index.html' // may differ from host to host
 		}),
 		paths: {
-			base: "/dav/472ANA/funakimemo/cloudhub-api/app"
+			base: "/app"
 		},
 		prerender: {
 			handleHttpError: ({ path, referrer, message }) => {

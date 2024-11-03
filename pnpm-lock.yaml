@@ -50,6 +50,9 @@ importers:
       '@material/notched-outline':
         specifier: ^14.0.0
         version: 14.0.0
+      '@material/radio':
+        specifier: ^14.0.0
+        version: 14.0.0
       '@material/select':
         specifier: ^14.0.0
         version: 14.0.0
@@ -110,9 +113,6 @@ importers:
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
-      mdc-chips:
-        specifier: link:@material/chips/deprecated/mdc-chips
-        version: link:@material/chips/deprecated/mdc-chips
       openapi-types:
         specifier: ^12.1.3
         version: 12.1.3

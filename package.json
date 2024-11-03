@@ -68,6 +68,7 @@
 		"@material/menu": "^14.0.0",
 		"@material/menu-surface": "^14.0.0",
 		"@material/notched-outline": "^14.0.0",
+		"@material/radio": "^14.0.0",
 		"@material/select": "^14.0.0",
 		"@material/snackbar": "^14.0.0",
 		"@material/textfield": "^14.0.0",
