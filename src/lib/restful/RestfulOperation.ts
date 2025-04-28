@@ -21,10 +21,7 @@ export abstract class RestfulOperation {
         this.document = document
         this.plugins = plugins ?? []
         this.initialize()
-        const pathItem = this.document.paths![this.path]
         this.operation = this.document.paths![this.path] as OpenAPI.Operation
-
-
     }
     plugins: RestfulPlugin[]
     searchParams: URLSearchParams;
@@ -50,14 +47,14 @@ export abstract class RestfulOperation {
     getInitialParameterValue(): InputRestParameters {
         return new InitializeParameterPluginChain(this.plugins, this,
             () => {
-                let value: InputRestParameters = {}
+                const value: InputRestParameters = {}
                 const operation = this.getOperation()
                 const bodyValueName = this.getBodyValueName()
                 if (bodyValueName) {
                     value[bodyValueName] = `{}`;
                 }
                 if (operation.parameters) {
-                    for (let p of operation.parameters) {
+                    for (const p of operation.parameters) {
                         const param = p as any
                         if (param.default) {
                             value[param.name] = param.default;
@@ -69,7 +66,7 @@ export abstract class RestfulOperation {
                         }
                     }
                 }
-                for (let key of Object.keys(this.parameters)) {
+                for (const key of Object.keys(this.parameters)) {
                     value[key] = this.parameters[key];
                 }
                 return value
@@ -82,8 +79,8 @@ export abstract class RestfulOperation {
                 const operation = this.getOperation()
                 let requestPath = this.getBasePath() + this.path
                 if (operation.parameters && value) {
-                    let queryStr = []
-                    for (let p of operation.parameters) {
+                    const queryStr = []
+                    for (const p of operation.parameters) {
                         const param = p as any
                         if (param.in == "path" && value[param.name]) {
                             requestPath = requestPath.replaceAll(
@@ -98,7 +95,7 @@ export abstract class RestfulOperation {
                         requestPath += "?" + queryStr.join("&");
                     }
                 }
-                for (let key of Object.keys(this.parameters)) {
+                for (const key of Object.keys(this.parameters)) {
                     requestPath = requestPath.replaceAll(
                         `{${key}}`,
                         this.parameters[key],
@@ -108,7 +105,7 @@ export abstract class RestfulOperation {
             }).next()
     }
     copy(path: string, method: string) {
-        let searchParams = new URLSearchParams()
+        const searchParams = new URLSearchParams()
         this.searchParams.forEach(e => searchParams.append(e[0], e[1]));
         searchParams.append("path", path)
         searchParams.append("method", method)
@@ -119,10 +116,10 @@ export abstract class RestfulOperation {
         return doc.paths && doc.paths[this.path] && doc.paths[this.path][this.method!]
     }
     getPathParameters(): string[] {
-        let pathParameters: string[] = []
+        const pathParameters: string[] = []
         const operation = this.getOperation()
         if (operation.parameters) {
-            for (let p of operation.parameters) {
+            for (const p of operation.parameters) {
                 const param = p as any
                 if (param.in == "path") {
                     pathParameters.push(param.name)
@@ -134,7 +131,7 @@ export abstract class RestfulOperation {
     getAdditionalParameters(path?: string): string {
         const targetPath = path ?? this.path
         const pathParameter = this.parameters;
-        let additionalParamter = Object.keys(pathParameter)
+        const additionalParamter = Object.keys(pathParameter)
             .filter((e) => targetPath!.includes(`{${e}}`))
             .map((e) => `${e}=${pathParameter[e]}`)
             .join("&");
@@ -143,7 +140,7 @@ export abstract class RestfulOperation {
     getBodyValueName(): string | null {
         const operation = this.getOperation()
         if (operation.parameters) {
-            for (let p of operation.parameters) {
+            for (const p of operation.parameters) {
                 const param = p as any;
                 if (param.in == "body") {
                     return param.name;
@@ -156,7 +153,7 @@ export abstract class RestfulOperation {
     getPathParameterUnderTargetPath() {
         const doc = this.document
         const parameters: string[] = []
-        for (let p in doc?.paths) {
+        for (const p in doc?.paths) {
             if (p.startsWith(this.path)) {
                 const underPath = p.substring(this.path.length)
                 if (underPath.includes("{")) {
@@ -168,16 +165,16 @@ export abstract class RestfulOperation {
         return parameters
     }
     getUnderOperations(pathParameterName?: string): RestfulOperation[] {
-        let returnOperations: RestfulOperation[] = []
+        const returnOperations: RestfulOperation[] = []
         const paths = this.document.paths! as any;
-        for (let p of Object.keys(paths)) {
+        for (const p of Object.keys(paths)) {
             if (p.startsWith(this.path)) {
                 // pathParameterName is not specified or pathParameterName specified and match with path
                 if (!pathParameterName || p.includes(`{${pathParameterName}}`)) {
-                    for (let m of methods) {
+                    for (const m of methods) {
                         // exists path
                         if (paths[p] && paths[p][m]) {
-                            let searchParams = new URLSearchParams()
+                            const searchParams = new URLSearchParams()
                             this.searchParams.forEach(e => searchParams.append(e[0], e[1]));
                             searchParams.append("path", p)
                             searchParams.append("method", m)
@@ -230,7 +227,7 @@ export class RestfulOperationOasV2 extends RestfulOperation {
     getOperation(): OpenAPIV2.OperationObject {
         const doc = this.getDocument()
         const method = this.method as OpenAPIV2.HttpMethods
-        let operation = doc.paths[this.path][method];
+        const operation = doc.paths[this.path][method];
         return operation!
     }
 }
@@ -252,7 +249,6 @@ export class RestfulOperationOasV3 extends RestfulOperation {
     }
     getBodyValueName(): string | null {
         const op = this.getOperation()
-        console.log("getBodyValueName",op.requestBody)
         if (op.requestBody) {
             return "requestBody"
         }
@@ -262,8 +258,7 @@ export class RestfulOperationOasV3 extends RestfulOperation {
     }
     getOperation(): OpenAPIV3.OperationObject {
         const doc = this.getDocument()
-        const method = this.method
-        let operation = doc.paths[this.path]![this.method!];
+        const operation = doc.paths[this.path]![this.method!];
         return operation!
     }
 }

@@ -3,27 +3,17 @@
     import Textfield from "@smui/textfield";
     import Button from "@smui/button";
     import { onMount } from "svelte";
-    import {
-        anypointFetch,
-        getOrgnizationFromExtension,
-        getProfileFromExtension,
-        getTokenFromExtension,
-        isExtensionEnable,
-        updateTokenWithExtension,
-    } from "$lib/anypoint";
+    import { isExtensionEnable } from "$lib/anypoint";
     import Select, { Option } from "@smui/select";
 
-    let extensionId = $settings.extensionId ?? "";;
+    let extensionId = $settings.extensionId ?? "";
     let extensionPromise: Promise<void>;
-    onMount(() => {
-    });
+    onMount(() => {});
     async function saveValue() {
         $settings.extensionId = extensionId;
-        const enable = await isExtensionEnable()
+        await isExtensionEnable();
     }
-
 </script>
-
 
 <div>
     <h3>Current Value</h3>
@@ -34,7 +24,7 @@
     <div>isAuthorized: {$settings.isAuthorized}</div>
     {#await extensionPromise}
         <div>Loading...</div>
-    {:then result}
+    {:then}
         {#if !$settings.isAuthorized}
             <div>
                 Access Token is invalid
@@ -44,7 +34,7 @@
 
         <h3>Update Value</h3>
         <Select bind:value={envId} label="Select Menu">
-            {#each envList as env}
+            {#each envList as env (env.id)}
                 <Option value={env.id}>{env.name}</Option>
             {/each}
         </Select>

@@ -36,7 +36,7 @@
         })
     }
 </script>
-{#each keys as key}
+{#each keys as key (key)}
     
 <div class="editor-box">
     <h4>{key}</h4>

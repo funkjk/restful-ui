@@ -1,6 +1,6 @@
-import { derived, get, writable, type Readable, type Writable } from "svelte/store";
+import { get, type Writable } from "svelte/store";
 import { CACHE_TYPE, compareBodyParameter, type CacheBody, type CacheBodyParameter, type CacheStore } from "./BuiltInPlugins";
-import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain, RequestPathPluginChain, type RestfulPlugin } from "./RestfulPlugin";
+import { EmptyRestfulPlugin, FetchPluginChain, RequestPathPluginChain, type RestfulPlugin } from "./RestfulPlugin";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import type { RestApiResponse } from "./apiFetch";
 
@@ -45,9 +45,9 @@ export class SvelteCacheStore implements CacheStore {
 
 }
 export interface RequestSetting {
-    headers:any,
-    additionalQueryParameter?:string,
-    basePath?:string
+    headers: any,
+    additionalQueryParameter?: string,
+    basePath?: string
 }
 
 export class SetRequestPlugin extends EmptyRestfulPlugin {
@@ -56,12 +56,12 @@ export class SetRequestPlugin extends EmptyRestfulPlugin {
         this.requestSetting = requestSetting
     }
     requestSetting: Writable<RequestSetting>;
-    doRequestPath(restfulOperation: RestfulOperation, chain: RequestPathPluginChain):string{
+    doRequestPath(restfulOperation: RestfulOperation, chain: RequestPathPluginChain): string {
         const setting = get(this.requestSetting)
         let requestPath = chain.next()
         if (setting.basePath) {
             const basePath = restfulOperation.getBasePath()
-            requestPath =  requestPath.replace(basePath, setting.basePath)
+            requestPath = requestPath.replace(basePath, setting.basePath)
         }
         if (setting.additionalQueryParameter) {
             if (requestPath.includes("?")) {
@@ -73,15 +73,15 @@ export class SetRequestPlugin extends EmptyRestfulPlugin {
         return requestPath
     }
 
-    doFetch(restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+    doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
         const setting = get(this.requestSetting)
-        let nextInit = init ?? {}
+        const nextInit = init ?? {}
         if (setting.headers) {
-            const additionalHeaders:any = {}
-            for (let header of setting.headers) {
+            const additionalHeaders: any = {}
+            for (const header of setting.headers) {
                 additionalHeaders[header.name] = header.value
             }
-            nextInit.headers = {...nextInit.headers, ...additionalHeaders}
+            nextInit.headers = { ...nextInit.headers, ...additionalHeaders }
         }
         return chain.next(inputParameters, input, nextInit)
     }

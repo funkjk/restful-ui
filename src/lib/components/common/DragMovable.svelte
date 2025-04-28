@@ -11,10 +11,10 @@
             moving = true;
         }
     }
-    function onMouseUp(e: MouseEvent) {
+    function onMouseUp() {
         moving = false;
     }
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<any>();
     function onMouseMove(e: MouseEvent) {
         if (moving) {
             dispatch("dragging", e);

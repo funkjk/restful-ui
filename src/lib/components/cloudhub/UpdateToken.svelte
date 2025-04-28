@@ -34,18 +34,18 @@
 
     let envList = [] as any[];
 
-    let cloudhubPermissions = [] as any[];
     async function fetchCloudhubPermission() {
         try {
             const response = await anypointFetch(
                 "/cloudhub/api/users/current/permissions",
             );
-            cloudhubPermissions = response;
             console.log(response);
-        } catch (e) {}
+        } catch (e) {
+            console.error(e);
+        }
     }
     async function updateToken() {
-        const token = await updateTokenWithExtension();
+        await updateTokenWithExtension();
         extensionPromise = fetchFromExtension();
 
         extensionPromise.then(() => {
@@ -88,7 +88,7 @@
     <div>isAuthorized: {$settings.isAuthorized}</div>
     {#await extensionPromise}
         <div>Loading...</div>
-    {:then result}
+    {:then}
         {#if !$settings.isAuthorized}
             <div>
                 Access Token is invalid
@@ -98,7 +98,7 @@
 
         <h3>Update Value</h3>
         <Select bind:value={envId} label="Select Menu">
-            {#each envList as env}
+            {#each envList as env (env.id)}
                 <Option value={env.id}>{env.name}</Option>
             {/each}
         </Select>

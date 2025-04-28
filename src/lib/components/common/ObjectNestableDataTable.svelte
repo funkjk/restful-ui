@@ -137,9 +137,10 @@
         }
         if (column.dataType == DataType.TIMESTAMP) {
             try {
-                ret = dayjs(ret).toISOString()
+                ret = dayjs(ret).toISOString();
             } catch (e) {
-                ret = "timestamp format error " + ret
+                console.error(e);
+                ret = "timestamp format error " + ret;
             }
         }
         return ret;
@@ -170,6 +171,7 @@
     }
     function move(header: DataTableHeader, direction: MoveDirection) {
         alert("to be implemented");
+        console.log({header, direction});
     }
     function expand(header: DataTableHeader) {
         if (!header.expanded) {
@@ -230,7 +232,7 @@
             </Button>
             <Menu bind:this={menu}>
                 <List>
-                    {#each hidedColumns as column}
+                    {#each hidedColumns as column, index (index)}
                         <Item on:SMUI:action={() => selectHidedItem(column)}>
                             {column.path.join(".")}
                         </Item>
@@ -243,9 +245,9 @@
 
 <DataTable style="width: 100%;">
     <Head>
-        {#each headers as headerRow}
+        {#each headers as headerRow, index (index)}
             <Row>
-                {#each headerRow as header}
+                {#each headerRow as header, index (index)}
                     <Cell>
                         {#if header && header.isFirstColumn}
                             {#if selectedColumns.length > 1}
@@ -258,7 +260,7 @@
                                         >menu
                                     </IconButton>
                                     <List>
-                                        {#each Object.values(MoveDirection) as direction}
+                                        {#each Object.values(MoveDirection) as direction, index (index)}
                                             <Item
                                                 on:SMUI:action={() =>
                                                     move(header, direction)}
@@ -274,7 +276,7 @@
                                             delete
                                         </Item>
                                         <Separator />
-                                        {#each Object.values(DataType) as dataType}
+                                        {#each Object.values(DataType) as dataType ,index (index)}
                                             <Item
                                                 on:SMUI:action={() =>
                                                     changeDataType(
@@ -307,9 +309,31 @@
         {/each}
     </Head>
     <Body>
-        {#each items as item}
+        {#each items as item, index (index)}
             <Row>
-                {#each selectedColumns as column}
+                {#each selectedColumns as column, index (index)}
+                    <Cell
+                        class={column.dataType
+                            ? "datacell-" + column.dataType.toLocaleLowerCase()
+                            : ""}
+                    >
+                        {#if columnView[column.propertyName]}
+                            <svelte:component
+                                this={columnView[column.propertyName]}
+                                value={getCellValue(item, column)}
+                                {item}
+                                column={column.propertyName}
+                            ></svelte:component>
+                        {:else if column.dataType == DataType.LONG_STING}
+                            <Short
+                                value={getCellValue(item, column)}
+                                length={400}
+                            ></Short>
+                        {:else}
+                            <Short value={getCellValue(item, column)}></Short>
+                        {/if}
+                    </Cell>
+                <!-- {/each} -->
                     <Cell
                         class={column.dataType
                             ? "datacell-" + column.dataType.toLocaleLowerCase()

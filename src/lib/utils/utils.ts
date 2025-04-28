@@ -1,6 +1,4 @@
 
-import { page } from '$app/stores';
-import { dev } from '$app/environment';
 import { base } from '$app/paths';
 import type SwaggerParser from '@apidevtools/swagger-parser';
 export function getTargetNestKeys(obj: any, fn: (e: any) => boolean): string[] {
@@ -8,7 +6,7 @@ export function getTargetNestKeys(obj: any, fn: (e: any) => boolean): string[] {
     return [];
   }
   let keys: string[] = [];
-  for (let prop of Object.keys(obj)) {
+  for (const prop of Object.keys(obj)) {
     if (fn(obj[prop])) {
       keys.push(prop);
     } else if (isObject(obj[prop])) {
@@ -35,7 +33,7 @@ export function unique<T>(array: T[], fn?: (e1: T, e2: T) => boolean) {
 }
 
 export function propsIn(target: string[], collection: string[][]) {
-  for (let props of collection) {
+  for (const props of collection) {
     if (props.every((prop, index) => {
       return target[index] == prop
     })) {
@@ -46,8 +44,8 @@ export function propsIn(target: string[], collection: string[][]) {
 }
 
 export function notInProperties(target: string[][], all: string[][]): string[][] {
-  let ret = []
-  for (let props of all) {
+  const ret = []
+  for (const props of all) {
     if (!propsIn(props, target)) {
       ret.push(props)
     }
@@ -81,7 +79,7 @@ export function getTargetNestKeys2(
     return [];
   }
   let keys: string[][] = [];
-  for (let prop of Object.keys(obj)) {
+  for (const prop of Object.keys(obj)) {
     if (isObject(obj[prop])) {
       if (!expandChild && isAllChildren(obj[prop], fn, [...propPaths, prop])) {
         keys.push([prop]);
@@ -154,7 +152,7 @@ export function createLink(basePath: string, page?: string, restPath?: string, r
 
 export function createRawStringSwaggerParserResolver(raw: string) {
 
-  let myResolver = {
+  const myResolver = {
     order: 1,
     canRead: /^static:/i,
     read(

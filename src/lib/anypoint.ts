@@ -1,4 +1,4 @@
-import { get, writable } from 'svelte/store';
+import { get } from 'svelte/store';
 import { settings } from "./stores/settings";
 import { loading, logMessages, notifyMessage } from "./stores/ui";
 import { EmptyRestfulPlugin, FetchPluginChain, InitializeParameterPluginChain, RequestPathPluginChain, type RestfulPlugin } from './restful/RestfulPlugin';
@@ -9,7 +9,7 @@ import { LoggingRestfulPlugin, type LogMessage } from './restful/BuiltInPlugins'
 import { persisted } from 'svelte-persisted-store';
 
 const baseUrl = "https://anypoint.mulesoft.com/"
-export async function anypointFetch(resource: string, options: any = {}, data?: any) {
+export async function anypointFetch(resource: string, options: RequestInit = {}) {
 
     const envId = get(settings).envId;
     const orgId = get(settings).orgId;
@@ -66,7 +66,7 @@ export function isExtensionEnable() {
         notifyMessage.notify("invalid extensionId")
         throw new Error("Extension id invalid")
     }
-    const prms = new Promise((resolve, reject) => {
+    const prms = new Promise((resolve) => {
 
         getChrome().runtime.sendMessage(
             get(settings).extensionId,
@@ -84,7 +84,7 @@ export function isExtensionEnable() {
 
 export async function updateTokenWithExtension() {
     isExtensionEnable();
-    const prms = new Promise((resolve, reject) => {
+    const prms = new Promise((resolve) => {
 
         getChrome().runtime.sendMessage(
             get(settings).extensionId,
@@ -186,7 +186,7 @@ export class AnypointRestfulPlugin extends EmptyRestfulPlugin {
         const value = chain.next()
         const operation = restfulOperation.getOperation()
         if (operation.parameters) {
-            for (let p of operation.parameters) {
+            for (const p of operation.parameters) {
                 const param = p as any
                 if (param.name == "X-ANYPNT-ENV-ID") {
                     value[param.name] = get(settings).envId;
@@ -198,7 +198,7 @@ export class AnypointRestfulPlugin extends EmptyRestfulPlugin {
 }
 
 export class AnypointLastRestfulPlugin extends EmptyRestfulPlugin {
-    async doFetch(restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: any, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+    async doFetch(_restfulOperation: RestfulOperation, _chain: FetchPluginChain, _inputParameters: any, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
 
         const envId = get(settings).envId;
         const orgId = get(settings).orgId;

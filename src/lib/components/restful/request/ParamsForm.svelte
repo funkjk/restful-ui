@@ -10,7 +10,7 @@
 	import Select, { Option } from "@smui/select";
 	import type { RestfulOperation } from "$lib/restful/RestfulOperation";
 	import type { CacheBodyParameter } from "$lib/restful/BuiltInPlugins";
-    import { notifyMessage } from "$lib/stores/ui";
+	import { notifyMessage } from "$lib/stores/ui";
 
 	export let currentOperation: RestfulOperation;
 	export let value = {} as any;
@@ -19,7 +19,7 @@
 	let bodyParamName = currentOperation.getBodyValueName();
 	let operation = currentOperation.getOperation();
 
-	$: params = operation.parameters as any[];
+	let params = operation.parameters as any[];
 
 	function selectHistory(event: CustomEvent) {
 		value[bodyParamName!] = event.detail;
@@ -35,7 +35,7 @@
 		if (response.ok) {
 			value[bodyParamName!] = JSON.stringify(response.responseBody);
 		} else {
-			notifyMessage.notify("Failed to get. " + response.status)
+			notifyMessage.notify("Failed to get. " + response.status);
 		}
 	}
 </script>
@@ -44,7 +44,7 @@
 <div>
 	<LayoutGrid>
 		{#if params}
-			{#each params as param}
+			{#each params as param (param.name)}
 				<Cell span={3}>
 					{#if param.in == "body"}
 						<!-- skip to render inside grid -->
@@ -71,7 +71,7 @@
 							label={param.name + (param.required ? "*" : "")}
 							bind:value={value[param.name]}
 						>
-							{#each param.enum as e}
+							{#each param.enum as e, index (index)}
 								<Option value={e}>{e}</Option>
 							{/each}
 						</Select>

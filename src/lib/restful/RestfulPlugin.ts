@@ -9,16 +9,16 @@ export interface RestfulPlugin {
 }
 
 export class EmptyRestfulPlugin {
-    doRequestPath(restfulOperation: RestfulOperation, chain: RequestPathPluginChain):string{
+    doRequestPath(_restfulOperation: RestfulOperation, chain: RequestPathPluginChain):string{
         return chain.next()
     }
-    doInitializeRestInputParameters(restfulOperation: RestfulOperation, chain: InitializeParameterPluginChain):InputRestParameters{
+    doInitializeRestInputParameters(_restfulOperation: RestfulOperation, chain: InitializeParameterPluginChain):InputRestParameters{
         return chain.next()
     }
-    doExecute(restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters): Promise<RestApiResponse> {
+    doExecute(_restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters): Promise<RestApiResponse> {
         return chain.next(inputParameters)
     }
-    doFetch(restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+    doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
         return chain.next(inputParameters, input, init)
     }
 }
@@ -26,7 +26,7 @@ export class EmptyRestfulPlugin {
 export abstract class PluginChain<T extends any[], R> {
     plugins: RestfulPlugin[]
     operation: RestfulOperation;
-    originFunction: Function;
+    originFunction: (...param: T) => R;
     index = 0;
     constructor(plugins: RestfulPlugin[], operation: RestfulOperation, originFunction: (...param: T) => R) {
         this.plugins = plugins
@@ -34,7 +34,6 @@ export abstract class PluginChain<T extends any[], R> {
         this.originFunction = originFunction;
     }
     next(...data: T): R {
-        const arg = arguments;
         if (this.plugins.length > this.index) {
             const plugin = this.plugins[this.index]
             this.index++;
@@ -46,12 +45,12 @@ export abstract class PluginChain<T extends any[], R> {
     abstract doPlugin(plugin: RestfulPlugin, data: T): any;
 }
 export class RequestPathPluginChain extends PluginChain<[], string>{
-    doPlugin(plugin: RestfulPlugin, data: any[]) {
+    doPlugin(plugin: RestfulPlugin) {
         return plugin.doRequestPath(this.operation, this)
     }
 }
 export class InitializeParameterPluginChain extends PluginChain<[], InputRestParameters> {
-    doPlugin(plugin: RestfulPlugin, data: any[]) {
+    doPlugin(plugin: RestfulPlugin) {
         return plugin.doInitializeRestInputParameters(this.operation, this)
     }
 }

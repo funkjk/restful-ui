@@ -45,7 +45,7 @@
 <h3>Base Url</h3>
 
 <h3>Request Headers</h3>
-{#each headers as header}
+{#each headers as header  (header.name)}
     <div>
         <Textfield bind:value={header.name} label="name" style="width:30%;"
         ></Textfield>

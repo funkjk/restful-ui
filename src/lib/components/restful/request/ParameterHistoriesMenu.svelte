@@ -10,7 +10,7 @@
   export let histories: CacheBodyParameter[] = [];
   export let currentOperation: RestfulOperation;
   export let value: any;
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<any>();
   let open = false;
   let onlySamePathFilter = false;
   $: pathParameters = currentOperation.getPathParameters();
@@ -46,7 +46,7 @@
           <Checkbox bind:checked={onlySamePathFilter} />
           <span slot="label"
             >Only Same Path (
-            {#each pathParameters as param}
+            {#each pathParameters as param, index (index)}
               {value[param]} &nbsp;
             {/each}
             )
@@ -57,16 +57,16 @@
     <DataTable class="history-table">
       <Head>
         <Row>
-          {#each pathParameters as param}
+          {#each pathParameters as param, index (index)}
             <Cell>{param}</Cell>
           {/each}
           <Cell>Value</Cell>
         </Row>
       </Head>
       <Body>
-        {#each filteredHistories as history, historyIndex}
+        {#each filteredHistories as history, historyIndex (historyIndex)}
           <Row on:click={() => select(historyIndex)}>
-            {#each pathParameters as param}
+            {#each pathParameters as param, index (index)}
               <Cell
                 >{history.additionalParameter
                   ? history.additionalParameter[param]

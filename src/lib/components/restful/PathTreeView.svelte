@@ -22,7 +22,7 @@
             .map((e) => e + "/")}
     >
         {#if tree && tree.targetApi}
-            {#each methods as method}
+            {#each methods as method (method)}
                 {#if tree.targetApi.api[method]}
                     <a
                         href={createLink(

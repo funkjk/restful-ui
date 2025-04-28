@@ -13,7 +13,7 @@
     let selected = options[0];
 </script>
 
-{#each options as option}
+{#each options as option (option)}
     <FormField>
         <Radio bind:group={selected} value={option} />
         <span slot="label">

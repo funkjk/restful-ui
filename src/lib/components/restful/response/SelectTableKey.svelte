@@ -6,7 +6,7 @@
     import { getTargetNestKeys, isObjectArray } from "$lib/utils/utils";
     export let response: any = null;
     export let tableKey = "";
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<any>();
 
     $: tableKeyCandidates = response
         ? getTargetNestKeys(response, isObjectArray)
@@ -37,7 +37,7 @@
                             <Text>None</Text>
                         </Item>
                         <Separator />
-                        {#each tableKeyCandidates as candidate}
+                        {#each tableKeyCandidates as candidate (candidate)}
                             <Item
                                 on:SMUI:action={() => selectTableKey(candidate)}
                             >

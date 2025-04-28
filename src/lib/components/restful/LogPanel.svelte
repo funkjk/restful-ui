@@ -9,7 +9,7 @@
 
     export let logs: Writable<LogMessage[]>;
     export let open = true;
-    $: logHeight = 150;
+    let logHeight = 150;
     let keep = false;
 
     $: if (consoleElement && $logs && !keep) {
@@ -94,8 +94,8 @@
                     <div class="no-log-message">Display log message</div>
                 {/if}
                 <table style="border-spacing: 0px;">
-                    {#each $logs as log, logIndex}
-                        {#each log.messages as message, index}
+                    {#each $logs as log, logIndex (logIndex)}
+                        {#each log.messages as message, index (index)}
                             <tr
                                 class={logIndex == selectedIndex
                                     ? "selected-row"

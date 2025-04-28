@@ -1,5 +1,5 @@
 import { persisted } from 'svelte-persisted-store'
-import { derived, writable } from 'svelte/store'
+import { derived } from 'svelte/store'
 
 export const settings = persisted('cloudhub.settings', {
     extensionId:"",

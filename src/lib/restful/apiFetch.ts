@@ -21,7 +21,7 @@ export async function doFetch(input: RequestInfo | URL, init?: RequestInit) {
         let responseBody
         let responseBodyType
         const headers: Record<string, string> = {}
-        for (let pair of response.headers.entries()) {
+        for (const pair of response.headers.entries()) {
             headers[pair[0].toLocaleLowerCase()] = pair[1]
         }
         if (headers["content-type"].includes("json")) {

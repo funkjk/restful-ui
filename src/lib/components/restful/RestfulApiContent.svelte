@@ -66,7 +66,7 @@
 	<Drawer class={drawerOpen ? "restapi-drawer-open" : "restapi-drawer-close"}>
 		<Content>
 			<div>
-				<div style="display:list-item">
+				<div style="display:list-item;">
 					<div>
 						<IconButton
 							class="material-icons"

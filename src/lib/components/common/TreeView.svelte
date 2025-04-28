@@ -39,7 +39,7 @@
         </span>
         <slot {tree} />
         {#if expanded}
-            {#each children as child}
+            {#each children as child (child.label)}
                 <svelte:self tree={child} let:tree={childTree} {selectTree} treePath={[...treePath, child.label]}>
                     <slot tree={childTree} />
                 </svelte:self>

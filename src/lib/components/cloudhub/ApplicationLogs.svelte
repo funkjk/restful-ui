@@ -36,7 +36,7 @@
             </Row>
         </Head>
         <Body>
-            {#each logItems as item}
+            {#each logItems as item, index (index)}
                 <Row>
                     <Cell
                         >{item.event.timestamp

@@ -13,7 +13,7 @@
     $: additionalParamter = currentOperation.getAdditionalParameters();
 </script>
 
-{#each operationList as operation}
+{#each operationList as operation (operation)}
     <div>
         <a
             href={createLink(

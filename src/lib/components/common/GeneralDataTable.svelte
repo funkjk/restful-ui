@@ -1,17 +1,9 @@
 <script lang="ts">
 	import ObjectNestableDataTable, {
 		getSelectableHeaderColumn,
-		type HeaderColumn,
 	} from "$lib/components/common/ObjectNestableDataTable.svelte";
-	import Button from "@smui/button";
-
-	import Menu from "@smui/menu";
-	import List, { Item } from "@smui/list";
 
 	import Textfield from "@smui/textfield";
-
-	import HelperText from "@smui/textfield/helper-text";
-
 	import { Pagination } from "@smui/data-table";
 	import Select, { Option } from "@smui/select";
 	import IconButton from "@smui/icon-button";

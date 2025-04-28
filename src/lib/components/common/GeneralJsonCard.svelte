@@ -7,10 +7,8 @@
 </script>
 
 <script lang="ts">
-    import { Icon } from "@smui/common";
-
   import ExpansionPanel from "./ExpansionPanel.svelte";
-    import IconButton from "@smui/icon-button";
+  import IconButton from "@smui/icon-button";
 
   export let data: any = null;
   export let title: string = "";
@@ -25,14 +23,13 @@
   $: titleClass = titleClassMap[type];
 
   function copy() {
-        let text = JSON.stringify(data, null, "\t");
-        navigator.clipboard.writeText(text);
-    }
-
+    let text = JSON.stringify(data, null, "\t");
+    navigator.clipboard.writeText(text);
+  }
 </script>
 
 {#if data}
-  <div class ="expansion-panel">
+  <div class="expansion-panel">
     <ExpansionPanel {title} {open} {titleClass}>
       <div style="position:absolute;width:100%;left:-30px;top:100px;">
         <div style="display:flex; justify-content: flex-end;">

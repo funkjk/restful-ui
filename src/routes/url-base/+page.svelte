@@ -1,17 +1,10 @@
 <script lang="ts">
-    import RestfulApi from "$lib/components/restful/RestfulApi.svelte";
     import Textfield from "@smui/textfield";
-    import { createDefaultConfig } from "$lib/anypoint";
     import Card, {
         Content,
-        PrimaryAction,
         Actions,
-        ActionButtons,
-        ActionIcons,
     } from "@smui/card";
     import Button, { Label } from "@smui/button";
-    import IconButton, { Icon } from "@smui/icon-button";
-    import { writable } from "svelte/store";
     import { persisted } from "svelte-persisted-store";
     import UrlBasedRestfulApi from "$lib/components/restful/UrlBasedRestfulApi.svelte";
     let url = persisted("base-url", "", {storage: "session"});

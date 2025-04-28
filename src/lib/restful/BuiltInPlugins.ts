@@ -30,10 +30,10 @@ export enum CACHE_TYPE {
 
 export function getCacheKey(keyType: CACHE_TYPE, restfulOperation: RestfulOperation, inputParameters?: InputRestParameters) {
     if (keyType == CACHE_TYPE.GET_RESPONSE) {
-        let key = restfulOperation.getRequestPath(inputParameters!)
+        const key = restfulOperation.getRequestPath(inputParameters!)
         return key;
     } else if (keyType == CACHE_TYPE.BODY_PARAMETER) {
-        let key = `${restfulOperation.method}:${restfulOperation.path}}`;
+        const key = `${restfulOperation.method}:${restfulOperation.path}}`;
         return key;
     }
     return ""
@@ -60,7 +60,7 @@ export class CachedRestfulPlugin extends EmptyRestfulPlugin {
         if (restfulOperation.getBodyValueName()) {
             const bodyValue = inputParameters[restfulOperation.getBodyValueName()!]
             const pathParameters = restfulOperation.getPathParameters()
-            let additionalParameter = pathParameters.reduce((obj,param)=> {
+            const additionalParameter = pathParameters.reduce((obj,param)=> {
                 obj[param] = inputParameters[param]
                 return obj
             }, {} as any)
@@ -81,9 +81,9 @@ export class CachedRestfulPlugin extends EmptyRestfulPlugin {
 }
 
 export enum LOG_TYPE {
-    REQUEST = "",
-    RESPONSE = "",
-    OTHER = "",
+    REQUEST = "REQUEST",
+    RESPONSE = "RESPONSE",
+    OTHER = "OTHER",
 }
 
 export class LogMessage {
@@ -99,21 +99,21 @@ export class LogMessage {
 // TODO switch log headers
 export class RequestLogMessage extends LogMessage {
     constructor(restfulOperation: RestfulOperation, inputParameters:InputRestParameters, init: RequestInit){
-        let firstLine = `REQUEST: ${restfulOperation.method.toUpperCase()} ${restfulOperation.getRequestPath(inputParameters)}`
-        // let headers = init.headers? JSON.stringify(init.headers) : undefined
-        let headers = undefined
-        let body = init.body? JSON.stringify(init.body) : undefined
-        let message = [firstLine, headers, body].filter(e => e)
+        const firstLine = `REQUEST: ${restfulOperation.method.toUpperCase()} ${restfulOperation.getRequestPath(inputParameters)}`
+        // const headers = init.headers? JSON.stringify(init.headers) : undefined
+        const headers = undefined
+        const body = init.body? JSON.stringify(init.body) : undefined
+        const message = [firstLine, headers, body].filter(e => e)
         super(message, LOG_TYPE.REQUEST)
     }
 }
 export class ResponseLogMessage extends LogMessage {
     constructor(restfulOperation: RestfulOperation, inputParameters:InputRestParameters, init: RequestInit, response:RestApiResponse){
-        let firstLine = `RESPONSE: ${restfulOperation.method.toUpperCase()} ${restfulOperation.getRequestPath(inputParameters)} => ${response.status ?? 'FAILED'}`
-        // let headers = init.headers? JSON.stringify(response.headers) : undefined
-        let headers = undefined
-        let body = response.responseBody? JSON.stringify(response.responseBody) : undefined
-        let message = [firstLine, headers, body].filter(e => e)
+        const firstLine = `RESPONSE: ${restfulOperation.method.toUpperCase()} ${restfulOperation.getRequestPath(inputParameters)} => ${response.status ?? 'FAILED'}`
+        // const headers = init.headers? JSON.stringify(response.headers) : undefined
+        const headers = undefined
+        const body = response.responseBody? JSON.stringify(response.responseBody) : undefined
+        const message = [firstLine, headers, body].filter(e => e)
         super(message, LOG_TYPE.RESPONSE)
     }
 }

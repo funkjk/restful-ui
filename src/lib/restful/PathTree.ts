@@ -19,10 +19,10 @@ export class PathTree {
             label: "/",
             children: [],
         } as PathTreeObject;
-        for (let p in doc!.paths) {
-            let splitedPath = p.slice(1).split("/");
+        for (const p in doc!.paths) {
+            const splitedPath = p.slice(1).split("/");
             let currentPath = tree;
-            for (let sp of splitedPath) {
+            for (const sp of splitedPath) {
                 const label = sp + "/";
                 if (
                     currentPath.children.filter((e) => e.label == label).length == 0
@@ -43,7 +43,7 @@ export class PathTree {
         const pathTreeValue = this.pathTree
 
         let targetPathTree = pathTreeValue
-        for (let p of path.split("/")) {
+        for (const p of path.split("/")) {
             if (p == "") {
                 continue
             }
