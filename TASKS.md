@@ -23,6 +23,7 @@
  - disable caching request
  - hold datetime with caching reqesut
  - enable paging with pagable API
+ - proxy for execute api
 
 
 
@@ -47,6 +48,7 @@
  - create setting page to edit local strorage
  - use servers url and replace variables
  - support openapiv2 and v3
+ - proxy for get oas file
 
 
 ## Extension

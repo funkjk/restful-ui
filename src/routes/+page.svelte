@@ -1,19 +1,20 @@
-
 <script lang="ts">
-    import RestfulApi from "$lib/components/restful/RestfulApi.svelte";
     import Textfield from "@smui/textfield";
-    import { createDefaultConfig } from "$lib/anypoint";
-    import Card, {
-        Content,
-        PrimaryAction,
-        Actions,
-    } from "@smui/card";
+    import Card, { Content, Actions } from "@smui/card";
     import Button, { Label } from "@smui/button";
     import { persisted } from "svelte-persisted-store";
     import UrlBasedRestfulApi from "$lib/components/restful/UrlBasedRestfulApi.svelte";
-    let url = persisted("base-url", "", {storage: "session"});
+    import Checkbox from "@smui/checkbox";
+    let url = persisted("base-url", "", { storage: "session" });
     let editingUrl: string =
         "https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions/ghes-3.9/ghes-3.9.2022-11-28.json";
+    let useProxy: boolean = false;
+    function toProxyUrl(urlstring: string) {
+        // TODO implement proxy to sevral patterns
+        // TODO dont use localhost
+        const url = new URL(urlstring);
+        return (`http://localhost:4210/api/proxy/${url.protocol}/${url.hostname}/${url.port}${url.pathname}`);
+    }
 </script>
 
 {#if $url}
@@ -22,7 +23,7 @@
             {$url}
         </Content>
         <Actions>
-            <Button on:click={() => (url.set(""))}>
+            <Button on:click={() => url.set("")}>
                 <Label>clear</Label>
             </Button>
         </Actions>
@@ -37,9 +38,14 @@
                 style="width: 100%;"
                 label="Open API URL"
             ></Textfield>
+            <Checkbox bind:checked={useProxy}></Checkbox>
+            Use Proxy
         </Content>
         <Actions>
-            <Button on:click={() => (url.set(editingUrl))}>
+            <Button
+                on:click={() =>
+                    url.set(useProxy ? toProxyUrl(editingUrl) : editingUrl)}
+            >
                 <Label>set</Label>
             </Button>
         </Actions>
