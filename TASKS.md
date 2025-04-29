@@ -6,6 +6,8 @@
  - refactoring utils.ts
  - SearchParameter
  - Table selectedColumns
+ - url-base
+ - remove anypoint feature
 
 # Bug
 
@@ -24,6 +26,9 @@
  - hold datetime with caching reqesut
  - enable paging with pagable API
  - proxy for execute api
+ - tag filter
+ - deprecated api
+ - oauth
 
 
 
