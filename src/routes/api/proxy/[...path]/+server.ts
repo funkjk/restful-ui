@@ -3,12 +3,7 @@ export async function GET(parameters: RequestEvent) {
 	const path = parameters.params.path!;
 	const paths = path.split("/")
 	console.log("path", path);
-	let url;
-	if (paths[2]) {
-		url = `${paths[0]}//${paths[1]}:${paths[2]}/${paths.slice(3).join("/")}`;
-	} else {
-		url = `${paths[0]}//${paths[1]}/${paths.slice(3).join("/")}`;
-	}
+	const url = `${paths[0]}//${paths[1]}/${paths.slice(2).join("/")}`;
 	return doReuqest(url!, "GET", {});
 }
 export async function POST(requestEvent: RequestEvent) {

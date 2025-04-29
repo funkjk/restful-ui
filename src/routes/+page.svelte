@@ -14,9 +14,12 @@
         // TODO implement proxy to sevral patterns
         // TODO dont use localhost
         const baseUrl = $page.url.origin + $page.url.pathname
-        console.log("baseUrl", baseUrl);
         const url = new URL(urlstring);
-        return (`${baseUrl}api/proxy/${url.protocol}/${url.hostname}/${url.port}/${url.pathname}`);
+        if (url.port) {
+            return (`${baseUrl}api/proxy/${url.protocol}/${url.hostname}:${url.port}${url.pathname}`);
+        } else {
+            return (`${baseUrl}api/proxy/${url.protocol}/${url.hostname}${url.pathname}`);
+        }
     }
 </script>
 
