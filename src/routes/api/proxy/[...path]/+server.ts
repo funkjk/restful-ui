@@ -2,7 +2,6 @@ import type { RequestEvent } from '@sveltejs/kit';
 export async function GET(parameters: RequestEvent) {
 	const path = parameters.params.path!;
 	const paths = path.split("/")
-	console.log("path", path);
 	const url = `${paths[0]}//${paths[1]}/${paths.slice(2).join("/")}`;
 	return doReuqest(url!, "GET", {});
 }
