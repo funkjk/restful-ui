@@ -7,9 +7,10 @@
 	import { type RestfulComponentConfig } from "$lib/restful/SvelteSupport";
 	import { createRawStringSwaggerParserResolver } from "$lib/utils/utils";
 	export let config: RestfulComponentConfig;
+	const InitializeStatusDone = "DONE"
 
 	let document: OpenAPI.Document;
-	let initialized = false;
+	let initializeMessage:string = "initializing";
 	let searchParams = new URLSearchParams();
 	$: {
 		const href = $page.url.href;
@@ -38,15 +39,20 @@
 			});
 			document = doc;
 		}
-		initialized = true;
+		initializeMessage = InitializeStatusDone;
 	}
 	onMount(async () => {
-		await initialize();
+		try {
+			await initialize();
+		} catch (e) {
+			initializeMessage = "" + e
+			console.warn(e);
+		}
 	});
 </script>
 
-{#if !initialized}
-initializing
+{#if initializeMessage !== InitializeStatusDone}
+	{initializeMessage}
 {:else}
 	<RestfulApiContent {document} {config} {searchParams}></RestfulApiContent>
 {/if}

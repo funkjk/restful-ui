@@ -7,6 +7,9 @@ const config = {
 	// for more information about preprocessors
 	preprocess: vitePreprocess(),
 	kit: {
+		// paths: {
+		// 	base: process.env.NODE_ENV === 'production' ? '/my-app/' : '/my-test',
+		// },
 		adapter: adapter({
 			pages: 'build',
 			fallback: 'index.html' // may differ from host to host

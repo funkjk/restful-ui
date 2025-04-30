@@ -1,26 +1,25 @@
 <script lang="ts">
     import Textfield from "@smui/textfield";
-    import Card, {
-        Content,
-        Actions,
-    } from "@smui/card";
+    import Card, { Content, Actions } from "@smui/card";
     import Button, { Label } from "@smui/button";
     import { persisted } from "svelte-persisted-store";
     import UrlBasedRestfulApi from "$lib/components/restful/UrlBasedRestfulApi.svelte";
-    let url = persisted("base-url", "", {storage: "session"});
+    import Checkbox from "@smui/checkbox";
+    import { createProxyUrl } from "$lib/utils/proxy";
+    let url = persisted("base-url", "", { storage: "session" });
     let editingUrl: string =
         "https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions/ghes-3.9/ghes-3.9.2022-11-28.json";
-    // let editingUrl: string =
-    //     "http://localhost:4210/DAPI_swagger_messages_V2.yaml";
+    let useProxy: boolean = false;
 </script>
+
 
 {#if $url}
     <Card>
         <Content>
-            {$url}
+            <a href={$url} target="_blank">{$url}</a>
         </Content>
         <Actions>
-            <Button on:click={() => (url.set(""))}>
+            <Button on:click={() => url.set("")}>
                 <Label>clear</Label>
             </Button>
         </Actions>
@@ -35,9 +34,14 @@
                 style="width: 100%;"
                 label="Open API URL"
             ></Textfield>
+            <Checkbox bind:checked={useProxy}></Checkbox>
+            Use Proxy
         </Content>
         <Actions>
-            <Button on:click={() => (url.set(editingUrl))}>
+            <Button
+                on:click={() =>
+                    url.set(useProxy ? createProxyUrl(editingUrl) : editingUrl)}
+            >
                 <Label>set</Label>
             </Button>
         </Actions>
