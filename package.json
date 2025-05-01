@@ -6,7 +6,7 @@
 		"smui-theme-light": "smui-theme compile static/smui.css -i src/theme -i ./node_modules",
 		"smui-theme-dark": "smui-theme compile static/smui-dark.css -i src/theme/dark -i ./node_modules",
 		"dev": "vite dev  --port 4210",
-		"lint": "lint",
+		"lint": "eslint",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

@@ -15,7 +15,7 @@ const config = {
 			fallback: 'index.html' // may differ from host to host
 		}),
 		prerender: {
-			handleHttpError: ({ path, referrer, message }) => {
+			handleHttpError: () => {
 				// ignore
 				return;
 			}

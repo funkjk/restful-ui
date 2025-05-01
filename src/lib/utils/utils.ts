@@ -1,6 +1,5 @@
 
 import { base } from '$app/paths';
-import type SwaggerParser from '@apidevtools/swagger-parser';
 export function getTargetNestKeys(obj: any, fn: (e: any) => boolean): string[] {
   if (!obj || !isObject(obj)) {
     return [];
@@ -155,10 +154,7 @@ export function createRawStringSwaggerParserResolver(raw: string) {
   const myResolver = {
     order: 1,
     canRead: /^static:/i,
-    read(
-      file: SwaggerParser.FileInfo,
-      callback?: (error: Error | null, data: string | null) => any,
-    ): string {
+    read(): string {
       return raw;
     },
   };

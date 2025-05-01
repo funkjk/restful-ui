@@ -1,9 +1,4 @@
 <script>
-	import { page } from '$app/stores';
-    import { base } from '$app/paths';
-	import { dev } from '$app/environment';
-    import { createLink } from '$lib/utils/utils';
-	let openDialog = false;
 </script>
 
 <header>
@@ -13,21 +8,6 @@
 	header {
 		display: flex;
 		justify-content: space-between;
-	}
-
-
-	.corner a {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-	}
-
-	.corner img {
-		width: 2em;
-		height: 2em;
-		object-fit: contain;
 	}
 
 	nav {
