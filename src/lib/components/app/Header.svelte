@@ -1,50 +1,12 @@
 <script>
 	import { page } from '$app/stores';
     import { base } from '$app/paths';
-	import AccessTokenExtension from '../cloudhub/AccessTokenExtension.svelte';
 	import { dev } from '$app/environment';
     import { createLink } from '$lib/utils/utils';
 	let openDialog = false;
 </script>
 
 <header>
-	{#if dev }
-	<div class="corner">
-	</div>
-
-	<nav>
-		<svg viewBox="0 0 2 3" aria-hidden="true">
-			<path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z" />
-		</svg>
-		<ul>
-			<li aria-current={$page.url.pathname === createLink('/') ? 'page' : undefined}>
-				<a href="{createLink('/')}">Home</a>
-			</li>
-			<li aria-current={$page.url.pathname.startsWith(base+'/cloudhub-api') ? 'page' : undefined}>
-				<a href="{createLink('/cloudhub-api')}">cloudhub-api</a>
-			</li>
-			<li aria-current={$page.url.pathname.startsWith(base+'/api-manager-api') ? 'page' : undefined}>
-				<a href="{createLink('/api-manager-api')}">api-manager-api</a>
-			</li>
-			<li aria-current={$page.url.pathname.startsWith(base+'/api-platform-api') ? 'page' : undefined}>
-				<a href="{createLink('/api-platform-api')}">api-platform-api</a>
-			</li>
-			<!-- <li aria-current={$page.url.pathname.startsWith('/applications') ? 'page' : undefined}>
-				<a href="/applications">applications</a>
-			</li> -->
-			<li aria-current={$page.url.pathname === '/settings' ? 'page' : undefined}>
-				<a href="#" on:click={()=> openDialog=true}>settings</a>
-			</li>
-		</ul>
-		<svg viewBox="0 0 2 3" aria-hidden="true">
-			<path d="M0,0 L0,3 C0.5,3 0.5,3 1,2 L2,0 Z" />
-		</svg>
-	</nav>
-
-	<div class="corner">
-		<AccessTokenExtension {openDialog}/>
-	</div>
-	{/if}
 </header>
 
 <style>

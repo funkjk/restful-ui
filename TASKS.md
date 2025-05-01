@@ -7,7 +7,6 @@
  - SearchParameter
  - Table selectedColumns
  - url-base
- - remove anypoint feature
 
 # Bug
 
@@ -29,6 +28,8 @@
  - tag filter
  - deprecated api
  - oauth
+ - oas file upload
+ - oas file editor
 
 
 
@@ -54,6 +55,7 @@
  - use servers url and replace variables
  - support openapiv2 and v3
  - proxy for get oas file
+ - remove anypoint feature
 
 
 ## Extension
