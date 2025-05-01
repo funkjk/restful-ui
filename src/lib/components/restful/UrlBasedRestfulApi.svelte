@@ -62,12 +62,6 @@
             chain: RequestPathPluginChain,
         ): string => {
             let initialValue = chain.next();
-            initialValue = initialValue.replaceAll("{protocol}", "https");
-            initialValue = initialValue.replaceAll(
-                "{hostname}",
-                "api.github.com",
-            );
-            initialValue = initialValue.replaceAll("/api/v3", "");
             return initialValue;
         };
         config = {
