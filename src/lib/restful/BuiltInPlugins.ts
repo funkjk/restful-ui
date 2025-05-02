@@ -1,7 +1,7 @@
 import { getBaseUrl } from "$lib/utils/proxy";
 import type { RestApiResponse } from "./apiFetch";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
-import { EmptyRestfulPlugin, FetchPluginChain } from "./RestfulPlugin";
+import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain } from "./RestfulPlugin";
 import type { RequestSetting } from "./SvelteSupport";
 
 
@@ -49,8 +49,7 @@ export class CachedRestfulPlugin extends EmptyRestfulPlugin {
     }
     cacheStore: CacheStore;
 
-    async doFetch(restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit) {
-
+    async doExecute(restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit) {
         const response = await chain.next(inputParameters, input, init)
         if (response.ok) {
             await this.storeBodyParameter(restfulOperation, inputParameters)
@@ -101,7 +100,7 @@ export class LogMessage {
 // TODO switch log headers
 export class RequestLogMessage extends LogMessage {
     constructor(restfulOperation: RestfulOperation, inputParameters:InputRestParameters, init: RequestInit){
-        const firstLine = `REQUEST: ${restfulOperation.method.toUpperCase()} ${restfulOperation.getRequestPath(inputParameters)}`
+        const firstLine = `REQUEST: ${restfulOperation.method!.toUpperCase()} ${restfulOperation.getRequestPath(inputParameters)}`
         // const headers = init.headers? JSON.stringify(init.headers) : undefined
         const headers = undefined
         const body = init.body? JSON.stringify(init.body) : undefined
@@ -111,7 +110,7 @@ export class RequestLogMessage extends LogMessage {
 }
 export class ResponseLogMessage extends LogMessage {
     constructor(restfulOperation: RestfulOperation, inputParameters:InputRestParameters, init: RequestInit, response:RestApiResponse){
-        const firstLine = `RESPONSE: ${restfulOperation.method.toUpperCase()} ${restfulOperation.getRequestPath(inputParameters)} => ${response.status ?? 'FAILED'}`
+        const firstLine = `RESPONSE: ${restfulOperation.method!.toUpperCase()} ${restfulOperation.getRequestPath(inputParameters)} => ${response.status ?? 'FAILED'}`
         // const headers = init.headers? JSON.stringify(response.headers) : undefined
         const headers = undefined
         const body = response.responseBody? JSON.stringify(response.responseBody) : undefined
@@ -131,7 +130,7 @@ export class LoggingRestfulPlugin extends EmptyRestfulPlugin {
     }
     logger: MessageLogger;
 
-    async doFetch(restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit) {
+    async doExecute(restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit) {
         const requestMessage = this.createRequestMessage(restfulOperation, inputParameters, input, init)
         this.logger.log(requestMessage)
         const response = await chain.next(inputParameters, input, init)
@@ -160,18 +159,20 @@ export class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
         super()
         this.reqestSetting = requestSetting
     }
-    async doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+    async doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         if (this.reqestSetting.useProxy) {
             return this.requestUsingProxy();
         } else {
-            const response = await chain.next(inputParameters, input, init)
-            return response
+            return await chain.next(inputParameters, input, init)
         }
     }
-    async requestUsingProxy() : Promise<RestApiResponse>{
+    async requestUsingProxy() : Promise<Response>{
         const url = getBaseUrl() + "/api/proxy"
+        const requestBody = {
+            
+        }
         fetch("")
-        return {} as RestApiResponse
+        return {} as Response
     }
     getProxyUrl() : string{
         return getBaseUrl() +  "/api/proxy";

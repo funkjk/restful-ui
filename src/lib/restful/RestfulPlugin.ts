@@ -4,8 +4,8 @@ import type { InputRestParameters, RestfulOperation } from "./RestfulOperation"
 export interface RestfulPlugin {
     doRequestPath(restfulOperation: RestfulOperation, chain: RequestPathPluginChain):string
     doInitializeRestInputParameters(restfulOperation: RestfulOperation, chain: InitializeParameterPluginChain):InputRestParameters
-    doExecute(restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters): Promise<RestApiResponse>
-    doFetch(restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse>
+    doExecute(restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse>
+    doFetch(restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response>
 }
 
 export class EmptyRestfulPlugin {
@@ -15,10 +15,10 @@ export class EmptyRestfulPlugin {
     doInitializeRestInputParameters(_restfulOperation: RestfulOperation, chain: InitializeParameterPluginChain):InputRestParameters{
         return chain.next()
     }
-    doExecute(_restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters): Promise<RestApiResponse> {
-        return chain.next(inputParameters)
+    doExecute(_restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+        return chain.next(inputParameters, input, init)
     }
-    doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+    doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         return chain.next(inputParameters, input, init)
     }
 }
@@ -54,12 +54,12 @@ export class InitializeParameterPluginChain extends PluginChain<[], InputRestPar
         return plugin.doInitializeRestInputParameters(this.operation, this)
     }
 }
-export class ExecutePluginChain extends PluginChain<[InputRestParameters], Promise<RestApiResponse>> {
+export class ExecutePluginChain extends PluginChain<[InputRestParameters, RequestInfo | URL, RequestInit?], Promise<RestApiResponse>> {
     async doPlugin(plugin: RestfulPlugin, data: any[]) {
-        return await plugin.doExecute(this.operation, this, data[0])
+        return await plugin.doExecute(this.operation, this, data[0], data[1], data[2])
     }
 }
-export class FetchPluginChain extends PluginChain<[InputRestParameters, RequestInfo | URL, RequestInit?], Promise<RestApiResponse>> {
+export class FetchPluginChain extends PluginChain<[InputRestParameters, RequestInfo | URL, RequestInit?], Promise<Response>> {
     async doPlugin(plugin: RestfulPlugin, data: any[]) {
         return await plugin.doFetch(this.operation, this, data[0], data[1], data[2])
     }

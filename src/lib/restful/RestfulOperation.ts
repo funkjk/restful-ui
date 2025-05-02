@@ -187,37 +187,37 @@ export abstract class RestfulOperation {
         return returnOperations
     }
     async execute(inputParameters: InputRestParameters): Promise<RestApiResponse> {
-        return await new ExecutePluginChain(this.plugins, this, async (inputParameters: InputRestParameters) => {
-            let bodyValue = undefined;
-            const requestPath = this.getRequestPath(inputParameters)
-            const bodyParamName = this.getBodyValueName()
-            if (bodyParamName) {
-                bodyValue = inputParameters[bodyParamName]
-            }
-            const response = await this.doFetch(inputParameters, requestPath, {
-                method: this.method!.toUpperCase(),
-                body: bodyValue ? JSON.parse(bodyValue) : undefined,
-            })
-            // TODO doFetch catch error and return
+        let bodyValue = undefined;
+        const requestPath = this.getRequestPath(inputParameters)
+        const bodyParamName = this.getBodyValueName()
+        if (bodyParamName) {
+            bodyValue = inputParameters[bodyParamName]
+        }
+        const input = requestPath
+        const init = {
+            method: this.method!.toUpperCase(),
+            body: bodyValue ? JSON.parse(bodyValue) : undefined,
+        }
+        return await new ExecutePluginChain(this.plugins, this, async (inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit) => {
+            const response = await this.doFetch(inputParameters, input, init)
             return response
-        }).next(inputParameters)
+        }).next(inputParameters, input, init);
     }
     async doFetch(inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
-        return await new FetchPluginChain(this.plugins, this, async (inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit) => {
-            try {
-                const response = await fetch(
-                    input,
-                    init
-                );
-                return parseToApiResponse(response)
-            } catch (e) {
-                return {
-                    ok: false,
-                    url: input as string,
-                    error: e
-                }
+        const fetchChaing = new FetchPluginChain(this.plugins, this, async (_inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit) => {
+            return await fetch(input, init);
+        })
+        try {
+            const response = await fetchChaing.next(inputParameters, input, init);
+            return parseToApiResponse(response)
+        } catch (e) {
+            return {
+                ok: false,
+                url: input as string,
+                error: e
             }
-        }).next(inputParameters, input, init);
+        }
+
     }
 }
 
