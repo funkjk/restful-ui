@@ -11,7 +11,6 @@
     import {
         LoggingRestfulPlugin,
         LogMessage,
-        UseRestfulUIProxyPlugin,
     } from "$lib/restful/BuiltInPlugins";
     import { loading, logMessages } from "$lib/stores/ui";
     import RestfulApi from "./RestfulApi.svelte";

@@ -2,7 +2,6 @@ import { getBaseUrl } from "$lib/utils/proxy";
 import type { RestApiResponse } from "./apiFetch";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain } from "./RestfulPlugin";
-import type { RequestSetting } from "./SvelteSupport";
 
 
 // using any for Promise or reactive objecect

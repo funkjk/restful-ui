@@ -2,7 +2,6 @@ import { get, type Writable } from "svelte/store";
 import { CACHE_TYPE, compareBodyParameter, UseRestfulUIProxyPlugin, type CacheBody, type CacheBodyParameter, type CacheStore } from "./BuiltInPlugins";
 import { EmptyRestfulPlugin, FetchPluginChain, RequestPathPluginChain, type RestfulPlugin } from "./RestfulPlugin";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
-import type { RestApiResponse } from "./apiFetch";
 
 function uniqueArray<T>(arr: T[], fn: (a1: T, a2: T) => boolean) {
     return arr.filter(
@@ -93,7 +92,7 @@ export class SetLoadingPlugin extends EmptyRestfulPlugin {
         this.loading = loading
     }
     loading: Writable<boolean>;
-    async doFetch(restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+    async doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         try {
             this.loading.set(true)
             const response = await chain.next(inputParameters, input, init)
