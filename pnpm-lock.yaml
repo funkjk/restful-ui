@@ -17,6 +17,9 @@ importers:
       '@material/checkbox':
         specifier: ^14.0.0
         version: 14.0.0
+      '@material/chips':
+        specifier: ^14.0.0
+        version: 14.0.0
       '@material/circular-progress':
         specifier: ^14.0.0
         version: 14.0.0

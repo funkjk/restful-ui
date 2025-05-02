@@ -62,6 +62,7 @@
 		"@apidevtools/swagger-parser": "^10.1.0",
 		"@beyonk/svelte-datepicker": "^13.0.4",
 		"@material/checkbox": "^14.0.0",
+		"@material/chips": "^14.0.0",
 		"@material/circular-progress": "^14.0.0",
 		"@material/data-table": "^14.0.0",
 		"@material/drawer": "^14.0.0",
