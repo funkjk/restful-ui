@@ -158,14 +158,21 @@ export class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
         return this.requestUsingProxy(input, init);
     }
     async requestUsingProxy(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-        const proxyRequestbody: ProxyRequestBody = {
+        const proxyRequestbody: ProxyRequestBody = this.createRequest(input, init);
+        const proxyResponse = await this.doProxyRequest(proxyRequestbody)
+        const responseData = JSON.parse(await proxyResponse.text())
+        const response = this.createResponse(responseData)
+        return response
+    }
+    createRequest(input: RequestInfo | URL, init?: RequestInit): ProxyRequestBody {
+        return {
             url: input.toString(),
             method: init?.method,
             headers: init?.headers,
             body: init?.body
         }
-        const proxyResponse = await this.doProxyRequest(proxyRequestbody)
-        const responseData = JSON.parse(await proxyResponse.text())
+    }
+    createResponse(responseData: ProxyResponseBody): Response {
         const headers = new Headers()
         for (const [name, value] of Object.entries(responseData.headers)) {
             headers.append(name, value as string)
@@ -175,7 +182,7 @@ export class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
             status: responseData.status,
             headers: headers,
             redirected: false,
-            statusText: "status:"+responseData.status,
+            statusText: "status:" + responseData.status,
             type: "default",
             url: "",
             body: null,
@@ -217,4 +224,9 @@ export interface ProxyRequestBody {
     method?: string,
     headers?: HeadersInit,
     body?: BodyInit | null
+}
+export interface ProxyResponseBody {
+    headers: { [s: string]: unknown; } | ArrayLike<unknown>;
+    status: number;
+    responseBody: string
 }
