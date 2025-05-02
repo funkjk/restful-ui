@@ -1,6 +1,6 @@
 import { OpenAPIV3, type OpenAPIV2, type OpenAPI } from "openapi-types";
 import { ExecutePluginChain, FetchPluginChain, InitializeParameterPluginChain, RequestPathPluginChain, type RestfulPlugin } from "./RestfulPlugin";
-import { doFetch, type RestApiResponse } from "./apiFetch";
+import { parseToApiResponse, type RestApiResponse } from "./apiFetch";
 
 
 export type InputRestParameters = Record<string, any>
@@ -40,7 +40,7 @@ export abstract class RestfulOperation {
             }
         }
     }
-    abstract getOperation():OpenAPI.Operation;
+    abstract getOperation(): OpenAPI.Operation;
     getPathItem() {
         return this.document.paths![this.path]
     }
@@ -204,7 +204,19 @@ export abstract class RestfulOperation {
     }
     async doFetch(inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
         return await new FetchPluginChain(this.plugins, this, async (inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit) => {
-            return await doFetch(input, init)
+            try {
+                const response = await fetch(
+                    input,
+                    init
+                );
+                return parseToApiResponse(response)
+            } catch (e) {
+                return {
+                    ok: false,
+                    url: input as string,
+                    error: e
+                }
+            }
         }).next(inputParameters, input, init);
     }
 }

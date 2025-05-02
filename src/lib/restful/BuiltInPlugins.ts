@@ -1,6 +1,8 @@
+import { getBaseUrl } from "$lib/utils/proxy";
 import type { RestApiResponse } from "./apiFetch";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import { EmptyRestfulPlugin, FetchPluginChain } from "./RestfulPlugin";
+import type { RequestSetting } from "./SvelteSupport";
 
 
 // using any for Promise or reactive objecect
@@ -150,4 +152,32 @@ export class LoggingRestfulPlugin extends EmptyRestfulPlugin {
 
 export class SetHeaderPlugin extends EmptyRestfulPlugin {
     
+}
+
+export class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
+    reqestSetting:RequestSetting
+    constructor(requestSetting:RequestSetting) {
+        super()
+        this.reqestSetting = requestSetting
+    }
+    async doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+        if (this.reqestSetting.useProxy) {
+            return this.requestUsingProxy();
+        } else {
+            const response = await chain.next(inputParameters, input, init)
+            return response
+        }
+    }
+    async requestUsingProxy() : Promise<RestApiResponse>{
+        const url = getBaseUrl() + "/api/proxy"
+        fetch("")
+        return {} as RestApiResponse
+    }
+    getProxyUrl() : string{
+        return getBaseUrl() +  "/api/proxy";
+    }
+    async doProxyRequest(init:RequestInit) : Promise<Response> {
+        const response = await fetch(this.getProxyUrl(), init)
+        return response
+    }
 }

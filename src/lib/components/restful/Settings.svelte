@@ -7,8 +7,8 @@
     export let config: RestfulComponentConfig;
 
     let options = [
-        { name: "Storage", value: Storage },
         { name: "Request", value: Request },
+        { name: "Storage", value: Storage },
     ];
     let selected = options[0];
 </script>

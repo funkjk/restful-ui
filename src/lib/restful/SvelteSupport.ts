@@ -47,7 +47,8 @@ export class SvelteCacheStore implements CacheStore {
 export interface RequestSetting {
     headers: any,
     additionalQueryParameter?: string,
-    basePath?: string
+    basePath?: string,
+    useProxy: boolean,
 }
 
 export class SetRequestPlugin extends EmptyRestfulPlugin {
