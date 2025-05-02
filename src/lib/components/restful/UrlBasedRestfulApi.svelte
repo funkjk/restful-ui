@@ -3,21 +3,20 @@
         DefaultDisplaySupport,
         SetLoadingPlugin,
         SetRequestPlugin,
+        SvelteRestfulProxy,
+        type RequestSetting,
         type RestfulComponentConfig,
     } from "$lib/restful/SvelteSupport";
-    import {
-        EmptyRestfulPlugin,
-        RequestPathPluginChain,
-        type RestfulPlugin,
-    } from "$lib/restful/RestfulPlugin";
+    import { type RestfulPlugin } from "$lib/restful/RestfulPlugin";
     import {
         LoggingRestfulPlugin,
         LogMessage,
+        UseRestfulUIProxyPlugin,
     } from "$lib/restful/BuiltInPlugins";
     import { loading, logMessages } from "$lib/stores/ui";
     import RestfulApi from "./RestfulApi.svelte";
     import { persisted } from "svelte-persisted-store";
-    import type { RestfulOperation } from "$lib/restful/RestfulOperation";
+    import { get } from "svelte/store";
     export let url: string;
     let config: RestfulComponentConfig;
 
@@ -53,17 +52,9 @@
         );
         const requestSetting = persisted(
             storageKey + "-request-setting",
-            {} as any,
+            {} as RequestSetting,
             { storage: "session" },
         );
-        const gitHubPlugin = new EmptyRestfulPlugin();
-        gitHubPlugin.doRequestPath = (
-            restfulOperation: RestfulOperation,
-            chain: RequestPathPluginChain,
-        ): string => {
-            let initialValue = chain.next();
-            return initialValue;
-        };
         config = {
             documentUrl: url,
             storage: {
@@ -78,7 +69,7 @@
                 new LoggingRestfulPlugin(messageLogger),
                 new SetLoadingPlugin(loading),
                 new SetRequestPlugin(requestSetting),
-                gitHubPlugin,
+                new SvelteRestfulProxy(requestSetting),
             ] as RestfulPlugin[],
             displaySupport: DefaultDisplaySupport,
         };

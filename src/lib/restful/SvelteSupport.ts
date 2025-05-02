@@ -1,5 +1,5 @@
 import { get, type Writable } from "svelte/store";
-import { CACHE_TYPE, compareBodyParameter, type CacheBody, type CacheBodyParameter, type CacheStore } from "./BuiltInPlugins";
+import { CACHE_TYPE, compareBodyParameter, UseRestfulUIProxyPlugin, type CacheBody, type CacheBodyParameter, type CacheStore } from "./BuiltInPlugins";
 import { EmptyRestfulPlugin, FetchPluginChain, RequestPathPluginChain, type RestfulPlugin } from "./RestfulPlugin";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import type { RestApiResponse } from "./apiFetch";
@@ -74,7 +74,7 @@ export class SetRequestPlugin extends EmptyRestfulPlugin {
         return requestPath
     }
 
-    doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+    doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         const setting = get(this.requestSetting)
         const nextInit = init ?? {}
         if (setting.headers) {
@@ -93,13 +93,28 @@ export class SetLoadingPlugin extends EmptyRestfulPlugin {
         this.loading = loading
     }
     loading: Writable<boolean>;
-    async doFetch(restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+    async doFetch(restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         try {
             this.loading.set(true)
             const response = await chain.next(inputParameters, input, init)
             return response
         } finally {
             this.loading.set(false)
+        }
+    }
+}
+export class SvelteRestfulProxy extends UseRestfulUIProxyPlugin {
+    constructor(requestSetting: Writable<RequestSetting>) {
+        super()
+        this.requestSetting = requestSetting
+    }
+    requestSetting: Writable<RequestSetting>;
+    async doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+        if (get(this.requestSetting).useProxy) {
+            return this.requestUsingProxy(input, init);
+        } else {
+            const response = await chain.next(inputParameters, input, init)
+            return response
         }
     }
 }

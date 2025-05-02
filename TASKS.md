@@ -24,7 +24,6 @@
  - disable caching request
  - hold datetime with caching reqesut
  - enable paging with pagable API
- - proxy for execute api
  - tag filter
  - deprecated api
  - oauth
@@ -56,6 +55,7 @@
  - support openapiv2 and v3
  - proxy for get oas file
  - remove anypoint feature
+ - proxy for execute api
 
 
 ## Extension

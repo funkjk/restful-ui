@@ -6,16 +6,16 @@ import type { RequestSetting } from "./SvelteSupport";
 
 
 // using any for Promise or reactive objecect
-export type CacheBody =  CacheResponse | CacheBodyParameter | any
+export type CacheBody = CacheResponse | CacheBodyParameter | any
 
 export interface CacheStore {
-    store(type:CACHE_TYPE, key:string, value:CacheBody):void
-    get(type:CACHE_TYPE, key:string): CacheBody
+    store(type: CACHE_TYPE, key: string, value: CacheBody): void
+    get(type: CACHE_TYPE, key: string): CacheBody
 }
 
 export type CacheResponse = Record<string, string>
 export interface CacheBodyParameter {
-    additionalParameter:Record<string, string>;
+    additionalParameter: Record<string, string>;
     bodyParameter: InputRestParameters;
 }
 
@@ -61,20 +61,20 @@ export class CachedRestfulPlugin extends EmptyRestfulPlugin {
         if (restfulOperation.getBodyValueName()) {
             const bodyValue = inputParameters[restfulOperation.getBodyValueName()!]
             const pathParameters = restfulOperation.getPathParameters()
-            const additionalParameter = pathParameters.reduce((obj,param)=> {
+            const additionalParameter = pathParameters.reduce((obj, param) => {
                 obj[param] = inputParameters[param]
                 return obj
             }, {} as any)
-            const cacheValue:CacheBodyParameter = {
+            const cacheValue: CacheBodyParameter = {
                 additionalParameter,
-                bodyParameter:bodyValue
+                bodyParameter: bodyValue
             }
-            await this.cacheStore.store(CACHE_TYPE.BODY_PARAMETER, getCacheKey(CACHE_TYPE.BODY_PARAMETER , restfulOperation, inputParameters), cacheValue);
+            await this.cacheStore.store(CACHE_TYPE.BODY_PARAMETER, getCacheKey(CACHE_TYPE.BODY_PARAMETER, restfulOperation, inputParameters), cacheValue);
         }
     }
     async storeGetResponse(restfulOperation: RestfulOperation, inputParameters: InputRestParameters, responseBody: Record<string, string>) {
         if (restfulOperation.method == "get") {
-            await this.cacheStore.store(CACHE_TYPE.GET_RESPONSE, getCacheKey(CACHE_TYPE.GET_RESPONSE,restfulOperation, inputParameters), responseBody);
+            await this.cacheStore.store(CACHE_TYPE.GET_RESPONSE, getCacheKey(CACHE_TYPE.GET_RESPONSE, restfulOperation, inputParameters), responseBody);
         }
     }
 
@@ -88,39 +88,39 @@ export enum LOG_TYPE {
 }
 
 export class LogMessage {
-    constructor(message:any[], type:LOG_TYPE){
+    constructor(message: any[], type: LOG_TYPE) {
         this.date = new Date()
         this.messages = message
         this.type = type
     }
-    date:Date;
-    messages:any[];
-    type:LOG_TYPE;
+    date: Date;
+    messages: any[];
+    type: LOG_TYPE;
 }
 // TODO switch log headers
 export class RequestLogMessage extends LogMessage {
-    constructor(restfulOperation: RestfulOperation, inputParameters:InputRestParameters, init: RequestInit){
+    constructor(restfulOperation: RestfulOperation, inputParameters: InputRestParameters, init: RequestInit) {
         const firstLine = `REQUEST: ${restfulOperation.method!.toUpperCase()} ${restfulOperation.getRequestPath(inputParameters)}`
         // const headers = init.headers? JSON.stringify(init.headers) : undefined
         const headers = undefined
-        const body = init.body? JSON.stringify(init.body) : undefined
+        const body = init.body ? JSON.stringify(init.body) : undefined
         const message = [firstLine, headers, body].filter(e => e)
         super(message, LOG_TYPE.REQUEST)
     }
 }
 export class ResponseLogMessage extends LogMessage {
-    constructor(restfulOperation: RestfulOperation, inputParameters:InputRestParameters, init: RequestInit, response:RestApiResponse){
+    constructor(restfulOperation: RestfulOperation, inputParameters: InputRestParameters, init: RequestInit, response: RestApiResponse) {
         const firstLine = `RESPONSE: ${restfulOperation.method!.toUpperCase()} ${restfulOperation.getRequestPath(inputParameters)} => ${response.status ?? 'FAILED'}`
         // const headers = init.headers? JSON.stringify(response.headers) : undefined
         const headers = undefined
-        const body = response.responseBody? JSON.stringify(response.responseBody) : undefined
+        const body = response.responseBody ? JSON.stringify(response.responseBody) : undefined
         const message = [firstLine, headers, body].filter(e => e)
         super(message, LOG_TYPE.RESPONSE)
     }
 }
 
 export interface MessageLogger {
-    log(message:LogMessage):void
+    log(message: LogMessage): void
 }
 
 export class LoggingRestfulPlugin extends EmptyRestfulPlugin {
@@ -138,47 +138,83 @@ export class LoggingRestfulPlugin extends EmptyRestfulPlugin {
         this.logger.log(responseMessage)
         return response
     }
-    createRequestMessage(restfulOperation: RestfulOperation, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit):RequestLogMessage {
-		const requestMessage = new RequestLogMessage(restfulOperation, inputParameters, init!);
+    createRequestMessage(restfulOperation: RestfulOperation, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): RequestLogMessage {
+        const requestMessage = new RequestLogMessage(restfulOperation, inputParameters, init!);
         return requestMessage;
     }
-    createResponseMessage(restfulOperation: RestfulOperation, inputParameters: InputRestParameters, input: RequestInfo | URL, init: RequestInit, response:RestApiResponse):ResponseLogMessage {
-		const responseMessage = new ResponseLogMessage(restfulOperation, inputParameters, init!, response)
+    createResponseMessage(restfulOperation: RestfulOperation, inputParameters: InputRestParameters, input: RequestInfo | URL, init: RequestInit, response: RestApiResponse): ResponseLogMessage {
+        const responseMessage = new ResponseLogMessage(restfulOperation, inputParameters, init!, response)
         return responseMessage
     }
 }
 
 
 export class SetHeaderPlugin extends EmptyRestfulPlugin {
-    
+
 }
 
 export class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
-    reqestSetting:RequestSetting
-    constructor(requestSetting:RequestSetting) {
-        super()
-        this.reqestSetting = requestSetting
+    async doFetch(_restfulOperation: RestfulOperation, _chain: FetchPluginChain, _inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+        return this.requestUsingProxy(input, init);
     }
-    async doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-        if (this.reqestSetting.useProxy) {
-            return this.requestUsingProxy();
-        } else {
-            return await chain.next(inputParameters, input, init)
+    async requestUsingProxy(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+        const proxyRequestbody: ProxyRequestBody = {
+            url: input.toString(),
+            method: init?.method,
+            headers: init?.headers,
+            body: init?.body
         }
-    }
-    async requestUsingProxy() : Promise<Response>{
-        const url = getBaseUrl() + "/api/proxy"
-        const requestBody = {
-            
+        const proxyResponse = await this.doProxyRequest(proxyRequestbody)
+        const responseData = JSON.parse(await proxyResponse.text())
+        const headers = new Headers()
+        for (const [name, value] of Object.entries(responseData.headers)) {
+            headers.append(name, value as string)
         }
-        fetch("")
-        return {} as Response
-    }
-    getProxyUrl() : string{
-        return getBaseUrl() +  "/api/proxy";
-    }
-    async doProxyRequest(init:RequestInit) : Promise<Response> {
-        const response = await fetch(this.getProxyUrl(), init)
+        const response: Response = {
+            ok: responseData.status < 400,
+            status: responseData.status,
+            headers: headers,
+            redirected: false,
+            statusText: "status:"+responseData.status,
+            type: "default",
+            url: "",
+            body: null,
+            bodyUsed: false,
+            text: async () => responseData.responseBody,
+            json: async () => JSON.parse(responseData.responseBody),
+            clone: function (): Response {
+                throw new Error("Function not implemented.");
+            },
+            arrayBuffer: function (): Promise<ArrayBuffer> {
+                throw new Error("Function not implemented.");
+            },
+            blob: function (): Promise<Blob> {
+                throw new Error("Function not implemented.");
+            },
+            bytes: function (): Promise<Uint8Array> {
+                throw new Error("Function not implemented.");
+            },
+            formData: function (): Promise<FormData> {
+                throw new Error("Function not implemented.");
+            },
+        }
         return response
     }
+    getProxyUrl(): string {
+        return getBaseUrl() + "api/proxy";
+    }
+    async doProxyRequest(requestBody: ProxyRequestBody): Promise<Response> {
+        const response = await fetch(this.getProxyUrl(), {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(requestBody)
+        })
+        return response
+    }
+}
+export interface ProxyRequestBody {
+    url: string,
+    method?: string,
+    headers?: HeadersInit,
+    body?: BodyInit | null
 }
