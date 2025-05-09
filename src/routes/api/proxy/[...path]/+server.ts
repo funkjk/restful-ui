@@ -8,7 +8,7 @@ export async function GET(parameters: RequestEvent) {
 	const url = `${paths[0]}//${paths[1]}/${paths.slice(2).join("/")}`;
 	// TODO any way to set headers to get oas file
 	const headers = {}
-	return doReuqest({ url, method: "GET", headers}, async (rawProxyResponse: Response) => {
+	return doReuqest({ url, method: "GET", headers }, async (rawProxyResponse: Response) => {
 		const newHeaders = new Headers();
 		addCorsHeaders(newHeaders);
 		return new Response(rawProxyResponse.body, {
