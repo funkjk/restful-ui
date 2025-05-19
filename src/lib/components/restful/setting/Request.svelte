@@ -48,7 +48,7 @@
 
 <h3>Base Path</h3>
 
-<Textfield bind:value={basePath} label="value" style="width:100%;"></Textfield>
+<Textfield bind:value={basePath} label="value" style="width:100%;" placeholder="https://www.example.com/api"></Textfield>
 
 <h3>Use Proxy</h3>
 <Checkbox bind:checked={useProxy} label="Use Restful-UI Proxy to call API"></Checkbox>
