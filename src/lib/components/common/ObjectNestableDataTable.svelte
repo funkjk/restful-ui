@@ -333,28 +333,6 @@
                             <Short value={getCellValue(item, column)}></Short>
                         {/if}
                     </Cell>
-                <!-- {/each} -->
-                    <Cell
-                        class={column.dataType
-                            ? "datacell-" + column.dataType.toLocaleLowerCase()
-                            : ""}
-                    >
-                        {#if columnView[column.propertyName]}
-                            <svelte:component
-                                this={columnView[column.propertyName]}
-                                value={getCellValue(item, column)}
-                                {item}
-                                column={column.propertyName}
-                            ></svelte:component>
-                        {:else if column.dataType == DataType.LONG_STING}
-                            <Short
-                                value={getCellValue(item, column)}
-                                length={400}
-                            ></Short>
-                        {:else}
-                            <Short value={getCellValue(item, column)}></Short>
-                        {/if}
-                    </Cell>
                 {/each}
             </Row>
         {/each}
