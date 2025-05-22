@@ -1,12 +1,15 @@
 <script lang="ts" context="module">
-    export enum DataType {
-        NORMAL = "NORMAL",
-        LONG_STING = "LONG_STING",
-        TIMESTAMP = "TIMESTAMP",
-    }
-    import { ObjectArray, ColumnDefinition, type SelectedColumn, ColumnType } from "$lib/utils/object-array";
-    export function convertToDataTableHeaders(objectArray: ObjectArray) {
-        const selectedDefinition = objectArray.getSelectedColumnDefinition();
+    import {
+        ObjectArray,
+        ColumnDefinition,
+        type SelectedRoot,
+    } from "$lib/utils/object-array";
+    function convertToDataTableHeaders(
+        objectArray: ObjectArray,
+        selectedColumns: SelectedRoot,
+    ) {
+        const selectedDefinition =
+            objectArray.getSelectedColumnDefinition(selectedColumns);
         const headerRowSize = Math.max(
             ...selectedDefinition.map((e) => e.getKey().length),
         );
@@ -26,7 +29,7 @@
                     let parent: ColumnDefinition = def;
                     for (
                         let diffIdx = 0;
-                        def.getKey().length - 1 - rowIdx;
+                        diffIdx < def.getKey().length - 1 - rowIdx;
                         diffIdx++
                     ) {
                         parent = def.parentColumn as ColumnDefinition;
@@ -44,9 +47,18 @@
         definition?: ColumnDefinition;
         dummyFlag: boolean;
     }
+    export enum DisplayType {
+        LONG_STING = "LONG_STING",
+        TIMESTAMP = "TIMESTAMP",
+        DEFAULT = "DEFAULT",
+    }
+    export interface DisplayTypes {
+        [propertyName: string]: DisplayType;
+    }
 </script>
 
 <script lang="ts">
+
     import dayjs from "dayjs";
 
     import List, { Item, Separator } from "@smui/list";
@@ -62,18 +74,34 @@
     type Component = $$Generic<typeof SvelteComponent>;
     // TODO key must string array like path?
     export let columnView: { [key: string]: Component } = {};
-
     export let items: Record<string, any>[];
-    export let selectedColumns: SelectedColumn[];
-    let selectedColumnDefinition:ColumnDefinition[]
-    let objectArray:ObjectArray;
+    export let displayTypes: DisplayTypes = {};
+    export let selectedColumns: SelectedRoot = { selected: [] };
+    let objectArray: ObjectArray = new ObjectArray(items);
+    let selectedColumnDefinition: ColumnDefinition[];
+    // let objectArray:ObjectArray = new ObjectArray(items, selectedColumns);
     let headers: DataTableHeaderColumn[][];
+    let hidedColumns: ColumnDefinition[] = [];
     $: {
-        objectArray = new ObjectArray(items, selectedColumns)
-        selectedColumns = objectArray.selected
-        selectedColumnDefinition = objectArray.getSelectedColumnDefinition()
-        console.log("$@selected", objectArray.selected)
-        headers = convertToDataTableHeaders(objectArray)
+        if (selectedColumns.selected.length === 0) {
+            selectedColumns = objectArray.initialSelectedColumns;
+        }
+        selectedColumnDefinition =
+            objectArray.getSelectedColumnDefinition(selectedColumns);
+        console.log("selectedColumnDefinition", selectedColumnDefinition);
+        headers = convertToDataTableHeaders(objectArray, selectedColumns);
+        console.log("refactor", selectedColumns);
+        console.log(
+            "objectArray.getFlattenDefinitons()",
+            objectArray.getFlattenDefinitons().length,
+        );
+        hidedColumns = objectArray
+            .getFlattenDefinitons()
+            .filter((e) => !e.isShowed(selectedColumns));
+    }
+    function getCellDisplayType(column: ColumnDefinition): DisplayType {
+        const propertyName = column.getKey().join(".");
+        return displayTypes[propertyName] ?? DisplayType.DEFAULT;
     }
     function getCellValue(value: any, column: ColumnDefinition) {
         let ret = value;
@@ -84,23 +112,21 @@
                 ret = ret[prop];
             }
         }
-        // if (column.dataType == DataType.TIMESTAMP) {
-        //     try {
-        //         ret = dayjs(ret).toISOString();
-        //     } catch (e) {
-        //         console.error(e);
-        //         ret = "timestamp format error " + ret;
-        //     }
-        // }
+        if (getCellDisplayType(column) == DisplayType.TIMESTAMP) {
+            try {
+                ret = dayjs(ret).toISOString();
+            } catch (e) {
+                console.error(e);
+                ret = "timestamp format error " + ret;
+            }
+        }
         return ret;
     }
     function deselect(header: DataTableHeaderColumn) {
-        objectArray.deselect(header.definition!.getKey())
-        console.log("deselect@selected", objectArray.selected)
-        selectedColumns = objectArray.selected
-        // selectedColumns = selectedColumns.filter(
-        //     (e) => !equalsArray(header.column.path, e.path, false),
-        // );
+        selectedColumns = objectArray.deselect(
+            selectedColumns,
+            header.definition!.getKey(),
+        );
     }
     enum MoveDirection {
         LEFT = "LEFT",
@@ -108,75 +134,50 @@
         FIRST = "FIRST",
         LAST = "LAST",
     }
-    function changeDataType(header: DataTableHeaderColumn, dataType: DataType) {
-        // const selectedIndex = selectedColumns.findIndex((e) =>
-        //     equalsArray(e.path, header.column.path),
-        // );
-        // if (selectedIndex >= 0) {
-        //     selectedColumns[selectedIndex].dataType = dataType;
-        //     selectedColumns = [
-        //         ...selectedColumns.slice(0, selectedIndex),
-        //         selectedColumns[selectedIndex],
-        //         ...selectedColumns.slice(selectedIndex + 1),
-        //     ];
-        // }
+    function changeDataType(
+        header: DataTableHeaderColumn,
+        displayType: DisplayType,
+    ) {
+        const propertyName = header.definition!.getKey().join(".");
+
+        if (displayType !== DisplayType.DEFAULT) {
+            displayTypes = { ...displayTypes, [propertyName]: displayType };
+        } else {
+            displayTypes = Object.entries(displayTypes)
+                .filter(([prop]) => prop !== propertyName)
+                .reduce((prev, [prop, value]) => {
+                    return { ...prev, [prop]: value };
+                }, {});
+        }
     }
     function move(header: DataTableHeaderColumn, direction: MoveDirection) {
         alert("to be implemented");
-        console.log({ header, direction });
     }
-    function expand(header: DataTableHeaderColumn) {
-        // if (!header.expanded) {
-        //     const selectExpandedColumns = selectableColumns.filter(
-        //         (e) =>
-        //             equalsArray(header.column.path, e.path, false) &&
-        //             e.path.length == header.column.path.length + 1,
-        //     );
-        //     const addIndex = selectedColumns.findIndex((e) =>
-        //         equalsArray(e.path, header.column.path),
-        //     );
-        //     selectedColumns = [
-        //         ...selectedColumns.slice(0, addIndex),
-        //         ...selectExpandedColumns,
-        //         ...selectedColumns.slice(addIndex + 1),
-        //     ];
-        // } else {
-        //     const firstIndex = selectedColumns.findIndex((e) =>
-        //         equalsArray(header.column.path, e.path, false),
-        //     );
-        //     const lastIndex = selectedColumns.findLastIndex((e) =>
-        //         equalsArray(header.column.path, e.path, false),
-        //     );
-        //     selectedColumns = [
-        //         ...selectedColumns.slice(0, firstIndex),
-        //         header.column,
-        //         ...selectedColumns.slice(lastIndex + 1),
-        //     ];
-        // }
+    function expandShrink(header: DataTableHeaderColumn) {
+        const m = header.definition?.isExpanded(selectedColumns)
+            ? "shrink"
+            : "expand";
+        if (header.definition?.isExpanded(selectedColumns)) {
+            selectedColumns = objectArray.expand(
+                selectedColumns,
+                header.definition!.getKey(),
+            );
+        } else {
+            selectedColumns = objectArray.shrink(
+                selectedColumns,
+                header.definition!.getKey(),
+            );
+        }
     }
 
-    export function selectHidedItem(column: DataTableHeaderColumn) {
-        // let addIndex = selectedColumns.length;
-        // for (let index = 0; index < selectedColumns.length; index++) {
-        //     for (let col of column.path) {
-        //         for (let selCol of selectedColumns[index].path) {
-        //             if (selCol == col) {
-        //                 addIndex = index + 1;
-        //             }
-        //         }
-        //     }
-        // }
-        // const preCols = selectedColumns.slice(0, addIndex);
-        // const postCols = selectedColumns.slice(addIndex);
-
-        // selectedColumns = [...preCols, column, ...postCols];
+    export function selectHidedItem(column: ColumnDefinition) {
+        selectedColumns = objectArray.select(selectedColumns, column.getKey());
     }
     let menu: Menu;
 </script>
 
 <div style="display:flex;justify-content: space-between; ">
     <slot name="tableOperation"></slot>
-<!-- 
     {#if hidedColumns.length > 0}
         <span style="min-width:180px">
             <Button on:click={() => menu.setOpen(true)}>
@@ -186,13 +187,13 @@
                 <List>
                     {#each hidedColumns as column, index (index)}
                         <Item on:SMUI:action={() => selectHidedItem(column)}>
-                            {column.path.join(".")}
+                            {column.getKey().join(".")}
                         </Item>
                     {/each}
                 </List>
             </Menu>
         </span>
-    {/if} -->
+    {/if}
 </div>
 
 <DataTable style="width: 100%;">
@@ -202,7 +203,7 @@
                 {#each headerRow as header, index (index)}
                     <Cell>
                         {#if header.definition !== undefined}
-                            {#if selectedColumns.length > 1}
+                            {#if selectedColumns.selected.length > 1}
                                 <ActionMenu>
                                     <IconButton
                                         let:openMenu
@@ -228,7 +229,7 @@
                                             delete
                                         </Item>
                                         <Separator />
-                                        {#each Object.values(DataType) as dataType, index (index)}
+                                        {#each Object.values(DisplayType) as dataType, index (index)}
                                             <Item
                                                 on:SMUI:action={() =>
                                                     changeDataType(
@@ -242,16 +243,18 @@
                                     </List>
                                 </ActionMenu>
                             {/if}
-                                {header.definition?.name}
-                                {#if header.definition?.isExpandable()}
-                                    <IconButton
-                                        class="material-icons"
-                                        on:click={() => expand(header)}
-                                        >{header.definition
-                                            ? "unfold_less"
-                                            : "expand"}
-                                    </IconButton>
-                                {/if}
+                            {header.definition?.name}
+                            {#if header.definition?.isExpandable()}
+                                <IconButton
+                                    class="material-icons"
+                                    on:click={() => expandShrink(header)}
+                                    >{header.definition?.isExpanded(
+                                        selectedColumns,
+                                    )
+                                        ? "expand"
+                                        : "unfold_less"}
+                                </IconButton>
+                            {/if}
                         {/if}
                     </Cell>
                 {/each}
@@ -263,7 +266,8 @@
             <Row>
                 {#each selectedColumnDefinition as column, index (index)}
                     <Cell
-                        class={"datacell-" + column.columnType.toLocaleLowerCase()}
+                        class={"datacell-" +
+                            column.columnType.toLocaleLowerCase()}
                     >
                         {#if columnView[column.name]}
                             <svelte:component
@@ -272,7 +276,7 @@
                                 {item}
                                 column={column.name}
                             ></svelte:component>
-                        {:else if column.columnType == ColumnType.STRING}
+                        {:else if getCellDisplayType(column) == DisplayType.LONG_STING}
                             <Short
                                 value={getCellValue(item, column)}
                                 length={400}

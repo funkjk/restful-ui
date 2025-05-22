@@ -2,6 +2,9 @@
 export interface SelecedColumnHolder {
     selected: SelectedColumn[]
 }
+export interface SelectedRoot extends SelecedColumnHolder {
+
+}
 export interface ColumnDefinitionHolder {
     childColumns: ColumnDefinition[]
 }
@@ -35,32 +38,24 @@ export class ColumnDefinition implements ColumnDefinitionHolder {
     isExpandable(): boolean {
         return this.columnType === ColumnType.OBJECT
     }
-    selectSize() {
-        const selectedColumn = this.objectArray._getSelectedColumn(this.getKey())
-        if (!selectedColumn) {
-            return 0
-        } else {
-            let count = 0;
-            doAllChildColumn(selectedColumn, () => count++)
-            return count
+    isShowed(selected: SelectedRoot): boolean {
+        const selectedColumn = this.objectArray._getSelectedColumn(selected, this.getKey())
+        if (selectedColumn != null) {
+            return true
         }
+        let parent = this.parentColumn
+        while(parent && parent.isExpanded(selected)) {
+            if (parent.isShowed(selected)) {
+                return true
+            }
+            parent = parent.parentColumn
+        }
+        return false
     }
-    // findChildColumn(name: string[]): ColumnDefinition | undefined {
-    //     if (name.length === 0) {
-    //         return undefined
-    //     }
-    //     const childName = name[0]
-    //     const childColumn = this.childColumns.find((column) => column.name === childName)
-    //     if (childColumn) {
-    //         if (name.length === 1) {
-    //             return childColumn
-    //         } else {
-    //             return childColumn.findChildColumn(name.slice(1))
-    //         }
-    //     } else {
-    //         return undefined
-    //     }
-    // }
+    isExpanded(selected: SelectedRoot): boolean {
+        const selectedColumn = this.objectArray._getSelectedColumn(selected, this.getKey())
+        return selectedColumn != null && typeof selectedColumn == "string"
+    }
     getKey(): string[] {
         if (this.parentColumn) {
             return [...this.parentColumn.getKey(), this.name]
@@ -70,34 +65,34 @@ export class ColumnDefinition implements ColumnDefinitionHolder {
     }
 }
 
-export class ObjectArray implements SelecedColumnHolder, ColumnDefinitionHolder {
+export class ObjectArray implements ColumnDefinitionHolder {
     items: any[]
     childColumns: ColumnDefinition[]
-    selected: SelectedColumn[]
-    constructor(items: any[], selectedColumns?: SelectedColumn[]) {
+    initialSelectedColumns: SelectedRoot
+    constructor(items: any[]) {
         this.items = items
         this.childColumns = getColumnDefinitions(this, items[0])
-        if (selectedColumns && selectedColumns.length > 0) {
-            this.selected = selectedColumns
-        } else {
-            this.selected = this.childColumns.map((column) => column.name)
+        this.initialSelectedColumns = {
+            selected: this.childColumns.map((column) => column.name)
         }
     }
-    select(key: string[]): void {
-        const targetHolder = this._findTargetHolder(key)
+    select(selected: SelectedRoot, key: string[]): SelectedRoot {
+        const targetHolder = this._findTargetHolder(selected, key)
         // TODO validation
         const targetLastKey = key[key.length - 1]
         targetHolder.selected.push(targetLastKey)
+        return selected
     }
-    deselect(key: string[]): void {
-        const targetHolder = this._findTargetHolder(key)
+    deselect(selected: SelectedRoot, key: string[]): SelectedRoot {
+        const targetHolder = this._findTargetHolder(selected, key)
         const targetLastKey = key[key.length - 1]
         targetHolder.selected = targetHolder.selected.filter(e => !selectedColumnEqual(targetLastKey, e))
         // remove empty selected column
-        removeEmptySelected(this)
+        removeEmptySelected(selected)
+        return selected
     }
-    expand(key: string[]): void {
-        const targetHolder = this._findTargetHolder(key)
+    expand(selected: SelectedRoot, key: string[]): SelectedRoot {
+        const targetHolder = this._findTargetHolder(selected, key)
         const targetLastKey = key[key.length - 1]
         const targetLastKeyIndex = targetHolder.selected.findIndex(e => selectedColumnEqual(targetLastKey, e))
         const ColumnDefinition = findColumnDefinitions(key, this.childColumns)
@@ -107,18 +102,22 @@ export class ObjectArray implements SelecedColumnHolder, ColumnDefinitionHolder 
                 selected: ColumnDefinition.childColumns.map(e => e.name)
             }
         }
-
+        return selected
     }
-    shrink(key: string[]): void {
-        const targetHolder = this._findTargetHolder(key)
+    shrink(selected: SelectedRoot, key: string[]): SelectedRoot {
+        const targetHolder = this._findTargetHolder(selected, key)
         const targetLastKey = key[key.length - 1]
         const targetLastKeyIndex = targetHolder.selected.findIndex(e => selectedColumnEqual(targetLastKey, e))
         if (targetLastKeyIndex >= 0) {
             targetHolder.selected[targetLastKeyIndex] = targetLastKey
         }
+        return selected
     }
-    getSelectedColumnDefinition(): ColumnDefinition[] {
-        return toColumnDefinition(this, this)
+    getSelectedColumnDefinition(selected: SelectedRoot): ColumnDefinition[] {
+        return _getSelectedColumnDefinition(selected, this)
+    }
+    getFlattenDefinitons(): ColumnDefinition[] {
+        return _toFlattenDefinitions(this)
     }
     toColumnDefinition(key: string[]) {
         let currentHolder = this as ColumnDefinitionHolder;
@@ -136,10 +135,9 @@ export class ObjectArray implements SelecedColumnHolder, ColumnDefinitionHolder 
             }
         }
         return currentHolder;
-
     }
-    _getSelectedColumn(key: string[]) {
-        const targetHolder = this._findTargetHolder(key)
+    _getSelectedColumn(selected: SelectedRoot, key: string[]) {
+        const targetHolder = this._findTargetHolder(selected, key)
         const targetLastKey = key[key.length - 1]
         if (targetHolder) {
             return targetHolder.selected.find(e => selectedColumnEqual(targetLastKey, e))
@@ -147,8 +145,8 @@ export class ObjectArray implements SelecedColumnHolder, ColumnDefinitionHolder 
             return null
         }
     }
-    _findTargetHolder(key: string[]): SelecedColumnHolder {
-        let targetHolder = this as SelecedColumnHolder
+    _findTargetHolder(selected: SelectedRoot, key: string[]): SelecedColumnHolder {
+        let targetHolder = selected
         for (let keyIdx = 0; keyIdx < key.length - 1; keyIdx++) {
             for (const column of targetHolder.selected) {
                 if (typeof column == "object") {
@@ -240,28 +238,26 @@ function selectedColumnEqual(name: string, column: SelectedColumn) {
     }
 }
 
-function doAllChildColumn(column: SelectedColumn, fn: (name: string) => void) {
-    if (typeof column === "object") {
-        for (let child of column.selected) {
-            doAllChildColumn(child, fn)
-        }
-    } else {
-        fn(column)
-    }
-}
-
-function toColumnDefinition(selected: SelecedColumnHolder, definitions: ColumnDefinitionHolder): ColumnDefinition[] {
+function _getSelectedColumnDefinition(selected: SelecedColumnHolder, definitions: ColumnDefinitionHolder): ColumnDefinition[] {
     let ret: ColumnDefinition[] = []
     selected.selected.forEach(e => {
         for (const def of definitions.childColumns) {
             if (selectedColumnEqual(def.name, e)) {
                 if (typeof e === "object") {
-                    ret = [...ret, ...toColumnDefinition(e, def)]
+                    ret = [...ret, ..._getSelectedColumnDefinition(e, def)]
                 } else {
                     ret.push(def)
                 }
             }
         }
+    })
+    return ret
+}
+
+function _toFlattenDefinitions(definitions: ColumnDefinitionHolder): ColumnDefinition[] {
+    let ret: ColumnDefinition[] = []
+    definitions.childColumns.forEach(e => {
+        ret = [...ret, e, ..._toFlattenDefinitions(e)]
     })
     return ret
 }

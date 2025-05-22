@@ -37,6 +37,10 @@ function createItems(count: number) {
       items.push({
         name: names[Math.floor(i % names.length)] + i,
         age: Math.floor(i + 5),
+        obj: {
+          child1: "chiild1",
+          child2: "chiild2"
+        }
       });
   }
   return items;

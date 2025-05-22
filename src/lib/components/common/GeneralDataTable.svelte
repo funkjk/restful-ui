@@ -1,8 +1,7 @@
 <script lang="ts">
-    import type { SelectedColumn } from "$lib/utils/object-array";
+	import type { SelectedRoot } from "$lib/utils/object-array";
 
-	import ObjectNestableDataTable, {
-	} from "$lib/components/common/ObjectNestableDataTable.svelte";
+	import ObjectNestableDataTable, { type DisplayTypes } from "$lib/components/common/ObjectNestableDataTable.svelte";
 
 	import Textfield from "@smui/textfield";
 	import { Pagination } from "@smui/data-table";
@@ -16,10 +15,10 @@
 	let rowsPerPage = 10;
 	let currentPage = 0;
 
-	export let columns: string[] = [];
 	type Component = $$Generic<typeof SvelteComponent>;
 	export let columnView: { [key: string]: Component } = {};
-	export let selectedColumns:SelectedColumn[] = []
+    export let displayTypes: DisplayTypes = {};
+    export let selectedColumns: SelectedRoot = { selected: [] };
 	// export let selectedColumns = getSelectableHeaderColumn(items[0]).filter(
 	// 	(e) => e.isTop,
 	// );
@@ -61,23 +60,9 @@
 	// 	});
 	// 	items = items;
 	// }
-
 </script>
-columns.length = {columns.length}
-{#each columns as column}
-	{column},
-{/each}
 
-{#each selectedColumns as column}
-	{column.path},
-{/each}
-
-
-<ObjectNestableDataTable
-	items={slice}
-	bind:selectedColumns
-	{columnView}
->
+<ObjectNestableDataTable items={slice} bind:selectedColumns bind:displayTypes {columnView}>
 	<div style="min-width: 100px;display:flex;" slot="tableOperation">
 		<Textfield
 			bind:value={filterValue}
