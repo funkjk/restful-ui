@@ -1,6 +1,7 @@
 <script lang="ts">
+    import type { SelectedColumn } from "$lib/utils/object-array";
+
 	import ObjectNestableDataTable, {
-		getSelectableHeaderColumn,
 	} from "$lib/components/common/ObjectNestableDataTable.svelte";
 
 	import Textfield from "@smui/textfield";
@@ -18,9 +19,10 @@
 	export let columns: string[] = [];
 	type Component = $$Generic<typeof SvelteComponent>;
 	export let columnView: { [key: string]: Component } = {};
-	export let selectedColumns = getSelectableHeaderColumn(items[0]).filter(
-		(e) => e.isTop,
-	);
+	export let selectedColumns:SelectedColumn[] = []
+	// export let selectedColumns = getSelectableHeaderColumn(items[0]).filter(
+	// 	(e) => e.isTop,
+	// );
 	function filter(items: Record<string, any>[], filterValue: string) {
 		const filterStrings = filterValue.split(" ");
 		let retItems = items;
@@ -61,6 +63,15 @@
 	// }
 
 </script>
+columns.length = {columns.length}
+{#each columns as column}
+	{column},
+{/each}
+
+{#each selectedColumns as column}
+	{column.path},
+{/each}
+
 
 <ObjectNestableDataTable
 	items={slice}

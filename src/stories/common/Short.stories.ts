@@ -24,10 +24,17 @@ type Story = StoryObj<typeof meta>;
 
 export const StringText: Story = {
   args: {
-    value: "Hover to curosor on this text. Then tooltip show the full text.",
+    value: "Hover to cursor on this text. Then tooltip show the full text.",
     length: 40,
   },
 };
+export const ShortText: Story = {
+  args: {
+    value: "Short text",
+    length: 40,
+  },
+};
+
 
 export const ArrayText: Story = {
   args: {
