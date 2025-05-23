@@ -95,11 +95,12 @@ export class ObjectArray implements ColumnDefinitionHolder {
         const targetHolder = this._findTargetHolder(selected, key)
         const targetLastKey = key[key.length - 1]
         const targetLastKeyIndex = targetHolder.selected.findIndex(e => selectedColumnEqual(targetLastKey, e))
-        const ColumnDefinition = findColumnDefinitions(key, this.childColumns)
-        if (ColumnDefinition && targetLastKeyIndex >= 0) {
+        const columnDefinition = findColumnDefinitions(key, this.childColumns)
+        console.log("expand", {selected,targetHolder, key,targetLastKey,targetLastKeyIndex, columnDefinition})
+        if (columnDefinition && targetLastKeyIndex >= 0) {
             targetHolder.selected[targetLastKeyIndex] = {
                 name: targetLastKey,
-                selected: ColumnDefinition.childColumns.map(e => e.name)
+                selected: columnDefinition.childColumns.map(e => e.name)
             }
         }
         return selected
@@ -160,20 +161,23 @@ export class ObjectArray implements ColumnDefinitionHolder {
         return targetHolder
     }
 }
-function findColumnDefinitions(key: string[], ColumnDefinitions: ColumnDefinition[]): ColumnDefinition | null {
+function findColumnDefinitions(key: string[], columnDefinitions: ColumnDefinition[]): ColumnDefinition | null {
     const targetKey = key[0]
-    for (let ColumnDefinition of ColumnDefinitions) {
-        if (ColumnDefinition.name == targetKey) {
+    for (const def of columnDefinitions) {
+        if (def.name == targetKey) {
             if (key.length > 1) {
-                return findColumnDefinitions(key.slice(0), ColumnDefinition.childColumns)
+                return findColumnDefinitions(key.slice(1), def.childColumns)
             } else {
-                return ColumnDefinition
+                return def
             }
         }
     }
     return null
 }
 function getColumnDefinitions(objectArray: ObjectArray, obj: any): ColumnDefinition[] {
+    if (!obj) {
+        return []
+    }
     const columns = Object.keys(obj).map((key) => {
         const column = obj[key]
         if (typeof column === 'object' && !Array.isArray(column)) {
@@ -260,4 +264,19 @@ function _toFlattenDefinitions(definitions: ColumnDefinitionHolder): ColumnDefin
         ret = [...ret, e, ..._toFlattenDefinitions(e)]
     })
     return ret
+}
+
+export function someKeywordInObject(obj:any, keyword:string):boolean {
+    if (!obj) {
+        return false
+    }
+    const keys = Object.keys(obj)
+    return keys.some(key => {
+        const prop = obj[key]
+        if (typeof prop === 'object') {
+            return someKeywordInObject(prop, keyword)
+        } else {
+            return (prop + "").includes(keyword)
+        }
+    })
 }

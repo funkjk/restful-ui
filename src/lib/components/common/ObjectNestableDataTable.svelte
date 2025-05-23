@@ -15,16 +15,20 @@
         );
         const ret: DataTableHeaderColumn[][] = [];
         for (let rowIdx = 0; rowIdx < headerRowSize; rowIdx++) {
-            ret[rowIdx] = selectedDefinition.map((def) => {
+            ret[rowIdx] = [];
+            for (let colIdx = 0; colIdx < selectedDefinition.length; colIdx++) {
+                const def = selectedDefinition[colIdx];
                 if (rowIdx > def.getKey().length - 1) {
-                    return {
+                    ret[rowIdx].push({
                         dummyFlag: true,
-                    };
-                } else if (rowIdx == def.getKey().length - 1) {
-                    return {
+                        parentFlag: false,
+                    });
+                } else if (rowIdx > def.getKey().length - 1) {
+                    ret[rowIdx].push({
                         dummyFlag: false,
                         definition: def,
-                    };
+                        parentFlag: false,
+                    });
                 } else {
                     let parent: ColumnDefinition = def;
                     for (
@@ -34,18 +38,32 @@
                     ) {
                         parent = def.parentColumn as ColumnDefinition;
                     }
-                    return {
-                        dummyFlag: true,
-                        definition: parent,
-                    };
+                    if (
+                        ret[rowIdx][colIdx - 1]?.definition
+                            ?.getKey()
+                            .join(".") === parent.getKey().join(".")
+                    ) {
+                        ret[rowIdx].push({
+                            dummyFlag: true,
+                            definition: parent,
+                            parentFlag: true,
+                        });
+                    } else {
+                        ret[rowIdx].push({
+                            dummyFlag: false,
+                            definition: parent,
+                            parentFlag: true,
+                        });
+                    }
                 }
-            });
+            }
         }
         return ret;
     }
     interface DataTableHeaderColumn {
         definition?: ColumnDefinition;
         dummyFlag: boolean;
+        parentFlag: boolean;
     }
     export enum DisplayType {
         LONG_STING = "LONG_STING",
@@ -58,7 +76,6 @@
 </script>
 
 <script lang="ts">
-
     import dayjs from "dayjs";
 
     import List, { Item, Separator } from "@smui/list";
@@ -83,21 +100,20 @@
     let headers: DataTableHeaderColumn[][];
     let hidedColumns: ColumnDefinition[] = [];
     $: {
-        if (selectedColumns.selected.length === 0) {
+        if (!selectedColumns.selected || selectedColumns.selected.length === 0) {
             selectedColumns = objectArray.initialSelectedColumns;
         }
         selectedColumnDefinition =
             objectArray.getSelectedColumnDefinition(selectedColumns);
-        console.log("selectedColumnDefinition", selectedColumnDefinition);
         headers = convertToDataTableHeaders(objectArray, selectedColumns);
-        console.log("refactor", selectedColumns);
-        console.log(
-            "objectArray.getFlattenDefinitons()",
-            objectArray.getFlattenDefinitons().length,
-        );
         hidedColumns = objectArray
             .getFlattenDefinitons()
-            .filter((e) => !e.isShowed(selectedColumns));
+            .filter((e) => !e.isShowed(selectedColumns))
+            .filter(
+                (e) =>
+                    !e.parentColumn ||
+                    e.parentColumn?.isShowed(selectedColumns),
+            );
     }
     function getCellDisplayType(column: ColumnDefinition): DisplayType {
         const propertyName = column.getKey().join(".");
@@ -202,7 +218,7 @@
             <Row>
                 {#each headerRow as header, index (index)}
                     <Cell>
-                        {#if header.definition !== undefined}
+                        {#if header.dummyFlag === false}
                             {#if selectedColumns.selected.length > 1}
                                 <ActionMenu>
                                     <IconButton
@@ -228,18 +244,20 @@
                                         >
                                             delete
                                         </Item>
-                                        <Separator />
-                                        {#each Object.values(DisplayType) as dataType, index (index)}
-                                            <Item
-                                                on:SMUI:action={() =>
-                                                    changeDataType(
-                                                        header,
-                                                        dataType,
-                                                    )}
-                                            >
-                                                change to {dataType.toLocaleLowerCase()}
-                                            </Item>
-                                        {/each}
+                                        {#if header.parentFlag === false}
+                                            <Separator />
+                                            {#each Object.values(DisplayType) as dataType, index (index)}
+                                                <Item
+                                                    on:SMUI:action={() =>
+                                                        changeDataType(
+                                                            header,
+                                                            dataType,
+                                                        )}
+                                                >
+                                                    change to {dataType.toLocaleLowerCase()}
+                                                </Item>
+                                            {/each}
+                                        {/if}
                                     </List>
                                 </ActionMenu>
                             {/if}

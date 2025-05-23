@@ -49,6 +49,11 @@
             {} as any,
             { storage: "session" },
         );
+        const dataTableDisplayTypes = persisted(
+            storageKey + "-datatable-displayTypes",
+            {} as any,
+            { storage: "session" },
+        );
         const requestSetting = persisted(
             storageKey + "-request-setting",
             {} as RequestSetting,
@@ -61,6 +66,7 @@
                 parameterHistories,
                 dataTableFilters,
                 dataTableSelectedColumn,
+                dataTableDisplayTypes,
                 selectedTableKeys,
                 requestSetting,
             },

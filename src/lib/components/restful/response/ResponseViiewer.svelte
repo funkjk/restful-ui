@@ -11,7 +11,8 @@
     import { setContext } from "svelte";
     import SelectTableKey from "./SelectTableKey.svelte";
     import { syncObject } from "$lib/utils/ObjectStore";
-    import type { HeaderColumn } from "$lib/components/common/ObjectNestableDataTable.svelte";
+    import type { SelectedRoot } from "$lib/utils/object-array";
+    import type { DisplayTypes } from "$lib/components/common/ObjectNestableDataTable.svelte";
     export let config: RestfulComponentConfig;
     export let currentOperation: RestfulOperation;
     export let cacheStore: SvelteCacheStore;
@@ -20,6 +21,7 @@
     const dataTableFilters = config.storage.dataTableFilters;
     const selectedTableKeys = config.storage.selectedTableKeys;
     const dataTableSelectedColumn = config.storage.dataTableSelectedColumn;
+    const dataTableDisplayTypes = config.storage.dataTableDisplayTypes;
 
     let columnView: any = {};
 
@@ -53,11 +55,13 @@
 
     let filter: string;
     let tableKey: string;
-    let selectedColumns: HeaderColumn[];
+    let selectedColumns: SelectedRoot;
+    let displayTypes: DisplayTypes;
     $: {
         filter = syncObject(filter, dataTableFilters, key, "");
         tableKey = syncObject(tableKey, selectedTableKeys, key, "");
-        selectedColumns = syncObject(selectedColumns,dataTableSelectedColumn , key, []);
+        selectedColumns = syncObject(selectedColumns,dataTableSelectedColumn , key, {selected:[]});
+        displayTypes = syncObject(displayTypes,dataTableDisplayTypes , key, {});
     }
     // reset filter when tableKey is set
     function selectTableKey() {
@@ -73,6 +77,7 @@
         items={arrayResponseItems}
         {columnView}
         bind:selectedColumns
+        bind:displayTypes
         bind:filterValue={filter}
     ></GeneralDataTable>
 {/if}

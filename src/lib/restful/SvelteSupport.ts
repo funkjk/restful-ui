@@ -141,6 +141,7 @@ export interface RestfulComponentConfig {
         parameterHistories: Writable<any>;
         dataTableFilters: Writable<any>;
         dataTableSelectedColumn: Writable<any>;
+        dataTableDisplayTypes: Writable<any>;
         selectedTableKeys: Writable<any>;
         requestSetting: Writable<RequestSetting>;
     }
