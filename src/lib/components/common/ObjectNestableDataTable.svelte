@@ -3,6 +3,8 @@
         ObjectArray,
         ColumnDefinition,
         type SelectedRoot,
+        MoveDirection,
+        moveSelected,
     } from "$lib/utils/object-array";
     function convertToDataTableHeaders(
         objectArray: ObjectArray,
@@ -144,12 +146,6 @@
             header.definition!.getKey(),
         );
     }
-    enum MoveDirection {
-        LEFT = "LEFT",
-        RIGHT = "RIGHT",
-        FIRST = "FIRST",
-        LAST = "LAST",
-    }
     function changeDataType(
         header: DataTableHeaderColumn,
         displayType: DisplayType,
@@ -167,7 +163,8 @@
         }
     }
     function move(header: DataTableHeaderColumn, direction: MoveDirection) {
-        alert("to be implemented");
+        const key = header.definition!.getKey()
+        selectedColumns = moveSelected(selectedColumns, key, direction)
     }
     function expandShrink(header: DataTableHeaderColumn) {
         const m = header.definition?.isExpanded(selectedColumns)

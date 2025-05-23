@@ -44,7 +44,7 @@ export class ColumnDefinition implements ColumnDefinitionHolder {
             return true
         }
         let parent = this.parentColumn
-        while(parent && parent.isExpanded(selected)) {
+        while (parent && parent.isExpanded(selected)) {
             if (parent.isShowed(selected)) {
                 return true
             }
@@ -77,14 +77,14 @@ export class ObjectArray implements ColumnDefinitionHolder {
         }
     }
     select(selected: SelectedRoot, key: string[]): SelectedRoot {
-        const targetHolder = this._findTargetHolder(selected, key)
+        const targetHolder = _findTargetHolder(selected, key)
         // TODO validation
         const targetLastKey = key[key.length - 1]
         targetHolder.selected.push(targetLastKey)
         return selected
     }
     deselect(selected: SelectedRoot, key: string[]): SelectedRoot {
-        const targetHolder = this._findTargetHolder(selected, key)
+        const targetHolder = _findTargetHolder(selected, key)
         const targetLastKey = key[key.length - 1]
         targetHolder.selected = targetHolder.selected.filter(e => !selectedColumnEqual(targetLastKey, e))
         // remove empty selected column
@@ -92,11 +92,11 @@ export class ObjectArray implements ColumnDefinitionHolder {
         return selected
     }
     expand(selected: SelectedRoot, key: string[]): SelectedRoot {
-        const targetHolder = this._findTargetHolder(selected, key)
+        const targetHolder = _findTargetHolder(selected, key)
         const targetLastKey = key[key.length - 1]
         const targetLastKeyIndex = targetHolder.selected.findIndex(e => selectedColumnEqual(targetLastKey, e))
         const columnDefinition = findColumnDefinitions(key, this.childColumns)
-        console.log("expand", {selected,targetHolder, key,targetLastKey,targetLastKeyIndex, columnDefinition})
+        console.log("expand", { selected, targetHolder, key, targetLastKey, targetLastKeyIndex, columnDefinition })
         if (columnDefinition && targetLastKeyIndex >= 0) {
             targetHolder.selected[targetLastKeyIndex] = {
                 name: targetLastKey,
@@ -106,7 +106,7 @@ export class ObjectArray implements ColumnDefinitionHolder {
         return selected
     }
     shrink(selected: SelectedRoot, key: string[]): SelectedRoot {
-        const targetHolder = this._findTargetHolder(selected, key)
+        const targetHolder = _findTargetHolder(selected, key)
         const targetLastKey = key[key.length - 1]
         const targetLastKeyIndex = targetHolder.selected.findIndex(e => selectedColumnEqual(targetLastKey, e))
         if (targetLastKeyIndex >= 0) {
@@ -138,27 +138,13 @@ export class ObjectArray implements ColumnDefinitionHolder {
         return currentHolder;
     }
     _getSelectedColumn(selected: SelectedRoot, key: string[]) {
-        const targetHolder = this._findTargetHolder(selected, key)
+        const targetHolder = _findTargetHolder(selected, key)
         const targetLastKey = key[key.length - 1]
         if (targetHolder) {
             return targetHolder.selected.find(e => selectedColumnEqual(targetLastKey, e))
         } else {
             return null
         }
-    }
-    _findTargetHolder(selected: SelectedRoot, key: string[]): SelecedColumnHolder {
-        let targetHolder = selected
-        for (let keyIdx = 0; keyIdx < key.length - 1; keyIdx++) {
-            for (const column of targetHolder.selected) {
-                if (typeof column == "object") {
-                    const objectColumn = column as SelectedObjectColumn
-                    if (objectColumn.name == key[keyIdx]) {
-                        targetHolder = objectColumn
-                    }
-                }
-            }
-        }
-        return targetHolder
     }
 }
 function findColumnDefinitions(key: string[], columnDefinitions: ColumnDefinition[]): ColumnDefinition | null {
@@ -266,7 +252,7 @@ function _toFlattenDefinitions(definitions: ColumnDefinitionHolder): ColumnDefin
     return ret
 }
 
-export function someKeywordInObject(obj:any, keyword:string):boolean {
+export function someKeywordInObject(obj: any, keyword: string): boolean {
     if (!obj) {
         return false
     }
@@ -279,4 +265,64 @@ export function someKeywordInObject(obj:any, keyword:string):boolean {
             return (prop + "").includes(keyword)
         }
     })
+}
+
+
+function _findTargetHolder(selected: SelectedRoot, key: string[]): SelecedColumnHolder {
+    let targetHolder = selected
+    for (let keyIdx = 0; keyIdx < key.length - 1; keyIdx++) {
+        for (const column of targetHolder.selected) {
+            if (typeof column == "object") {
+                const objectColumn = column as SelectedObjectColumn
+                if (objectColumn.name == key[keyIdx]) {
+                    targetHolder = objectColumn
+                }
+            }
+        }
+    }
+    return targetHolder
+}
+
+export enum MoveDirection {
+    LEFT = "LEFT",
+    RIGHT = "RIGHT",
+    FIRST = "FIRST",
+    LAST = "LAST",
+}
+
+export function moveSelected(selected: SelectedRoot, key: string[], direction: MoveDirection): SelectedRoot {
+    const targetHolder = _findTargetHolder(selected, key)
+    const targetLastKey = key[key.length - 1]
+    const targetLastKeyIndex = targetHolder.selected.findIndex(e => selectedColumnEqual(targetLastKey, e))
+    if (direction == MoveDirection.FIRST) {
+        const otherSelectedItem = targetHolder.selected.filter((_, index) => index !== targetLastKeyIndex)
+        targetHolder.selected = [
+            targetHolder.selected[targetLastKeyIndex],
+            ...otherSelectedItem
+        ]
+    } else if (direction == MoveDirection.LAST) {
+        const otherSelectedItem = targetHolder.selected.filter((_, index) => index !== targetLastKeyIndex)
+        targetHolder.selected = [
+            ...otherSelectedItem,
+            targetHolder.selected[targetLastKeyIndex]
+        ]
+    } else if (direction == MoveDirection.LEFT) {
+        if (targetLastKeyIndex === 0) {
+            return selected
+        }
+        const target = targetHolder.selected[targetLastKeyIndex]
+        const other = targetHolder.selected[targetLastKeyIndex - 1]
+        targetHolder.selected[targetLastKeyIndex] = other
+        targetHolder.selected[targetLastKeyIndex - 1] = target
+    } else {
+        if (targetLastKeyIndex === targetHolder.selected.length -1) {
+            return selected
+        }
+        const target = targetHolder.selected[targetLastKeyIndex]
+        const other = targetHolder.selected[targetLastKeyIndex + 1]
+        targetHolder.selected[targetLastKeyIndex] = other
+        targetHolder.selected[targetLastKeyIndex + 1] = target
+    }
+
+    return selected
 }
