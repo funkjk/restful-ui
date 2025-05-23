@@ -9,6 +9,7 @@
     const keys = [
         "dataTableFilters",
         "dataTableSelectedColumn",
+        "dataTableDisplayTypes",
         "parameterHistories",
         "responses",
         "selectedTableKeys",
