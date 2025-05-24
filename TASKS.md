@@ -8,7 +8,6 @@
 
 # Bug
 
- - get request cache only hold default parameter
  - Sveltkit routing slash end bug?
 
 ## Improvement
@@ -19,7 +18,6 @@
  - support form body format
  - can use other option to send to plugin
  - disable caching request
- - hold datetime with caching reqesut
  - enable paging with pagable API
  - select key to link under api
  - tag filter
@@ -57,6 +55,8 @@
  - refactoring anypoint.ts file
  - refactoring utils.ts
  - add move left right button to Object datatable
+ - hold datetime with caching reqesut
+ - get request cache only hold default parameter
 
 
 ## Extension

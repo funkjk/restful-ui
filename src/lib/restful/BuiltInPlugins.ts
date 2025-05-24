@@ -28,6 +28,10 @@ export enum CACHE_TYPE {
     GET_RESPONSE = "GET_RESPONSE",
     BODY_PARAMETER = "BODY_PARAMETER"
 }
+export interface CachedGetResponse {
+    response: any,
+    executionTime: string
+}
 
 export function getCacheKey(keyType: CACHE_TYPE, restfulOperation: RestfulOperation, inputParameters?: InputRestParameters) {
     if (keyType == CACHE_TYPE.GET_RESPONSE) {
@@ -52,7 +56,6 @@ export class CachedRestfulPlugin extends EmptyRestfulPlugin {
         const response = await chain.next(inputParameters, input, init)
         if (response.ok) {
             await this.storeBodyParameter(restfulOperation, inputParameters)
-            await this.storeGetResponse(restfulOperation, inputParameters, response.responseBody)
         }
         return response
     }
@@ -71,13 +74,6 @@ export class CachedRestfulPlugin extends EmptyRestfulPlugin {
             await this.cacheStore.store(CACHE_TYPE.BODY_PARAMETER, getCacheKey(CACHE_TYPE.BODY_PARAMETER, restfulOperation, inputParameters), cacheValue);
         }
     }
-    async storeGetResponse(restfulOperation: RestfulOperation, inputParameters: InputRestParameters, responseBody: Record<string, string>) {
-        if (restfulOperation.method == "get") {
-            await this.cacheStore.store(CACHE_TYPE.GET_RESPONSE, getCacheKey(CACHE_TYPE.GET_RESPONSE, restfulOperation, inputParameters), responseBody);
-        }
-    }
-
-
 }
 
 export enum LOG_TYPE {
