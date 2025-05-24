@@ -96,7 +96,6 @@ export class ObjectArray implements ColumnDefinitionHolder {
         const targetLastKey = key[key.length - 1]
         const targetLastKeyIndex = targetHolder.selected.findIndex(e => selectedColumnEqual(targetLastKey, e))
         const columnDefinition = findColumnDefinitions(key, this.childColumns)
-        console.log("expand", { selected, targetHolder, key, targetLastKey, targetLastKeyIndex, columnDefinition })
         if (columnDefinition && targetLastKeyIndex >= 0) {
             targetHolder.selected[targetLastKeyIndex] = {
                 name: targetLastKey,
