@@ -98,7 +98,6 @@
     export let selectedColumns: SelectedRoot = { selected: [] };
     let objectArray: ObjectArray = new ObjectArray(items);
     let selectedColumnDefinition: ColumnDefinition[];
-    // let objectArray:ObjectArray = new ObjectArray(items, selectedColumns);
     let headers: DataTableHeaderColumn[][];
     let hidedColumns: ColumnDefinition[] = [];
     $: {

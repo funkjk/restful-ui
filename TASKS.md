@@ -25,6 +25,7 @@
  - oauth
  - oas file upload
  - oas file editor
+ - enable linking url data in datatable
 
 
 
