@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "openapi-server": {
+      "command": "tsx",
+      "args": [
+        "src/lib/mcp/server.ts",
+        "https://petstore.swagger.io/v2/swagger.json"
+      ],
+      "cwd": ".",
+      "env": {
+        "OPENAPI_URL": "https://petstore.swagger.io/v2/swagger.json",
+        "MCP_SERVER_NAME": "openapi-mcp-server",
+        "MCP_SERVER_VERSION": "1.0.0"
+      }
+    },
+    "current-time": {
+      "command": "node",
+      "args": [
+        "test/mcp-test.js"
+      ],
+      "cwd": ".",
+      "env": {
+      }
+    }
+  }
+} 

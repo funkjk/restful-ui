@@ -10,11 +10,15 @@
     "e2e": "playwright test",
     "test": "vitest",
     "build": "vite build",
+    "build:mcp": "tsc --project tsconfig.mcp.json",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "mcp:start": "tsx src/lib/mcp/server.ts",
+    "mcp:example": "tsx src/lib/mcp/server.ts https://petstore.swagger.io/v2/swagger.json",
+    "mcp:test": "tsx src/lib/mcp/test-mcp-server.ts"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.6",
@@ -70,6 +74,7 @@
     "storybook": "^8.6.14",
     "svelte": "^4.2.7",
     "svelte-check": "^3.6.0",
+    "tsx": "^4.7.1",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.31.0",
     "vite": "^5.0.3",
@@ -78,6 +83,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.7.0",
     "@apidevtools/swagger-parser": "^10.1.0",
     "@beyonk/svelte-datepicker": "^13.0.4",
     "@material/checkbox": "^14.0.0",
