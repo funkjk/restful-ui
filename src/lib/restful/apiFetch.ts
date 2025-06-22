@@ -36,3 +36,6 @@ export async function parseToApiResponse(response:Response) :Promise<RestApiResp
         responseBodyType
     }
 }
+// export async function parseToApiRequest(response:Response) :Promise<RestApiResponse>{
+    
+// }

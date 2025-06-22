@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import { OpenApiMcpServer } from './openapi-mcp-server.js';
-import { createConfig, parseConfigFromArgs, parseConfigFromEnv, validateUrl } from './config.js';
+import { createConfig, logger, parseConfigFromArgs, parseConfigFromEnv, validateUrl } from './config.js';
 
 async function main() {
+  logger.info("start MCP server")
   try {
     // Parse configuration from various sources
     const envConfig = parseConfigFromEnv();
@@ -18,8 +19,9 @@ async function main() {
     
     // Merge configurations (args override env)
     const partialConfig = { ...envConfig, ...argsConfig };
+    const config = await createConfig(partialConfig);
     
-    if (!partialConfig.openApiUrl) {
+    if (!config.openApiUrl) {
       console.error('Error: OpenAPI URL is required');
       console.error('');
       console.error('Usage:');
@@ -27,6 +29,7 @@ async function main() {
       console.error('  node server.js --url <openapi-url> [options]');
       console.error('');
       console.error('Options:');
+      console.error('  -f, --file <filepath>     Filepath to MCP server config');
       console.error('  -u, --url <url>           OpenAPI specification URL');
       console.error('  -n, --name <name>         MCP server name');
       console.error('  -v, --version <version>   MCP server version');
@@ -46,12 +49,10 @@ async function main() {
       process.exit(1);
     }
     
-    if (!validateUrl(partialConfig.openApiUrl)) {
-      console.error(`Error: Invalid OpenAPI URL: ${partialConfig.openApiUrl}`);
+    if (!validateUrl(config.openApiUrl)) {
+      console.error(`Error: Invalid OpenAPI URL: ${config.openApiUrl}`);
       process.exit(1);
     }
-    
-    const config = createConfig(partialConfig);
     
     console.error(`Starting MCP server: ${config.serverName} v${config.serverVersion}`);
     console.error(`Loading OpenAPI spec from: ${config.openApiUrl}`);

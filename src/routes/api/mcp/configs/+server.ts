@@ -1,15 +1,13 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { listConfigs, saveConfig, deleteConfig, type SavedMcpConfig } from '$lib/mcp/config-server';
+import { listConfigs, saveConfig } from '$lib/mcp/config-server';
+import type { McpServerConfig } from '$lib/types/api-config';
 
 // 設定一覧を取得
 export const GET = async () => {
   try {
     const configs = await listConfigs();
-    return json({
-      success: true,
-      configs,
-    });
+    return json(configs);
   } catch (error) {
     console.error('Failed to list configs:', error);
     return json({
@@ -22,14 +20,9 @@ export const GET = async () => {
 // 設定を保存
 export const POST = async ({ request }: RequestEvent) => {
   try {
-    const { name, description, config, id } = await request.json();
-
-    if (!name || !config) {
-      return json({
-        success: false,
-        error: 'Name and config are required',
-      }, { status: 400 });
-    }
+    console.log("POST", request)
+    const config = await request.json() as McpServerConfig;
+    console.log("config", config)
 
     if (!config.openApiUrl) {
       return json({
@@ -38,12 +31,10 @@ export const POST = async ({ request }: RequestEvent) => {
       }, { status: 400 });
     }
 
-    const configId = await saveConfig(config, name, description, id);
+    const configId = await saveConfig(config);
 
     return json({
-      success: true,
-      id: configId,
-      message: id ? 'Config updated successfully' : 'Config saved successfully',
+      configurationId: configId,
     });
   } catch (error) {
     console.error('Failed to save config:', error);
@@ -54,29 +45,3 @@ export const POST = async ({ request }: RequestEvent) => {
   }
 };
 
-// 設定を削除
-export const DELETE = async ({ url }: RequestEvent) => {
-  try {
-    const id = url.searchParams.get('id');
-    
-    if (!id) {
-      return json({
-        success: false,
-        error: 'Config ID is required',
-      }, { status: 400 });
-    }
-
-    await deleteConfig(id);
-
-    return json({
-      success: true,
-      message: 'Config deleted successfully',
-    });
-  } catch (error) {
-    console.error('Failed to delete config:', error);
-    return json({
-      success: false,
-      error: `Failed to delete config: ${error instanceof Error ? error.message : String(error)}`,
-    }, { status: 500 });
-  }
-}; 

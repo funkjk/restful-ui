@@ -1,20 +1,7 @@
 import { writable, get } from 'svelte/store';
 import { persisted } from 'svelte-persisted-store';
-import type { OpenAPI } from 'openapi-types';
 import type { RequestSettings } from '$lib/types/request-config';
-import type { SavedMcpConfig, McpServerConfig } from '$lib/mcp/config';
-import * as yaml from 'js-yaml';
-
-export interface McpServerState {
-  isRunning: boolean;
-  openApiUrl: string | null;
-  serverName: string;
-  serverVersion: string;
-  availableTools: ToolInfo[];
-  availableResources: ResourceInfo[];
-  error: string | null;
-  lastStarted: Date | null;
-}
+import type { McpServerState, McpServerConfig, McpServerConfigObject } from '$lib/types/api-config';
 
 export interface ToolInfo {
   name: string;
@@ -33,20 +20,22 @@ export interface ResourceInfo {
   parameters?: any;
   mimeType: string;
 }
+export type McpServerClientState = McpServerState & {
+  error: string | null;
+}
 
-const initialState: McpServerState = {
+const initialState: McpServerClientState = {
   isRunning: false,
-  openApiUrl: null,
+  openApiUrl: "",
   serverName: 'openapi-mcp-server',
   serverVersion: '1.0.0',
   availableTools: [],
   availableResources: [],
   error: null,
-  lastStarted: null,
 };
 
   // MCPサーバの状態ストア
-  export const mcpServerState = writable<McpServerState>(initialState);
+  export const mcpServerState = writable<McpServerClientState>(initialState);
 
   // 永続化された設定ストア
 export const mcpSettings = persisted('mcp-settings', {
@@ -54,73 +43,21 @@ export const mcpSettings = persisted('mcp-settings', {
   serverVersion: '1.0.0',
   timeout: 30000,
   maxRetries: 3,
-  retryDelay: 1000
 });
 
 // MCPサーバの操作関数
 export const mcpActions = {
-  // OpenAPI仕様書を読み込んでツール一覧を生成
-  async loadOpenApiSpec(url: string): Promise<void> {
-    try {
-      mcpServerState.update(state => ({ 
-        ...state, 
-        error: null, 
-        openApiUrl: url 
-      }));
-
-      // OpenAPI仕様書を取得
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch OpenAPI spec: ${response.statusText}`);
-      }
-      
-      // Content-TypeまたはURLの拡張子でファイル形式を判定
-      const contentType = response.headers.get('content-type') || '';
-      const isYaml = contentType.includes('yaml') || 
-                     contentType.includes('yml') || 
-                     url.toLowerCase().endsWith('.yaml') || 
-                     url.toLowerCase().endsWith('.yml');
-      
-      let openApiDoc: OpenAPI.Document;
-      
-      if (isYaml) {
-        // YAML形式の場合
-        const text = await response.text();
-        openApiDoc = yaml.load(text) as OpenAPI.Document;
-      } else {
-        // JSON形式の場合（デフォルト）
-        openApiDoc = await response.json() as OpenAPI.Document;
-      }
-      
-      // ツール一覧とリソース一覧を生成
-      const tools = generateToolsFromOpenApi(openApiDoc);
-      const resources = generateResourcesFromOpenApi(openApiDoc);
-      
-      mcpServerState.update(state => ({
-        ...state,
-        openApiDoc,
-        availableTools: tools,
-        availableResources: resources,
-        error: null,
-      }));
-      
-    } catch (error) {
-      mcpServerState.update(state => ({
-        ...state,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-        openApiDoc: null,
-        availableTools: [],
-        availableResources: [],
-      }));
-      throw error;
-    }
-  },
   async loadServer(): Promise<McpServerState> {
     const response = await fetch('/api/mcp/init');
     if (!response.ok) {
       throw new Error('Failed to load MCP server');
     }
-    return response.json();
+    const state = await response.json() as McpServerState;
+    mcpServerState.set({
+      ...state,
+      error: null,
+    });
+    return state;
   },
 
   // MCPサーバを開始（HTTP API経由）
@@ -145,13 +82,7 @@ export const mcpActions = {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to start MCP server');
       }
-
-      mcpServerState.update(state => ({
-        ...state,
-        isRunning: true,
-        error: null,
-        lastStarted: new Date(),
-      }));
+      await mcpActions.loadServer();
     } catch (error) {
       mcpServerState.update(state => ({
         ...state,
@@ -163,27 +94,21 @@ export const mcpActions = {
   },
 
   // 設定IDからMCPサーバを開始
-  async startServerFromConfig(configId: string): Promise<void> {
+  async startServerFromConfig(configurationId: string): Promise<void> {
     try {
       const response = await fetch('/api/mcp/init', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ configId }),
+        body: JSON.stringify({ configurationId }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to start MCP server from config');
       }
-
-      mcpServerState.update(state => ({
-        ...state,
-        isRunning: true,
-        error: null,
-        lastStarted: new Date(),
-      }));
+      await mcpActions.loadServer();
     } catch (error) {
       mcpServerState.update(state => ({
         ...state,
@@ -208,7 +133,6 @@ export const mcpActions = {
       mcpServerState.update(state => ({
         ...state,
         isRunning: false,
-        lastStarted: null,
       }));
     } catch (error) {
       mcpServerState.update(state => ({
@@ -247,7 +171,6 @@ export const mcpActions = {
         serverVersion: settings.serverVersion,
         timeout: settings.timeout,
         maxRetries: settings.maxRetries,
-        retryDelay: settings.retryDelay,
         requestSettings: requestSettings,
       };
 
@@ -274,7 +197,7 @@ export const mcpActions = {
   },
 
   // 設定一覧を取得
-  async listConfigs(): Promise<SavedMcpConfig[]> {
+  async listConfigs(): Promise<McpServerConfigObject[]> {
     try {
       const response = await fetch('/api/mcp/configs');
       
@@ -284,7 +207,7 @@ export const mcpActions = {
       }
 
       const result = await response.json();
-      return result.configs;
+      return result as McpServerConfigObject[];
     } catch (error) {
       throw new Error(
         error instanceof Error ? error.message : 'Unknown error occurred while fetching configs'
@@ -293,7 +216,7 @@ export const mcpActions = {
   },
 
   // 設定を読み込み
-  async loadConfig(id: string): Promise<SavedMcpConfig> {
+  async loadConfig(id: string): Promise<McpServerConfig> {
     try {
       const response = await fetch(`/api/mcp/configs/${id}`);
       
@@ -314,7 +237,7 @@ export const mcpActions = {
   // 設定を削除
   async deleteConfig(id: string): Promise<void> {
     try {
-      const response = await fetch(`/api/mcp/configs?id=${id}`, {
+      const response = await fetch(`/api/mcp/configs/${id}`, {
         method: 'DELETE',
       });
 
@@ -330,77 +253,7 @@ export const mcpActions = {
   },
 
   // 設定を適用（UI上の設定を更新）
-  applyConfig(savedConfig: SavedMcpConfig): void {
-    mcpSettings.update(() => ({
-      openApiUrl: savedConfig.config.openApiUrl,
-      serverName: savedConfig.config.serverName,
-      serverVersion: savedConfig.config.serverVersion,
-      useProxy: false, // デフォルト値
-      timeout: savedConfig.config.timeout || 30000,
-      maxRetries: savedConfig.config.maxRetries || 3,
-      retryDelay: savedConfig.config.retryDelay || 1000,
-      requestSettings: savedConfig.config.requestSettings || {
-        headers: [],
-        additionalQueryParameter: "",
-        basePath: "",
-        useProxy: false,
-      },
-    }));
+  applyConfig(savedConfig: McpServerConfig): void {
+    mcpSettings.set(savedConfig)
   },
 };
-
-// OpenAPI仕様書からツール一覧を生成する関数（GETメソッド以外）
-function generateToolsFromOpenApi(openApiDoc: OpenAPI.Document): ToolInfo[] {
-  const tools: ToolInfo[] = [];
-  const paths = openApiDoc.paths;
-
-  if (paths) {
-    for (const [path, pathItem] of Object.entries(paths)) {
-      if (pathItem) {
-        // Only include non-GET methods as tools
-        const methods = ['post', 'put', 'patch', 'delete'] as const;
-        for (const method of methods) {
-          const operation = pathItem[method];
-          if (operation) {
-            const toolName = `${method.toLowerCase()}_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
-            tools.push({
-              name: toolName,
-              description: operation.summary || operation.description || `${method.toUpperCase()} ${path}`,
-              method: method.toUpperCase(),
-              path,
-              parameters: operation.parameters,
-            });
-          }
-        }
-      }
-    }
-  }
-
-  return tools;
-}
-
-// OpenAPI仕様書からリソース一覧を生成する関数（GETメソッドのみ）
-function generateResourcesFromOpenApi(openApiDoc: OpenAPI.Document): ResourceInfo[] {
-  const resources: ResourceInfo[] = [];
-  const paths = openApiDoc.paths;
-
-  if (paths) {
-    for (const [path, pathItem] of Object.entries(paths)) {
-      if (pathItem && pathItem.get) {
-        const operation = pathItem.get;
-        const resourceName = `get_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
-        resources.push({
-          uri: `openapi://${resourceName}`,
-          name: resourceName,
-          description: operation.summary || operation.description || `GET ${path}`,
-          method: 'GET',
-          path,
-          parameters: operation.parameters,
-          mimeType: 'application/json',
-        });
-      }
-    }
-  }
-
-  return resources;
-} 

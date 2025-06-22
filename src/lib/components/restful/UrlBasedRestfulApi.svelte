@@ -15,7 +15,6 @@
     import { loading, logMessages } from "$lib/stores/ui";
     import RestfulApi from "./RestfulApi.svelte";
     import { persisted } from "svelte-persisted-store";
-    import { get } from "svelte/store";
     export let url: string;
     let config: RestfulComponentConfig;
 

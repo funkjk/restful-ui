@@ -205,6 +205,9 @@ export abstract class RestfulOperation {
     }
     async doFetch(inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
         const fetchChaing = new FetchPluginChain(this.plugins, this, async (_inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit) => {
+            if (init?.body && typeof init.body === "object") {
+                init.body = JSON.stringify(init.body)
+            }
             return await fetch(input, init);
         })
         try {

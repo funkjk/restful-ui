@@ -17,11 +17,11 @@
         type ToolInfo,
         type ResourceInfo,
     } from "$lib/stores/mcp";
-    import type { SavedMcpConfig } from "$lib/mcp/config";
     import { loading } from "$lib/stores/ui";
     import ExpansionCard from "$lib/components/common/ExpansionCard.svelte";
     import type { RestfulComponentConfig } from "$lib/restful/SvelteSupport";
     import { get } from "svelte/store";
+    import type { McpServerConfig, McpServerConfigObject } from "$lib/types/api-config";
 
     export let config: RestfulComponentConfig;
     export let title: string = "MCP Server";
@@ -38,22 +38,10 @@
     let editingConfigId: string | undefined = undefined;
 
     // 保存された設定一覧
-    let savedConfigs: SavedMcpConfig[] = [];
+    let savedConfigs: McpServerConfigObject[] = [];
 
     async function loadMcpServer() {
-        const serverState = await mcpActions.loadServer();
-        mcpServerState.update((state) => ({
-            ...state,
-            ...serverState,
-        }));
-        mcpSettings.set({
-            serverName: serverState.serverName,
-            serverVersion: serverState.serverVersion,
-            timeout: 10000,
-            maxRetries: 3,
-            retryDelay: 1000,
-        });
-        return serverState;
+        await mcpActions.loadServer();
     }
     loadMcpServer();
 
@@ -83,7 +71,6 @@
             });
             snackbarMessage = "MCPサーバを起動しました";
             snackbar?.open();
-            await loadMcpServer();
         } catch (error) {
             snackbarMessage = `起動エラー: ${error instanceof Error ? error.message : "不明なエラー"}`;
             snackbar?.open();
@@ -104,11 +91,9 @@
                 openApiUrl: "",
                 serverName: "",
                 serverVersion: "",
-                openApiDoc: null,
                 availableTools: [],
                 availableResources: [],
                 error: null,
-                lastStarted: null,
             });
         } catch (error) {
             snackbarMessage = `停止エラー: ${error instanceof Error ? error.message : "不明なエラー"}`;
@@ -194,7 +179,7 @@
             const savedConfig = await mcpActions.loadConfig(configId);
             mcpActions.applyConfig(savedConfig);
 
-            snackbarMessage = `設定「${savedConfig.name}」を適用しました`;
+            snackbarMessage = `設定「${savedConfig.serverName}」を適用しました`;
             snackbar?.open();
         } catch (error) {
             snackbarMessage = `設定読み込みエラー: ${error instanceof Error ? error.message : "不明なエラー"}`;
@@ -205,11 +190,11 @@
     }
 
     // 設定IDから直接MCPサーバを起動
-    async function startServerFromConfig(configId: string, configName: string) {
+    async function startServerFromConfig(configId: string) {
         loading.set(true);
         try {
             await mcpActions.startServerFromConfig(configId);
-            snackbarMessage = `設定「${configName}」からMCPサーバを起動しました`;
+            snackbarMessage = `設定「${configId}」からMCPサーバを起動しました`;
             snackbar?.open();
         } catch (error) {
             snackbarMessage = `起動エラー: ${error instanceof Error ? error.message : "不明なエラー"}`;
@@ -220,15 +205,15 @@
     }
 
     // 設定を削除
-    async function deleteConfig(configId: string, configName: string) {
-        if (!confirm(`設定「${configName}」を削除しますか？`)) {
+    async function deleteConfig(configId: string) {
+        if (!confirm(`設定「${configId}」を削除しますか？`)) {
             return;
         }
 
         loading.set(true);
         try {
             await mcpActions.deleteConfig(configId);
-            snackbarMessage = `設定「${configName}」を削除しました`;
+            snackbarMessage = `設定「${configId}」を削除しました`;
             snackbar?.open();
 
             // 設定一覧を再読み込み
@@ -242,17 +227,13 @@
     }
 
     // 設定を編集
-    function editConfig(config: SavedMcpConfig) {
-        configName = config.name;
-        configDescription = config.description || "";
-        editingConfigId = config.id;
+    function editConfig(config: McpServerConfigObject) {
+        editingConfigId = config.configurationId;
         saveConfigDialog = true;
     }
 
     // 保存ダイアログを開く
     function openSaveDialog() {
-        configName = "";
-        configDescription = "";
         editingConfigId = undefined;
         saveConfigDialog = true;
     }
@@ -426,14 +407,6 @@
                                 <Body>
                                     {#each savedConfigs as config}
                                         <Row>
-                                            <Cell
-                                                ><strong>{config.name}</strong
-                                                ></Cell
-                                            >
-                                            <Cell
-                                                >{config.description ||
-                                                    "-"}</Cell
-                                            >
                                             <Cell>
                                                 <code style="font-size: 0.9em;">
                                                     {config.config.openApiUrl
@@ -442,8 +415,7 @@
                                                               0,
                                                               50,
                                                           ) + "..."
-                                                        : config.config
-                                                              .openApiUrl}
+                                                        : config.config.openApiUrl}
                                                 </code>
                                             </Cell>
                                             <Cell
@@ -462,7 +434,7 @@
                                                         class="material-icons"
                                                         on:click={() =>
                                                             loadAndApplyConfig(
-                                                                config.id,
+                                                                config.configurationId,
                                                             )}
                                                         title="設定を適用"
                                                         size="mini"
@@ -473,8 +445,7 @@
                                                         class="material-icons"
                                                         on:click={() =>
                                                             startServerFromConfig(
-                                                                config.id,
-                                                                config.name,
+                                                                config.configurationId
                                                             )}
                                                         title="この設定でMCPサーバを起動"
                                                         size="mini"
@@ -495,8 +466,7 @@
                                                         class="material-icons"
                                                         on:click={() =>
                                                             deleteConfig(
-                                                                config.id,
-                                                                config.name,
+                                                                config.configurationId
                                                             )}
                                                         title="設定を削除"
                                                         size="mini"

@@ -1,5 +1,5 @@
+import type { McpServerConfig } from '$lib/types/api-config';
 import type { OpenApiMcpServer } from './openapi-mcp-server';
-import type { McpServerConfig } from './config';
 
 // グローバルサーバー状態
 let mcpServerInstance: OpenApiMcpServer | null = null;

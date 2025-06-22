@@ -4,7 +4,6 @@ import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import type { RestApiResponse } from "./apiFetch";
 import type { RequestSettings } from "$lib/types/request-config";
 import { UseRestfulUIProxyPlugin } from "./BuiltInPlugins";
-import { getBaseUrl } from "$lib/utils/proxy";
 
 /**
  * MCPサーバー設定をAPI実行時に適用するプラグイン
@@ -82,7 +81,7 @@ export class McpProxyPlugin extends UseRestfulUIProxyPlugin {
   requestSettings: Writable<RequestSettings>;
 
   getProxyUrl(): string {
-    return getBaseUrl() + "api/proxy";
+    throw new Error("Proxy URL is not implemented");
   }
 
   async doFetch(

@@ -26,16 +26,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/McpServerConfig'
+              oneOf:
+                - $ref: '#/components/schemas/McpServerConfig'
+                - type: object
+                  properties:
+                    configurationId:
+                      type: string
       responses:
         '200':
           description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
     delete:
       summary: Stop MCP Server.
       responses:
         '200':
           description: Successful
-  /mcp/config:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /mcp/configs:
     get:
       summary: List MCP Server Configurations.
       responses:
@@ -62,14 +75,15 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
+                  configurationId:
+                    description: Configuration id
                     type: string
-  /mcp/config/{id}:
+  /mcp/configs/{configurationId}:
     get:
       summary: Get MCP Server Configuration.
       parameters:
         - in: path
-          name: id
+          name: configurationId
           schema:
             type: string
           required: true
@@ -85,7 +99,7 @@ paths:
       summary: Update MCP Server Configuration.
       parameters:
         - in: path
-          name: id
+          name: configurationId
           schema:
             type: string
           required: true
@@ -98,13 +112,15 @@ paths:
       responses:
         '200':
           description: Inforamtion
-  /mcp/config/{id}/init:
-    get:
-      summary: Get MCP Server Information by configuraion id.
-      description: Get MCP Server Informatin running (or not running) on Restful UI Server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+    delete:
+      summary: Delete MCP Server Configuration.
       parameters:
         - in: path
-          name: id
+          name: configurationId
           schema:
             type: string
           required: true
@@ -115,53 +131,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/McpServerState'
-    post:
-      summary: Initialize and start MCP Server.
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: string
-          required: true
-          description: MCP Server Configuration id
-      requestBody:
-        description: Start MCP server with requested config
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/McpServerConfig'
-      responses:
-        '200':
-          description: Successful operation
-    delete:
-      summary: Stop MCP Server.
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: string
-          required: true
-          description: MCP Server Configuration id
-      responses:
-        '200':
-          description: Successful
+                $ref: '#/components/schemas/OperationResponse'
       
-    
-      
-          
-          
       
 components:
   schemas:
     McpServerConfigObject:
       type: object
-      allOf:
-          - $ref: '#/components/schemas/McpServerConfig'
-          - type: object
-            properties:
-              id:
-                type: string
+      properties:
+        configurationId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        config:
+          $ref: '#/components/schemas/McpServerConfig'
     McpServerConfig:
       type: object
       properties:
@@ -243,6 +230,14 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ResourceInfo"
+    OperationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      
             
 
 

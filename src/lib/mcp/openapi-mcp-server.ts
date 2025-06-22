@@ -16,6 +16,7 @@ import { ConsoleMessageLogger, LoggingRestfulPlugin } from '$lib/restful/BuiltIn
 import { createMcpRequestPlugins } from '../restful/McpRequestSettingsPlugin.js';
 import { writable, get, type Writable } from 'svelte/store';
 import type { RequestSettings } from '$lib/types/request-config.js';
+import { logger } from './config.js';
 
 export interface OpenApiMcpServerConfig {
   serverName: string;
@@ -43,7 +44,7 @@ export class OpenApiMcpServer {
 
   constructor(config: OpenApiMcpServerConfig) {
     this.config = config;
-    
+
     // Initialize request settings store
     const defaultSettings: RequestSettings = {
       headers: [],
@@ -71,7 +72,7 @@ export class OpenApiMcpServer {
   private createPlugins() {
     const loggingPlugin = new LoggingRestfulPlugin(new ConsoleMessageLogger());
     const [mcpRequestPlugin, mcpProxyPlugin] = createMcpRequestPlugins(this.requestSettingsStore);
-    
+
     return [
       loggingPlugin,
       mcpRequestPlugin,
@@ -97,12 +98,55 @@ export class OpenApiMcpServer {
             for (const method of methods) {
               const operation = pathItem[method];
               if (operation) {
+
+                // const currentOperation = createRestfulOperation(
+                //   new URLSearchParams(), this.openApiDoc, this.createPlugins());
+                // if (!currentOperation.exist()) {
+                //   continue;
+                // }
+
+
+                // let bodyParamName = currentOperation.getBodyValueName();
+                // let operation = currentOperation.getOperation();
+
+                // let params = operation.parameters as any[];
+                // const inputParameters = {} as any
+                // for (const param of params) {
+                //   const paramName = param.name;
+                //   let schema = {
+                //     type: "string",
+                //   } as any
+                //   if (param.in === "body") {
+                //     schema = {
+                //       type: "object",
+                //       additionalProperties: true
+                //     }
+                //   }
+                //   inputParameters[paramName] = schema
+
+                //   // if (param.in === "body") {
+                //   //   schema = {
+                //   //     type: "string",
+                //   //   }
+                //   // } else if (param.in === "query") {
+                //   //   schema = {
+                //   //     type: "string",
+                //   //   }
+                //   // } else if (param.in === "path") {
+                //   //   schema = {
+                //   //     type: "string",
+                //   //   }
+                // }
+
+
+
                 const toolName = `${method.toLowerCase()}_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
                 tools.push({
                   name: toolName,
                   description: operation.summary || operation.description || `${method.toUpperCase()} ${path}`,
                   inputSchema: {
                     type: 'object',
+                    // properties: inputParameters,
                     properties: {
                       parameters: {
                         type: 'object',
@@ -164,7 +208,7 @@ export class OpenApiMcpServer {
 
       const resourceName = match[1];
       const [method, ...pathParts] = resourceName.split('_');
-      
+
       if (method !== 'get') {
         throw new McpError(ErrorCode.InvalidRequest, `Resource must be a GET operation: ${resourceName}`);
       }
@@ -172,7 +216,7 @@ export class OpenApiMcpServer {
       // Find the actual path in the OpenAPI document
       let actualPath: string | null = null;
       const paths = this.openApiDoc.paths;
-      
+
       if (paths) {
         for (const p of Object.keys(paths)) {
           if (p.replace(/[^a-zA-Z0-9]/g, '_') === pathParts.join('_')) {
@@ -237,7 +281,7 @@ export class OpenApiMcpServer {
 
     // Execute tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      const { name, arguments: args } = request.params;
+      const { name, arguments: args, } = request.params;
 
       if (!this.openApiDoc) {
         throw new McpError(ErrorCode.InternalError, 'OpenAPI document not loaded');
@@ -247,11 +291,11 @@ export class OpenApiMcpServer {
         // Parse tool name to extract method and path
         const [method, ...pathParts] = name.split('_');
         const path = pathParts.join('_').replace(/_/g, '/');
-        
+
         // Find the actual path in the OpenAPI document
         let actualPath: string | null = null;
         const paths = this.openApiDoc.paths;
-        
+
         if (paths) {
           for (const p of Object.keys(paths)) {
             if (p.replace(/[^a-zA-Z0-9]/g, '_') === pathParts.join('_')) {
@@ -280,7 +324,9 @@ export class OpenApiMcpServer {
         }
 
         // Execute the API call
-        const parameters = (args as any)?.parameters || {};
+        const paramArguments = request.params.arguments as any;
+        console.log("request.params", request.params)
+        const parameters = (args as any) || {};
         const response = await operation.execute(parameters as InputRestParameters);
 
         return {
@@ -317,6 +363,7 @@ export class OpenApiMcpServer {
   }
 
   async start(): Promise<void> {
+    logger.info("start MCP server", this.config)
     if (!this.openApiDoc) {
       await this.loadOpenApiSpec(this.config.openApiUrl);
     }
@@ -371,7 +418,7 @@ export class OpenApiMcpServer {
                 parameters: operation.parameters,
               });
               toolCount++;
-              
+
               // 進捗を報告
               if (toolCount % 10 === 0) {
                 progressCallback?.(`Loaded ${toolCount} tools`);
@@ -412,7 +459,7 @@ export class OpenApiMcpServer {
             mimeType: 'application/json',
           });
           resourceCount++;
-          
+
           // 進捗を報告
           if (resourceCount % 10 === 0) {
             progressCallback?.(`Loaded ${resourceCount} resources`);
@@ -432,15 +479,15 @@ export class OpenApiMcpServer {
 
     // Parse resource name to extract method and path
     const [method, ...pathParts] = resourceName.split('_');
-    
+
     if (method !== 'get') {
       throw new Error(`Resource must be a GET operation: ${resourceName}`);
     }
-    
+
     // Find the actual path in the OpenAPI document
     let actualPath: string | null = null;
     const paths = this.openApiDoc.paths;
-    
+
     if (paths) {
       for (const p of Object.keys(paths)) {
         if (p.replace(/[^a-zA-Z0-9]/g, '_') === pathParts.join('_')) {
@@ -482,17 +529,18 @@ export class OpenApiMcpServer {
   }
 
   async executeTool(toolName: string, parameters: any): Promise<any> {
+    logger.info("executeTool", toolName, parameters)
     if (!this.openApiDoc) {
       throw new Error('OpenAPI document not loaded');
     }
 
     // Parse tool name to extract method and path
     const [method, ...pathParts] = toolName.split('_');
-    
+
     // Find the actual path in the OpenAPI document
     let actualPath: string | null = null;
     const paths = this.openApiDoc.paths;
-    
+
     if (paths) {
       for (const p of Object.keys(paths)) {
         if (p.replace(/[^a-zA-Z0-9]/g, '_') === pathParts.join('_')) {
@@ -520,6 +568,8 @@ export class OpenApiMcpServer {
       throw new Error(`Operation not found: ${method} ${actualPath}`);
     }
 
+    logger.info("executeTool", parameters)
+
     // Execute the API call
     const response = await operation.execute(parameters as InputRestParameters);
 
@@ -546,11 +596,11 @@ export class OpenApiMcpServer {
       // Parse tool name to extract method and path
       const [method, ...pathParts] = toolName.split('_');
       eventSender?.sendProgress(`Parsing tool name: ${toolName}`, 'parse');
-      
+
       // Find the actual path in the OpenAPI document
       let actualPath: string | null = null;
       const paths = this.openApiDoc.paths;
-      
+
       if (paths) {
         for (const p of Object.keys(paths)) {
           if (p.replace(/[^a-zA-Z0-9]/g, '_') === pathParts.join('_')) {

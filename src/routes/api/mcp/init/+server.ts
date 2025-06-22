@@ -4,14 +4,28 @@ import { createOpenApiMcpServer } from '$lib/mcp/openapi-mcp-server';
 import { createConfig } from '$lib/mcp/config';
 import { loadConfig } from '$lib/mcp/config-server';
 import { setMcpServer, getMcpServer, getServerConfig, clearMcpServer, isServerInitialized } from '$lib/mcp/server-state';
-import type { McpServerState } from '$lib/stores/mcp';
+import type { McpServerState, McpServerInitRequest, McpServerConfig } from '$lib/types/api-config';
 
 export const POST = async ({ request }: RequestEvent) => {
   try {
-    const body = await request.json();
+    const body = await request.json() as McpServerInitRequest;
 
-    let config;
+    let config:McpServerConfig;
 
+    // 設定IDが指定されている場合は保存された設定を読み込み
+    if ("configurationId" in body) {
+      const configurationId = body.configurationId;
+      try {
+        const savedConfig = await loadConfig(configurationId);
+        config = await createConfig(savedConfig.config);
+        console.log(`Loading MCP server from saved config: ${savedConfig.config.serverName} (${body.configurationId})`);
+      } catch (error) {
+        return json({
+          success: false,
+          error: `Failed to load saved config: ${error instanceof Error ? error.message : String(error)}`,
+        }, { status: 404 });
+      }
+    } else {
       // 従来の方法：パラメータから設定を作成
       const { openApiUrl, serverName, serverVersion, timeout, maxRetries, requestSettings } = body;
 
@@ -23,7 +37,7 @@ export const POST = async ({ request }: RequestEvent) => {
       }
 
       // 設定を作成
-      config = createConfig({
+      config = await createConfig({
         openApiUrl,
         serverName: serverName || 'openapi-mcp-server',
         serverVersion: serverVersion || '1.0.0',
@@ -31,6 +45,7 @@ export const POST = async ({ request }: RequestEvent) => {
         maxRetries: maxRetries || 3,
         requestSettings: requestSettings,
       });
+    }
 
     try {
       // MCPサーバを作成して初期化
@@ -71,8 +86,6 @@ export const GET = async () => {
     openApiUrl: getServerConfig()?.openApiUrl ?? "",
     serverName: getServerConfig()?.serverName ?? "",
     serverVersion: getServerConfig()?.serverVersion ?? "",
-    lastStarted: null,
-    error: null,
     availableTools: serverInstance?.getAvailableTools() ?? [],
     availableResources: serverInstance?.getAvailableResources() ?? [],
   }

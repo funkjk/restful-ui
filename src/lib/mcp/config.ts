@@ -1,41 +1,29 @@
-import type { RequestSettings } from '$lib/types/request-config';
+import type { McpServerConfig, McpServerConfigObject } from '$lib/types/api-config';
 
-export interface McpServerConfig {
-  serverName: string;
-  serverVersion: string;
-  openApiUrl: string;
-  baseUrl?: string;
-  timeout?: number;
-  maxRetries?: number;
-  retryDelay?: number;
-  requestSettings?: RequestSettings;
+import { readFile } from 'fs/promises';
+
+export type McpServerCliConfig = Partial<McpServerConfig> & {
+  file?: string;
 }
 
-export interface SavedMcpConfig {
-  id: string;
-  name: string;
-  description?: string;
-  config: McpServerConfig;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export const defaultConfig: Partial<McpServerConfig> = {
+export const defaultConfig: McpServerCliConfig = {
   serverName: 'openapi-mcp-server',
   serverVersion: '1.0.0',
   timeout: 30000, // 30 seconds
-  maxRetries: 3,
-  retryDelay: 1000, // 1 second
+  maxRetries: 3
 };
 
-export function createConfig(overrides: Partial<McpServerConfig>): McpServerConfig {
-  if (!overrides.openApiUrl) {
-    throw new Error('openApiUrl is required');
+export async function createConfig(overrides: McpServerCliConfig): Promise<McpServerConfig> {
+  let config: McpServerCliConfig = overrides
+  if (config.file) {
+    const fileContent = await readFile(config.file, 'utf8');
+    const fileConfig = JSON.parse(fileContent) as McpServerConfigObject;
+    config = fileConfig.config
   }
 
   return {
     ...defaultConfig,
-    ...overrides,
+    ...config,
   } as McpServerConfig;
 }
 
@@ -48,15 +36,18 @@ export function validateUrl(url: string): boolean {
   }
 }
 
-export function parseConfigFromArgs(args: string[]): Partial<McpServerConfig> {
-  const config: Partial<McpServerConfig> = {};
+export function parseConfigFromArgs(args: string[]): McpServerCliConfig {
+  const config: McpServerCliConfig = {};
   
-  // Parse command line arguments
   for (let i = 0; i < args.length; i += 2) {
     const key = args[i];
     const value = args[i + 1];
     
     switch (key) {
+      case '--file':
+      case '-f':
+        config.file = value;
+        break;
       case '--url':
       case '-u':
         config.openApiUrl = value;
@@ -69,10 +60,6 @@ export function parseConfigFromArgs(args: string[]): Partial<McpServerConfig> {
       case '-v':
         config.serverVersion = value;
         break;
-      case '--base-url':
-      case '-b':
-        config.baseUrl = value;
-        break;
       case '--timeout':
       case '-t':
         config.timeout = parseInt(value, 10);
@@ -81,19 +68,19 @@ export function parseConfigFromArgs(args: string[]): Partial<McpServerConfig> {
       case '-r':
         config.maxRetries = parseInt(value, 10);
         break;
-      case '--retry-delay':
-      case '-d':
-        config.retryDelay = parseInt(value, 10);
-        break;
     }
   }
   
   return config;
 }
 
-export function parseConfigFromEnv(): Partial<McpServerConfig> {
-  const config: Partial<McpServerConfig> = {};
+export function parseConfigFromEnv(): McpServerCliConfig {
+  const config: McpServerCliConfig = {};
   
+  if (process.env.FILE_PATH) {
+    config.file = process.env.FILE_PATH;
+  }
+
   if (process.env.OPENAPI_URL) {
     config.openApiUrl = process.env.OPENAPI_URL;
   }
@@ -106,9 +93,6 @@ export function parseConfigFromEnv(): Partial<McpServerConfig> {
     config.serverVersion = process.env.MCP_SERVER_VERSION;
   }
   
-  if (process.env.API_BASE_URL) {
-    config.baseUrl = process.env.API_BASE_URL;
-  }
   
   if (process.env.API_TIMEOUT) {
     config.timeout = parseInt(process.env.API_TIMEOUT, 10);
@@ -118,9 +102,21 @@ export function parseConfigFromEnv(): Partial<McpServerConfig> {
     config.maxRetries = parseInt(process.env.API_MAX_RETRIES, 10);
   }
   
-  if (process.env.API_RETRY_DELAY) {
-    config.retryDelay = parseInt(process.env.API_RETRY_DELAY, 10);
-  }
-  
   return config;
 } 
+
+import winston from 'winston';
+
+export const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  defaultMeta: { service: 'user-service' },
+  transports: [
+    //
+    // - Write all logs with importance level of `error` or higher to `error.log`
+    //   (i.e., error, fatal, but not other levels)
+    //
+    new winston.transports.File({ filename: './mcp-configs/mcp-logger.log' }),
+    new winston.transports.Console(),
+  ],
+});
