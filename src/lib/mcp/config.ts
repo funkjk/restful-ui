@@ -1,3 +1,5 @@
+import type { RequestSettings } from '$lib/types/request-config';
+
 export interface McpServerConfig {
   serverName: string;
   serverVersion: string;
@@ -6,6 +8,16 @@ export interface McpServerConfig {
   timeout?: number;
   maxRetries?: number;
   retryDelay?: number;
+  requestSettings?: RequestSettings;
+}
+
+export interface SavedMcpConfig {
+  id: string;
+  name: string;
+  description?: string;
+  config: McpServerConfig;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const defaultConfig: Partial<McpServerConfig> = {

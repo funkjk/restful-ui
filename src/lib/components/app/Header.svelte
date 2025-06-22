@@ -3,16 +3,6 @@
 </script>
 
 <header>
-  <nav>
-    <ul>
-      <li aria-current={$page.route.id === '/' ? 'page' : undefined}>
-        <a href="/">API Explorer</a>
-      </li>
-      <li aria-current={$page.route.id === '/mcp-server' ? 'page' : undefined}>
-        <a href="/mcp-server">MCP Server</a>
-      </li>
-    </ul>
-  </nav>
 </header>
 
 <style>

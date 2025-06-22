@@ -4,11 +4,13 @@
     import Radio from "@smui/radio";
     import FormField from "@smui/form-field";
     import Request from "./setting/Request.svelte";
+    import McpServer from "./setting/McpServer.svelte";
     export let config: RestfulComponentConfig;
 
     let options = [
         { name: "Request", value: Request },
         { name: "Storage", value: Storage },
+        { name: "MCP Server", value: McpServer },
     ];
     let selected = options[0];
 </script>

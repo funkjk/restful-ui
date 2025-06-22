@@ -2,7 +2,8 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getMcpServer, getServerConfig, isServerInitialized } from '$lib/mcp/server-state';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, url }) => {
+  console.log("POST request received", request, url);
   try {
     const body = await request.json();
     const { method, params, id } = body;
@@ -28,6 +29,7 @@ export const POST: RequestHandler = async ({ request }) => {
           protocolVersion: '2024-11-05',
           capabilities: {
             tools: {},
+            resources: {},
           },
           serverInfo: {
             name: 'openapi-mcp-server',
@@ -47,7 +49,8 @@ export const POST: RequestHandler = async ({ request }) => {
         if (openApiDoc?.paths) {
           for (const [path, pathItem] of Object.entries(openApiDoc.paths)) {
             if (pathItem) {
-              const methods = ['get', 'post', 'put', 'patch', 'delete'] as const;
+              // Only include non-GET methods as tools
+              const methods = ['post', 'put', 'patch', 'delete'] as const;
               for (const method of methods) {
                 const operation = (pathItem as any)[method];
                 if (operation) {
@@ -86,6 +89,129 @@ export const POST: RequestHandler = async ({ request }) => {
           error: {
             code: -32603,
             message: `Failed to list tools: ${err instanceof Error ? err.message : String(err)}`,
+          },
+        });
+      }
+    }
+
+    // List resources request
+    if (method === 'resources/list') {
+      try {
+        const resources = [];
+        const serverInstance = getMcpServer();
+        
+        if (serverInstance) {
+          const availableResources = serverInstance.getAvailableResources();
+          for (const resource of availableResources) {
+            resources.push({
+              uri: resource.uri,
+              name: resource.name,
+              description: resource.description,
+              mimeType: resource.mimeType,
+            });
+          }
+        }
+
+        return json({
+          jsonrpc: '2.0',
+          id,
+          result: {
+            resources,
+          },
+        });
+      } catch (err) {
+        return json({
+          jsonrpc: '2.0',
+          id,
+          error: {
+            code: -32603,
+            message: `Failed to list resources: ${err instanceof Error ? err.message : String(err)}`,
+          },
+        });
+      }
+    }
+
+    // Read resource request
+    if (method === 'resources/read') {
+      try {
+        const { uri } = params;
+        
+        if (!uri) {
+          return json({
+            jsonrpc: '2.0',
+            id,
+            error: {
+              code: -32602,
+              message: 'URI parameter is required',
+            },
+          });
+        }
+
+        const serverInstance = getMcpServer();
+        if (!serverInstance) {
+          throw new Error('MCP server not available');
+        }
+
+        // Parse URI to extract resource name
+        const match = uri.match(/^openapi:\/\/(.+)$/);
+        if (!match) {
+          return json({
+            jsonrpc: '2.0',
+            id,
+            error: {
+              code: -32602,
+              message: `Invalid resource URI: ${uri}`,
+            },
+          });
+        }
+
+        const resourceName = match[1];
+        const result = await serverInstance.executeResource(resourceName);
+        
+        return json({
+          jsonrpc: '2.0',
+          id,
+          result: {
+            contents: [
+              {
+                uri,
+                mimeType: 'application/json',
+                text: JSON.stringify(result, null, 2),
+              },
+            ],
+          },
+        });
+      } catch (err) {
+        return json({
+          jsonrpc: '2.0',
+          id,
+          error: {
+            code: -32603,
+            message: `Failed to read resource: ${err instanceof Error ? err.message : String(err)}`,
+          },
+        });
+      }
+    }
+
+    // List resource templates request
+    if (method === 'resources/templates/list') {
+      try {
+        // OpenAPI servers typically don't need dynamic resource templates
+        // Return empty array to indicate no templates are available
+        return json({
+          jsonrpc: '2.0',
+          id,
+          result: {
+            resourceTemplates: [],
+          },
+        });
+      } catch (err) {
+        return json({
+          jsonrpc: '2.0',
+          id,
+          error: {
+            code: -32603,
+            message: `Failed to list resource templates: ${err instanceof Error ? err.message : String(err)}`,
           },
         });
       }
@@ -190,7 +316,8 @@ export const POST: RequestHandler = async ({ request }) => {
 };
 
 // GET request for status
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({url}) => {
+  console.log("GET request received", url);
   const config = getServerConfig();
   return json({
     status: isServerInitialized() ? 'running' : 'stopped',

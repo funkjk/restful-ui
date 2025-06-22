@@ -1,28 +1,36 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
+import type { RequestEvent } from '@sveltejs/kit';
 import { createOpenApiMcpServer } from '$lib/mcp/openapi-mcp-server';
 import { createConfig } from '$lib/mcp/config';
+import { loadConfig } from '$lib/mcp/config-server';
 import { setMcpServer, getMcpServer, getServerConfig, clearMcpServer, isServerInitialized } from '$lib/mcp/server-state';
+import type { McpServerState } from '$lib/stores/mcp';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST = async ({ request }: RequestEvent) => {
   try {
-    const { openApiUrl, serverName, serverVersion, timeout, maxRetries } = await request.json();
+    const body = await request.json();
 
-    if (!openApiUrl) {
-      return json({
-        success: false,
-        error: 'OpenAPI URL is required',
-      }, { status: 400 });
-    }
+    let config;
 
-    // 設定を作成
-    const config = createConfig({
-      openApiUrl,
-      serverName: serverName || 'openapi-mcp-server',
-      serverVersion: serverVersion || '1.0.0',
-      timeout: timeout || 30000,
-      maxRetries: maxRetries || 3,
-    });
+      // 従来の方法：パラメータから設定を作成
+      const { openApiUrl, serverName, serverVersion, timeout, maxRetries, requestSettings } = body;
+
+      if (!openApiUrl) {
+        return json({
+          success: false,
+          error: 'OpenAPI URL or config ID is required',
+        }, { status: 400 });
+      }
+
+      // 設定を作成
+      config = createConfig({
+        openApiUrl,
+        serverName: serverName || 'openapi-mcp-server',
+        serverVersion: serverVersion || '1.0.0',
+        timeout: timeout || 30000,
+        maxRetries: maxRetries || 3,
+        requestSettings: requestSettings,
+      });
 
     try {
       // MCPサーバを作成して初期化
@@ -39,7 +47,7 @@ export const POST: RequestHandler = async ({ request }) => {
           openApiUrl: config.openApiUrl,
           serverName: config.serverName,
           serverVersion: config.serverVersion,
-        },
+        }
       });
     } catch (error) {
       console.error('Failed to initialize MCP server:', error);
@@ -56,16 +64,24 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 };
 
-export const GET: RequestHandler = async () => {
-  return json({
-    isInitialized: isServerInitialized(),
-    config: getServerConfig(),
-  });
+export const GET = async () => {
+  const serverInstance = getMcpServer();
+  const serverState: McpServerState = {
+    isRunning: isServerInitialized(),
+    openApiUrl: getServerConfig()?.openApiUrl ?? "",
+    serverName: getServerConfig()?.serverName ?? "",
+    serverVersion: getServerConfig()?.serverVersion ?? "",
+    lastStarted: null,
+    error: null,
+    availableTools: serverInstance?.getAvailableTools() ?? [],
+    availableResources: serverInstance?.getAvailableResources() ?? [],
+  }
+  return json(serverState);
 };
 
-export const DELETE: RequestHandler = async () => {
+export const DELETE = async () => {
   clearMcpServer();
-  
+
   return json({
     success: true,
     message: 'MCP server stopped',

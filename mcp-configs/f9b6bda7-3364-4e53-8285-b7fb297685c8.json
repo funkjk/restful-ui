@@ -1,0 +1,21 @@
+{
+  "id": "f9b6bda7-3364-4e53-8285-b7fb297685c8",
+  "name": "test",
+  "description": "test",
+  "config": {
+    "openApiUrl": "http://localhost:4210/backlog_oas.yml",
+    "serverName": "openapi-mcp-server",
+    "serverVersion": "1.0.0",
+    "timeout": 30000,
+    "maxRetries": 3,
+    "retryDelay": 1000,
+    "requestSettings": {
+      "headers": [],
+      "additionalQueryParameter": "apiKey=N86qcoOze88OQQJc2ifirTkjjeIrRvFUgrrCtb0FEaIvnOyxPP1t8hjAYaPp8aD1",
+      "basePath": "https://flt.backlog.jp",
+      "useProxy": false
+    }
+  },
+  "createdAt": "2025-06-21T22:32:52.201Z",
+  "updatedAt": "2025-06-21T22:32:52.201Z"
+}

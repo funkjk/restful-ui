@@ -1,4 +1,3 @@
-import { getBaseUrl } from "$lib/utils/proxy";
 import type { RestApiResponse } from "./apiFetch";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain } from "./RestfulPlugin";
@@ -118,6 +117,12 @@ export interface MessageLogger {
     log(message: LogMessage): void
 }
 
+export class ConsoleMessageLogger implements MessageLogger {
+    log(message: LogMessage): void {
+        console.log(message)
+    }
+}
+
 export class LoggingRestfulPlugin extends EmptyRestfulPlugin {
     constructor(logger: MessageLogger) {
         super()
@@ -148,7 +153,7 @@ export class SetHeaderPlugin extends EmptyRestfulPlugin {
 
 }
 
-export class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
+export abstract class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
     async doFetch(_restfulOperation: RestfulOperation, _chain: FetchPluginChain, _inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         return this.requestUsingProxy(input, init);
     }
@@ -202,9 +207,7 @@ export class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
         }
         return response
     }
-    getProxyUrl(): string {
-        return getBaseUrl() + "api/proxy";
-    }
+    abstract getProxyUrl(): string;
     async doProxyRequest(requestBody: ProxyRequestBody): Promise<Response> {
         const response = await fetch(this.getProxyUrl(), {
             method: "POST",

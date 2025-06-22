@@ -1,0 +1,251 @@
+openapi: 3.0.3
+info:
+  title: Restful UI MCP Server Setting
+  version: 0.9.0
+externalDocs:
+  description: Find out Restful UI
+  url: https://github.com/funkjk/restful-ui
+servers:
+  - url: http://localhost:4210/api
+paths:
+  /mcp/init:
+    get:
+      summary: Get MCP Server Information.
+      description: Get MCP Server Informatin running (or not running) on Restful UI Server.
+      responses:
+        '200':
+          description: Inforamtion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpServerState'
+    post:
+      summary: Initialize and start MCP Server.
+      requestBody:
+        description: Start MCP server with requested config
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpServerConfig'
+      responses:
+        '200':
+          description: Successful operation
+    delete:
+      summary: Stop MCP Server.
+      responses:
+        '200':
+          description: Successful
+  /mcp/config:
+    get:
+      summary: List MCP Server Configurations.
+      responses:
+        '200':
+          description: Inforamtion
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/McpServerConfigObject'
+    post:
+      summary: Create MCP Server Configurations.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpServerConfig'
+      responses:
+        '201':
+          description: Create MCP Server Configurations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+  /mcp/config/{id}:
+    get:
+      summary: Get MCP Server Configuration.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: MCP Server Configuration id
+      responses:
+        '200':
+          description: Inforamtion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpServerConfigObject'
+    put:
+      summary: Update MCP Server Configuration.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: MCP Server Configuration id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpServerConfig'
+      responses:
+        '200':
+          description: Inforamtion
+  /mcp/config/{id}/init:
+    get:
+      summary: Get MCP Server Information by configuraion id.
+      description: Get MCP Server Informatin running (or not running) on Restful UI Server.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: MCP Server Configuration id
+      responses:
+        '200':
+          description: Inforamtion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpServerState'
+    post:
+      summary: Initialize and start MCP Server.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: MCP Server Configuration id
+      requestBody:
+        description: Start MCP server with requested config
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpServerConfig'
+      responses:
+        '200':
+          description: Successful operation
+    delete:
+      summary: Stop MCP Server.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: MCP Server Configuration id
+      responses:
+        '200':
+          description: Successful
+      
+    
+      
+          
+          
+      
+components:
+  schemas:
+    McpServerConfigObject:
+      type: object
+      allOf:
+          - $ref: '#/components/schemas/McpServerConfig'
+          - type: object
+            properties:
+              id:
+                type: string
+    McpServerConfig:
+      type: object
+      properties:
+        openApiUrl:
+          type: string
+        serverName:
+          type: string
+        serverVersion:
+          type: string
+        timeout:
+          type: number
+        maxRetries:
+          type: number
+        requestSettings:
+          $ref: '#/components/schemas/RequestSetting'
+    ToolInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        method:
+          type: string
+        path:
+          type: string
+        parameters:
+          type: object
+    ResourceInfo:
+      type: object
+      properties:
+        uri:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        method:
+          type: string
+        path:
+          type: string
+        parameters:
+          type: object
+        mimeType:
+          type: string
+    RequestSetting:
+      type: object
+      properties:
+        headers:
+          type: array
+          items:
+            type: object
+        additionalQueryParameter:
+          type: string
+        basePath:
+          type: string
+        useProxy:
+          type: boolean
+    McpServerState:
+      type: object
+      properties:
+        isRunning:
+          type: boolean
+          example: true
+        openApiUrl:
+          type: string
+          example: "http://localhost:4210/mcp-config.yaml"
+        serverName:
+          type: string
+          example: "openapi-mcp-server"
+        serverVersion:
+          type: string
+          example: "1.0.0"
+        availableTools:
+          type: array
+          items:
+            $ref: "#/components/schemas/ToolInfo"
+        availableResources:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResourceInfo"
+            
+
+
+
+
+

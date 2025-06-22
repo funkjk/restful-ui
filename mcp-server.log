@@ -1,0 +1,147 @@
+2025-06-19T11:24:06.895Z [INFO] Subprocess launched: tsx src/lib/mcp/server.ts https://petstore.swagger.io/v2/swagger.json
+2025-06-19T11:24:06.902Z [STDIN] {"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{"sampling":{},"roots":{"listChanged":true}},"clientInfo":{"name":"mcp-inspector","version":"0.14.3"}}}
+2025-06-19T11:24:07.637Z [STDERR] 
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+2025-06-19T11:24:07.637Z [STDERR] Error [ERR_MODULE_NOT_FOUND]: Cannot find package '$app' imported from /Users/kenji.funaki/projects/prv/product/restful-ui/src/lib/utils/proxy.ts
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:267:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:854:18)
+    at defaultResolve (node:internal/modules/esm/resolve:984:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at resolveBase (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332247392:4:1651)
+    at resolveDirectory (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332247392:4:2150)
+    at resolveTsPaths (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332247392:4:2891)
+    at resolve (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332247392:4:3373)
+    at nextResolve (node:internal/modules/esm/hooks:748:28) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+2025-06-19T11:24:07.638Z [STDERR] 
+Node.js v23.11.0
+2025-06-19T11:24:07.640Z [SIGNAL] SIGTERM received.
+2025-06-19T11:24:07.640Z [SIGNAL] SIGTERM received from parent process, forwarding to child process.
+2025-06-19T11:24:07.659Z [INFO] Subprocess finished with code 1
+2025-06-19T11:24:38.561Z [INFO] Subprocess launched: tsx src/lib/mcp/server.ts https://petstore.swagger.io/v2/swagger.json
+2025-06-19T11:24:39.322Z [STDERR] 
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+2025-06-19T11:24:39.323Z [STDERR] Error [ERR_MODULE_NOT_FOUND]: Cannot find package '$app' imported from /Users/kenji.funaki/projects/prv/product/restful-ui/src/lib/utils/proxy.ts
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:267:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:854:18)
+    at defaultResolve (node:internal/modules/esm/resolve:984:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at resolveBase (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332279069:4:1651)
+    at resolveDirectory (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332279069:4:2150)
+    at resolveTsPaths (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332279069:4:2891)
+    at resolve (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332279069:4:3373)
+    at nextResolve (node:internal/modules/esm/hooks:748:28) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v23.11.0
+2025-06-19T11:24:39.344Z [INFO] Subprocess finished with code 1
+2025-06-19T11:25:58.747Z [INFO] Subprocess launched: tsx src/lib/mcp/server.ts https://petstore.swagger.io/v2/swagger.json
+2025-06-19T11:25:59.507Z [STDERR] 
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+2025-06-19T11:25:59.508Z [STDERR] Error [ERR_MODULE_NOT_FOUND]: Cannot find package '$app' imported from /Users/kenji.funaki/projects/prv/product/restful-ui/src/lib/utils/proxy.ts
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:267:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:854:18)
+    at defaultResolve (node:internal/modules/esm/resolve:984:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at resolveBase (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332359254:4:1651)
+    at resolveDirectory (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332359254:4:2150)
+    at resolveTsPaths (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332359254:4:2891)
+    at resolve (file:///Users/kenji.funaki/projects/prv/product/restful-ui/node_modules/.pnpm/tsx@4.20.2/node_modules/tsx/dist/esm/index.mjs?1750332359254:4:3373)
+    at nextResolve (node:internal/modules/esm/hooks:748:28) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v23.11.0
+2025-06-19T11:25:59.530Z [INFO] Subprocess finished with code 1
+2025-06-19T11:27:51.002Z [INFO] Subprocess launched: tsx src/lib/mcp/server.ts https://petstore.swagger.io/v2/swagger.json
+2025-06-19T11:27:52.521Z [STDERR] Starting MCP server: openapi-mcp-server v1.0.0
+2025-06-19T11:27:52.522Z [STDERR] Loading OpenAPI spec from: https://petstore.swagger.io/v2/swagger.json
+2025-06-19T11:27:53.606Z [STDERR] OpenAPI spec loaded successfully
+2025-06-19T11:27:53.607Z [STDERR] MCP server is ready
+2025-06-19T11:27:55.075Z [SIGNAL] SIGINT received.
+2025-06-19T11:27:55.076Z [SIGNAL] SIGINT received from parent process, forwarding to child process.
+2025-06-19T11:27:55.081Z [STDERR] Received SIGINT, shutting down gracefully...
+2025-06-19T11:27:55.082Z [SIGNAL] SIGINT received.
+2025-06-19T11:27:55.082Z [SIGNAL] SIGINT received from parent process, forwarding to child process.
+2025-06-19T11:27:55.128Z [INFO] Subprocess finished with code 0
+2025-06-19T11:32:43.265Z [INFO] Subprocess launched: tsx src/lib/mcp/server.ts https://petstore.swagger.io/v2/swagger.json
+2025-06-19T11:32:43.272Z [STDIN] {"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{"sampling":{},"roots":{"listChanged":true}},"clientInfo":{"name":"mcp-inspector","version":"0.14.3"}}}
+2025-06-19T11:32:44.813Z [STDERR] Starting MCP server: openapi-mcp-server v1.0.0
+2025-06-19T11:32:44.813Z [STDERR] Loading OpenAPI spec from: https://petstore.swagger.io/v2/swagger.json
+2025-06-19T11:32:45.864Z [STDERR] OpenAPI spec loaded successfully
+MCP server is ready
+2025-06-19T11:32:45.871Z [STDOUT] {"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{}},"serverInfo":{"name":"openapi-mcp-server","version":"1.0.0"}},"jsonrpc":"2.0","id":0}
+2025-06-19T11:32:45.880Z [STDIN] {"jsonrpc":"2.0","method":"notifications/initialized"}
+2025-06-19T11:32:48.961Z [INFO] Subprocess launched: tsx src/lib/mcp/server.ts https://petstore.swagger.io/v2/swagger.json
+2025-06-19T11:32:48.968Z [STDIN] {"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{"sampling":{},"roots":{"listChanged":true}},"clientInfo":{"name":"mcp-inspector","version":"0.14.3"}}}
+2025-06-19T11:32:50.415Z [STDERR] Starting MCP server: openapi-mcp-server v1.0.0
+2025-06-19T11:32:50.416Z [STDERR] Loading OpenAPI spec from: https://petstore.swagger.io/v2/swagger.json
+2025-06-19T11:32:51.473Z [STDERR] OpenAPI spec loaded successfully
+MCP server is ready
+2025-06-19T11:32:51.480Z [STDOUT] {"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{}},"serverInfo":{"name":"openapi-mcp-server","version":"1.0.0"}},"jsonrpc":"2.0","id":0}
+2025-06-19T11:32:51.487Z [STDIN] {"jsonrpc":"2.0","method":"notifications/initialized"}
+2025-06-19T11:32:57.764Z [STDIN] {"jsonrpc":"2.0","id":1,"method":"tools/list","params":{"_meta":{"progressToken":1}}}
+2025-06-19T11:32:57.768Z [STDOUT] {"result":{"tools":[{"name":"post__pet__petId__uploadImage","description":"uploads an image","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"post__pet","description":"Add a new pet to the store","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"put__pet","description":"Update an existing pet","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"get__pet_findByStatus","description":"Finds Pets by status","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"get__pet_findByTags","description":"Finds Pets by tags","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"get__pet__petId_","description":"Find pet by ID","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"post__pet__petId_","description":"Updates a pet in the store with form data","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"delete__pet__petId_","description":"Deletes a pet","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"get__store_inventory","description":"Returns pet inventories by status","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"post__store_order","description":"Place an order for a pet","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"get__store_order__orderId_","description":"Find purchase order by ID","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"delete__store_order__orderId_","description":"Delete purchase order by ID","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"post__user_createWithList","description":"Creates list of users with given input array","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"get__user__username_","description":"Get user by user name","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"put__user__username_","description":"Updated user","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"delete__user__username_","description":"Delete user","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"get__user_login","description":"Logs user into the system","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"get__user_logout","description":"Logs out current logged in user session","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"post__user_createWithArray","description":"Creates list of users with given input array","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}},{"name":"post__user","description":"Create user","inputSchema":{"type":"object","properties":{"parameters":{"type":"object","description":"Parameters for the API call","additionalProperties":true}}}}]},"jsonrpc":"2.0","id":1}
+2025-06-19T11:33:07.038Z [STDIN] {"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"_meta":{"progressToken":2},"name":"get__pet_findByTags","arguments":{"parameters":{}}}}
+2025-06-19T11:33:07.047Z [STDOUT] RequestLogMessage {
+  date: 2025-06-19T11:33:07.042Z,
+  messages: [ 'REQUEST: GET https://petstore.swagger.io:/v2/pet/findByTags' ],
+  type: 'REQUEST'
+}
+2025-06-19T11:33:07.845Z [STDOUT] ResponseLogMessage {
+  date: 2025-06-19T11:33:07.843Z,
+  messages: [
+    'RESPONSE: GET https://petstore.swagger.io:/v2/pet/findByTags => 200',
+    '[]'
+  ],
+  type: 'RESPONSE'
+}
+2025-06-19T11:33:07.846Z [STDOUT] {"result":{"content":[{"type":"text","text":"{\n  \"url\": \"https://petstore.swagger.io/v2/pet/findByTags\",\n  \"status\": 200,\n  \"ok\": true,\n  \"headers\": {\n    \"access-control-allow-headers\": \"Content-Type, api_key, Authorization\",\n    \"access-control-allow-methods\": \"GET, POST, DELETE, PUT\",\n    \"access-control-allow-origin\": \"*\",\n    \"connection\": \"keep-alive\",\n    \"content-type\": \"application/json\",\n    \"date\": \"Thu, 19 Jun 2025 11:33:07 GMT\",\n    \"server\": \"Jetty(9.2.9.v20150224)\",\n    \"transfer-encoding\": \"chunked\"\n  },\n  \"body\": [],\n  \"bodyType\": \"JSON\"\n}"}]},"jsonrpc":"2.0","id":2}
+2025-06-19T11:33:50.169Z [STDIN] {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"_meta":{"progressToken":3},"name":"get__pet_findByStatus","arguments":{"parameters":{}}}}
+2025-06-19T11:33:50.179Z [STDOUT] RequestLogMessage {
+  date: 2025-06-19T11:33:50.177Z,
+  messages: [ 'REQUEST: GET https://petstore.swagger.io:/v2/pet/findByStatus' ],
+  type: 'REQUEST'
+}
+2025-06-19T11:33:50.960Z [STDOUT] ResponseLogMessage {
+  date: 2025-06-19T11:33:50.956Z,
+  messages: [
+    'RESPONSE: GET https://petstore.swagger.io:/v2/pet/findByStatus => 200',
+    '[]'
+  ],
+  type: 'RESPONSE'
+}
+2025-06-19T11:33:50.961Z [STDOUT] {"result":{"content":[{"type":"text","text":"{\n  \"url\": \"https://petstore.swagger.io/v2/pet/findByStatus\",\n  \"status\": 200,\n  \"ok\": true,\n  \"headers\": {\n    \"access-control-allow-headers\": \"Content-Type, api_key, Authorization\",\n    \"access-control-allow-methods\": \"GET, POST, DELETE, PUT\",\n    \"access-control-allow-origin\": \"*\",\n    \"connection\": \"keep-alive\",\n    \"content-type\": \"application/json\",\n    \"date\": \"Thu, 19 Jun 2025 11:33:50 GMT\",\n    \"server\": \"Jetty(9.2.9.v20150224)\",\n    \"transfer-encoding\": \"chunked\"\n  },\n  \"body\": [],\n  \"bodyType\": \"JSON\"\n}"}]},"jsonrpc":"2.0","id":3}
+2025-06-19T11:34:01.270Z [STDIN] {"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"_meta":{"progressToken":4},"name":"get__pet_findByStatus","arguments":{"parameters":{"status":"pending"}}}}
+2025-06-19T11:34:01.274Z [STDOUT] RequestLogMessage {
+  date: 2025-06-19T11:34:01.272Z,
+  messages: [
+    'REQUEST: GET https://petstore.swagger.io:/v2/pet/findByStatus?status=pending'
+  ],
+  type: 'REQUEST'
+}
+2025-06-19T11:34:02.053Z [STDOUT] ResponseLogMessage {
+  date: 2025-06-19T11:34:02.051Z,
+  messages: [
+    'RESPONSE: GET https://petstore.swagger.io:/v2/pet/findByStatus?status=pending => 200',
+    '[{"id":1713670457,"category":{"id":273520694,"name":"KyHvxhuu"},"name":"bVPSlnlwwAq","photoUrls":["KgVtOYfIvi"],"tags":[{"id":1151040063,"name":""}],"status":"pending"},{"id":9223372036854775000,"name":"den","photoUrls":[],"tags":[],"status":"pending"}]'
+  ],
+  type: 'RESPONSE'
+}
+2025-06-19T11:34:02.053Z [STDOUT] {"result":{"content":[{"type":"text","text":"{\n  \"url\": \"https://petstore.swagger.io/v2/pet/findByStatus?status=pending\",\n  \"status\": 200,\n  \"ok\": true,\n  \"headers\": {\n    \"access-control-allow-headers\": \"Content-Type, api_key, Authorization\",\n    \"access-control-allow-methods\": \"GET, POST, DELETE, PUT\",\n    \"access-control-allow-origin\": \"*\",\n    \"connection\": \"keep-alive\",\n    \"content-type\": \"application/json\",\n    \"date\": \"Thu, 19 Jun 2025 11:34:01 GMT\",\n    \"server\": \"Jetty(9.2.9.v20150224)\",\n    \"transfer-encoding\": \"chunked\"\n  },\n  \"body\": [\n    {\n      \"id\": 1713670457,\n      \"category\": {\n        \"id\": 273520694,\n        \"name\": \"KyHvxhuu\"\n      },\n      \"name\": \"bVPSlnlwwAq\",\n      \"photoUrls\": [\n        \"KgVtOYfIvi\"\n      ],\n      \"tags\": [\n        {\n          \"id\": 1151040063,\n          \"name\": \"\"\n        }\n      ],\n      \"status\": \"pending\"\n    },\n    {\n      \"id\": 9223372036854775000,\n      \"name\": \"den\",\n      \"photoUrls\": [],\n      \"tags\": [],\n      \"status\": \"pending\"\n    }\n  ],\n  \"bodyType\": \"JSON\"\n}"}]},"jsonrpc":"2.0","id":4}
+2025-06-19T11:44:55.251Z [SIGNAL] SIGTERM received.
+2025-06-19T11:44:55.251Z [SIGNAL] SIGTERM received from parent process, forwarding to child process.
+2025-06-19T11:44:55.287Z [STDERR] Received SIGTERM, shutting down gracefully...
+2025-06-19T11:44:55.322Z [INFO] Subprocess finished with code 0
+2025-06-19T11:48:45.794Z [SIGNAL] SIGINT received.

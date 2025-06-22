@@ -3,6 +3,7 @@ import { CACHE_TYPE, compareBodyParameter, UseRestfulUIProxyPlugin, type CacheBo
 import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain, RequestPathPluginChain, type RestfulPlugin } from "./RestfulPlugin";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import type { RestApiResponse } from "./apiFetch";
+import { getBaseUrl } from "$lib/utils/proxy";
 
 function uniqueArray<T>(arr: T[], fn: (a1: T, a2: T) => boolean) {
     return arr.filter(
@@ -109,6 +110,9 @@ export class SvelteRestfulProxy extends UseRestfulUIProxyPlugin {
         this.requestSetting = requestSetting
     }
     requestSetting: Writable<RequestSetting>;
+    getProxyUrl(): string {
+        return getBaseUrl() + "api/proxy";
+    }
     async doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         if (get(this.requestSetting).useProxy) {
             return this.requestUsingProxy(input, init);
