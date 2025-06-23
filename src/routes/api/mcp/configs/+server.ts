@@ -4,10 +4,15 @@ import { listConfigs, saveConfig } from '$lib/mcp/config-server';
 import type { McpServerConfig } from '$lib/types/api-config';
 
 // 設定一覧を取得
-export const GET = async () => {
+export const GET = async ({url}: RequestEvent) => {
   try {
     const configs = await listConfigs();
-    return json(configs);
+    const filter = url.searchParams.get("filter")
+    if (filter) {
+      return json(configs.filter((config) => config.config.serverName.includes(filter)));
+    } else {
+      return json(configs);
+    }
   } catch (error) {
     console.error('Failed to list configs:', error);
     return json({

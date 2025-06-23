@@ -19,6 +19,7 @@ import type { RequestSettings } from '$lib/types/request-config';
 import { defaultLogger } from '$lib/utils/logger';
 // @ts-ignore
 import UriTemplate from 'uri-template-lite';
+import { URLSearchParams } from 'url';
 
 export interface OpenApiMcpServerConfig {
   serverName: string;
@@ -165,6 +166,12 @@ export class OpenApiMcpServer {
             }
             const operation = pathItem.get;
             const resourceName = `get_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            // TODO query parameters support
+            // const queryParametersSchema = [];
+            // for (const param of operation.parameters ?? []) {
+            //   queryParametersSchema.push(param.name)
+            // }
+            // const queryString = queryParametersSchema.length > 0 ? `?${queryParametersSchema.join(",")}` : "";
             resources.push({
               uri: `openapi://${this.config.serverName}${path}`,
               name: resourceName,
@@ -193,8 +200,14 @@ export class OpenApiMcpServer {
         throw new McpError(ErrorCode.InvalidRequest, `Invalid resource URI: ${uri}`);
       }
 
-      const resourceName = match[1].replace(`${this.config.serverName}/`, "");
+      let resourceName = match[1].replace(`${this.config.serverName}/`, "");
       defaultLogger.info("resourceName",resourceName)
+      let queryString = ""
+      if (resourceName.includes("?")) {
+        const [path, query] = resourceName.split("?");
+        resourceName = path
+        queryString = query
+      }
 
 
       const paths = this.openApiDoc.paths ?? {};
@@ -202,13 +215,14 @@ export class OpenApiMcpServer {
       let actualPath: string | null = null;
       let additionalQueryParameter = {} as any
       for (const [path] of Object.entries(paths)) {
+        // @ts-ignore // there are no latest types for uri-template-lite
         const template = new UriTemplate(path)
         const match = template.match(resourceName)
         if (match) {
           actualPath = path
           additionalQueryParameter = match
           break
-        }        
+        }
       }
 
       if (!actualPath) {
@@ -216,7 +230,10 @@ export class OpenApiMcpServer {
       }
 
       // Create URLSearchParams for RestfulOperation
-      const searchParams = new OperationParameter(actualPath, 'get', []);
+
+      const searchParams = new URLSearchParams(queryString)
+      searchParams.set("path", actualPath)
+      searchParams.set("method", "get")
 
       const plugins = this.createPlugins();
 
@@ -381,7 +398,6 @@ export class OpenApiMcpServer {
     await this.server.connect(transport);
   }
 
-  // HTTP API用のメソッド
   getOpenApiDoc(): OpenAPI.Document | null {
     return this.openApiDoc;
   }

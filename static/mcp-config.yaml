@@ -51,6 +51,13 @@ paths:
   /mcp/configs:
     get:
       summary: List MCP Server Configurations.
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string
+          required: false
+          description: MCP Server Name filter
       responses:
         '200':
           description: Inforamtion
@@ -88,6 +95,12 @@ paths:
             type: string
           required: true
           description: MCP Server Configuration id
+        - in: query
+          name: filter
+          schema:
+            type: string
+          required: false
+          description: MCP Server Name filter
       responses:
         '200':
           description: Inforamtion

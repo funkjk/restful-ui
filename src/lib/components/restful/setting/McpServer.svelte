@@ -21,7 +21,7 @@
     import ExpansionCard from "$lib/components/common/ExpansionCard.svelte";
     import type { RestfulComponentConfig } from "$lib/restful/SvelteSupport";
     import { get } from "svelte/store";
-    import type { McpServerConfig, McpServerConfigObject } from "$lib/types/api-config";
+    import type { McpServerConfigObject } from "$lib/types/api-config";
 
     export let config: RestfulComponentConfig;
     export let title: string = "MCP Server";
