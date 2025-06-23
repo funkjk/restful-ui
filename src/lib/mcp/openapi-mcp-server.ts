@@ -11,12 +11,14 @@ import {
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import type { OpenAPI } from 'openapi-types';
-import { createRestfulOperation, OperationParameter, type InputRestParameters } from '../restful/RestfulOperation.js';
-import { ConsoleMessageLogger, LoggingRestfulPlugin } from '$lib/restful/BuiltInPlugins.js';
-import { createMcpRequestPlugins } from '../restful/McpRequestSettingsPlugin.js';
+import { createRestfulOperation, OperationParameter, type InputRestParameters } from '../restful/RestfulOperation';
+import { ConsoleMessageLogger, LoggingRestfulPlugin } from '$lib/restful/BuiltInPlugins';
+import { createMcpRequestPlugins } from '../restful/McpRequestSettingsPlugin';
 import { writable, get, type Writable } from 'svelte/store';
-import type { RequestSettings } from '$lib/types/request-config.js';
-import { defaultLogger } from '$lib/utils/logger.js';
+import type { RequestSettings } from '$lib/types/request-config';
+import { defaultLogger } from '$lib/utils/logger';
+// @ts-ignore
+import UriTemplate from 'uri-template-lite';
 
 export interface OpenApiMcpServerConfig {
   serverName: string;
@@ -153,14 +155,18 @@ export class OpenApiMcpServer {
 
       const resources = [];
       const paths = this.openApiDoc.paths;
+      
 
       if (paths) {
         for (const [path, pathItem] of Object.entries(paths)) {
           if (pathItem && pathItem.get) {
+            if (path.includes("{") || path.includes("}")) {
+              continue;
+            }
             const operation = pathItem.get;
             const resourceName = `get_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
             resources.push({
-              uri: `openapi://${resourceName}`,
+              uri: `openapi://${this.config.serverName}${path}`,
               name: resourceName,
               description: operation.summary || operation.description || `GET ${path}`,
               mimeType: 'application/json',
@@ -174,6 +180,7 @@ export class OpenApiMcpServer {
 
     // Read resource content
     this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+      defaultLogger.info("ReadResourceRequestSchema"+JSON.stringify(request.params))
       const { uri } = request.params;
 
       if (!this.openApiDoc) {
@@ -181,29 +188,27 @@ export class OpenApiMcpServer {
       }
 
       // Parse URI to extract resource name
-      const match = uri.match(/^openapi:\/\/(.+)$/);
+      const match = uri.match(/^openapi:\/(.+)$/);
       if (!match) {
         throw new McpError(ErrorCode.InvalidRequest, `Invalid resource URI: ${uri}`);
       }
 
-      const resourceName = match[1];
-      const [method, ...pathParts] = resourceName.split('_');
+      const resourceName = match[1].replace(`${this.config.serverName}/`, "");
+      defaultLogger.info("resourceName",resourceName)
 
-      if (method !== 'get') {
-        throw new McpError(ErrorCode.InvalidRequest, `Resource must be a GET operation: ${resourceName}`);
-      }
 
+      const paths = this.openApiDoc.paths ?? {};
       // Find the actual path in the OpenAPI document
       let actualPath: string | null = null;
-      const paths = this.openApiDoc.paths;
-
-      if (paths) {
-        for (const p of Object.keys(paths)) {
-          if (p.replace(/[^a-zA-Z0-9]/g, '_') === pathParts.join('_')) {
-            actualPath = p;
-            break;
-          }
-        }
+      let additionalQueryParameter = {} as any
+      for (const [path] of Object.entries(paths)) {
+        const template = new UriTemplate(path)
+        const match = template.match(resourceName)
+        if (match) {
+          actualPath = path
+          additionalQueryParameter = match
+          break
+        }        
       }
 
       if (!actualPath) {
@@ -224,7 +229,7 @@ export class OpenApiMcpServer {
 
       try {
         // Execute the API call with empty parameters for GET requests
-        const response = await operation.execute({} as InputRestParameters);
+        const response = await operation.execute(additionalQueryParameter);
 
         return {
           contents: [
@@ -252,9 +257,33 @@ export class OpenApiMcpServer {
 
     // List resource templates
     this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
-      // OpenAPI servers typically don't need dynamic resource templates
-      // Return empty array to indicate no templates are available
-      return { resourceTemplates: [] };
+
+      const resourceTemplates = [];
+      if (!this.openApiDoc) {
+        throw new McpError(ErrorCode.InternalError, 'OpenAPI document not loaded');
+      }
+
+      const paths = this.openApiDoc.paths;
+      if (paths) {
+        for (const [path, pathItem] of Object.entries(paths)) {
+          if (pathItem && pathItem.get) {
+            if (!path.includes("{") && !path.includes("}")) {
+              continue;
+            }
+            const operation = pathItem.get;
+            const resourceName = `get_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            resourceTemplates.push({
+              uriTemplate: `openapi://${this.config.serverName}${path}`,
+              name: resourceName,
+              description: operation.summary || operation.description || `GET ${path}`,
+              mimeType: 'application/json',
+            });
+          }
+        }
+      }
+
+      // return { resourceTemplates };
+      return { resourceTemplates };
     });
 
     // Execute tool calls

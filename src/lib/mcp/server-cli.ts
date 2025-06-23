@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { OpenApiMcpServer } from './openapi-mcp-server.js';
-import { createConfig, parseConfigFromArgs, parseConfigFromEnv, validateUrl } from './config.js';
-import { defaultLogger } from '$lib/utils/logger.js';
+import { OpenApiMcpServer } from './openapi-mcp-server';
+import { createConfig, parseConfigFromArgs, parseConfigFromEnv, validateUrl } from './config';
+import { defaultLogger } from '$lib/utils/logger';
 
 async function main() {
   defaultLogger.info("start MCP server")
