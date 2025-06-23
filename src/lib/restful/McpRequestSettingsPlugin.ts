@@ -16,33 +16,6 @@ export class McpRequestSettingsPlugin extends EmptyRestfulPlugin {
 
   requestSettings: Writable<RequestSettings>;
 
-  doRequestPath(restfulOperation: RestfulOperation, chain: RequestPathPluginChain): string {
-    const settings = get(this.requestSettings);
-    let requestPath = chain.next();
-
-    // BasePath の適用
-    if (settings.basePath) {
-      const currentBasePath = restfulOperation.getBasePath();
-      if (currentBasePath) {
-        requestPath = requestPath.replace(currentBasePath, settings.basePath);
-      } else {
-        // BasePathが設定されていない場合は、パスの先頭に追加
-        const pathPart = requestPath.replace(/^https?:\/\/[^\/]+/, '');
-        requestPath = settings.basePath + pathPart;
-      }
-    }
-
-    // Additional Query Parameters の適用
-    if (settings.additionalQueryParameter) {
-      if (requestPath.includes("?")) {
-        requestPath += "&" + settings.additionalQueryParameter;
-      } else {
-        requestPath += "?" + settings.additionalQueryParameter;
-      }
-    }
-
-    return requestPath;
-  }
 
   doExecute(
     _restfulOperation: RestfulOperation,
@@ -63,6 +36,9 @@ export class McpRequestSettingsPlugin extends EmptyRestfulPlugin {
         }
       }
       nextInit.headers = { ...nextInit.headers, ...additionalHeaders };
+    }
+    if (nextInit.body && typeof nextInit.body === "object") {
+      nextInit.headers = { ...nextInit.headers, ...{ "Content-Type": "application/json" } };
     }
 
     return chain.next(inputParameters, input, nextInit);

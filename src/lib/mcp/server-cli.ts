@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import { OpenApiMcpServer } from './openapi-mcp-server.js';
-import { createConfig, logger, parseConfigFromArgs, parseConfigFromEnv, validateUrl } from './config.js';
+import { createConfig, parseConfigFromArgs, parseConfigFromEnv, validateUrl } from './config.js';
+import { defaultLogger } from '$lib/utils/logger.js';
 
 async function main() {
-  logger.info("start MCP server")
+  defaultLogger.info("start MCP server")
   try {
     // Parse configuration from various sources
     const envConfig = parseConfigFromEnv();

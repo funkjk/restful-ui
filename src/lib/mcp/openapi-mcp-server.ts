@@ -11,12 +11,12 @@ import {
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import type { OpenAPI } from 'openapi-types';
-import { createRestfulOperation, type InputRestParameters } from '../restful/RestfulOperation.js';
+import { createRestfulOperation, OperationParameter, type InputRestParameters } from '../restful/RestfulOperation.js';
 import { ConsoleMessageLogger, LoggingRestfulPlugin } from '$lib/restful/BuiltInPlugins.js';
 import { createMcpRequestPlugins } from '../restful/McpRequestSettingsPlugin.js';
 import { writable, get, type Writable } from 'svelte/store';
 import type { RequestSettings } from '$lib/types/request-config.js';
-import { logger } from './config.js';
+import { defaultLogger } from '$lib/utils/logger.js';
 
 export interface OpenApiMcpServerConfig {
   serverName: string;
@@ -98,47 +98,34 @@ export class OpenApiMcpServer {
             for (const method of methods) {
               const operation = pathItem[method];
               if (operation) {
+                // Create URLSearchParams for RestfulOperation
+                const searchParams = new OperationParameter(path, method, []);
+                const currentOperation = createRestfulOperation(searchParams, this.openApiDoc, this.createPlugins());
 
-                // const currentOperation = createRestfulOperation(
-                //   new URLSearchParams(), this.openApiDoc, this.createPlugins());
-                // if (!currentOperation.exist()) {
-                //   continue;
-                // }
+                let bodyParamName = currentOperation.getBodyValueName();
+                let operation = currentOperation.getOperation();
 
-
-                // let bodyParamName = currentOperation.getBodyValueName();
-                // let operation = currentOperation.getOperation();
-
-                // let params = operation.parameters as any[];
-                // const inputParameters = {} as any
-                // for (const param of params) {
-                //   const paramName = param.name;
-                //   let schema = {
-                //     type: "string",
-                //   } as any
-                //   if (param.in === "body") {
-                //     schema = {
-                //       type: "object",
-                //       additionalProperties: true
-                //     }
-                //   }
-                //   inputParameters[paramName] = schema
-
-                //   // if (param.in === "body") {
-                //   //   schema = {
-                //   //     type: "string",
-                //   //   }
-                //   // } else if (param.in === "query") {
-                //   //   schema = {
-                //   //     type: "string",
-                //   //   }
-                //   // } else if (param.in === "path") {
-                //   //   schema = {
-                //   //     type: "string",
-                //   //   }
-                // }
-
-
+                let params = currentOperation.getOperation().parameters ?? [] as any[];
+                const inputParameters = {} as any
+                for (const param of params) {
+                  const paramName = param.name;
+                  let schema = {
+                    type: "string",
+                  } as any
+                  if (param.in === "body") {
+                    schema = {
+                      type: "object",
+                      additionalProperties: true
+                    }
+                  }
+                  inputParameters[paramName] = schema
+                }
+                if (bodyParamName) {
+                  inputParameters[bodyParamName] = {
+                    type: "object",
+                    additionalProperties: true
+                  }
+                }
 
                 const toolName = `${method.toLowerCase()}_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
                 tools.push({
@@ -146,14 +133,7 @@ export class OpenApiMcpServer {
                   description: operation.summary || operation.description || `${method.toUpperCase()} ${path}`,
                   inputSchema: {
                     type: 'object',
-                    // properties: inputParameters,
-                    properties: {
-                      parameters: {
-                        type: 'object',
-                        description: 'Parameters for the API call',
-                        additionalProperties: true,
-                      },
-                    },
+                    properties: inputParameters,
                   },
                 });
               }
@@ -231,9 +211,7 @@ export class OpenApiMcpServer {
       }
 
       // Create URLSearchParams for RestfulOperation
-      const searchParams = new URLSearchParams();
-      searchParams.set('path', actualPath);
-      searchParams.set('method', 'get');
+      const searchParams = new OperationParameter(actualPath, 'get', []);
 
       const plugins = this.createPlugins();
 
@@ -283,6 +261,8 @@ export class OpenApiMcpServer {
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args, } = request.params;
 
+      defaultLogger.info(`CallToolRequestSchema ${name} args` + JSON.stringify(request.params))
+
       if (!this.openApiDoc) {
         throw new McpError(ErrorCode.InternalError, 'OpenAPI document not loaded');
       }
@@ -310,9 +290,7 @@ export class OpenApiMcpServer {
         }
 
         // Create URLSearchParams for RestfulOperation
-        const searchParams = new URLSearchParams();
-        searchParams.set('path', actualPath);
-        searchParams.set('method', method);
+        const searchParams = new OperationParameter(actualPath, method, []);
 
         const plugins = this.createPlugins();
 
@@ -325,9 +303,10 @@ export class OpenApiMcpServer {
 
         // Execute the API call
         const paramArguments = request.params.arguments as any;
-        console.log("request.params", request.params)
-        const parameters = (args as any) || {};
-        const response = await operation.execute(parameters as InputRestParameters);
+        if (paramArguments.requestBody && typeof paramArguments.requestBody === "object") {
+          paramArguments.requestBody = JSON.stringify(paramArguments.requestBody);
+        }
+        const response = await operation.execute(paramArguments as InputRestParameters);
 
         return {
           content: [
@@ -345,6 +324,7 @@ export class OpenApiMcpServer {
           ],
         };
       } catch (error) {
+        defaultLogger.error(`Failed to execute tool ${name}: ${error instanceof Error ? error.message : String(error)}`,error)
         throw new McpError(
           ErrorCode.InternalError,
           `Failed to execute tool ${name}: ${error instanceof Error ? error.message : String(error)}`
@@ -363,7 +343,7 @@ export class OpenApiMcpServer {
   }
 
   async start(): Promise<void> {
-    logger.info("start MCP server", this.config)
+    defaultLogger.info("start MCP server", this.config)
     if (!this.openApiDoc) {
       await this.loadOpenApiSpec(this.config.openApiUrl);
     }
@@ -529,7 +509,7 @@ export class OpenApiMcpServer {
   }
 
   async executeTool(toolName: string, parameters: any): Promise<any> {
-    logger.info("executeTool", toolName, parameters)
+    defaultLogger.info("executeTool", toolName, parameters)
     if (!this.openApiDoc) {
       throw new Error('OpenAPI document not loaded');
     }
@@ -568,7 +548,7 @@ export class OpenApiMcpServer {
       throw new Error(`Operation not found: ${method} ${actualPath}`);
     }
 
-    logger.info("executeTool", parameters)
+    defaultLogger.info("executeTool", parameters)
 
     // Execute the API call
     const response = await operation.execute(parameters as InputRestParameters);

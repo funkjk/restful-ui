@@ -1,22 +1,49 @@
 import { OpenAPIV3, type OpenAPIV2, type OpenAPI } from "openapi-types";
 import { ExecutePluginChain, FetchPluginChain, InitializeParameterPluginChain, RequestPathPluginChain, type RestfulPlugin } from "./RestfulPlugin";
 import { parseToApiResponse, type RestApiResponse } from "./apiFetch";
+import "setimmediate";
+import { defaultLogger } from "$lib/utils/logger";
 
 
 export type InputRestParameters = Record<string, any>
 
 export const methods = ["get", "post", "put", "patch", "delete"];
 
-export function createRestfulOperation(searchParams: URLSearchParams, document: OpenAPI.Document, plugins?: RestfulPlugin[]): RestfulOperation {
-    if (document.hasOwnProperty("swagger")) {
-        return new RestfulOperationOasV2(searchParams, document, plugins)
-    } else {
-        return new RestfulOperationOasV3(searchParams, document, plugins)
+export class OperationParameter {
+    path: string;
+    method: string;
+    additionalParameters: [key: string, value: string][];
+    static fromUrlSearchParams(searchParams: URLSearchParams): OperationParameter {
+        return new OperationParameter(
+            searchParams.get("path") as string,
+            searchParams.get("method") as string,
+            Array.from(searchParams.entries()).filter(([key]) => !["path", "method"].includes(key)),
+        )
+    }
+    static copy(operationParameter: OperationParameter): OperationParameter {
+        return new OperationParameter(
+            operationParameter.path,
+            operationParameter.method,
+            [...operationParameter.additionalParameters],
+        )
+    }
+    constructor(path: string, method: string, additionalParameters: [key: string, value: string][]) {
+        this.path = path;
+        this.method = method;
+        this.additionalParameters = additionalParameters;
     }
 }
 
+export function createRestfulOperation(searchParams: URLSearchParams | OperationParameter, document: OpenAPI.Document, plugins?: RestfulPlugin[]): RestfulOperation {
+    const operationParameter = searchParams instanceof URLSearchParams ? OperationParameter.fromUrlSearchParams(searchParams) : searchParams;
+    if (document.hasOwnProperty("swagger")) {
+        return new RestfulOperationOasV2(operationParameter, document, plugins)
+    } else {
+        return new RestfulOperationOasV3(operationParameter, document, plugins)
+    }
+}
 export abstract class RestfulOperation {
-    constructor(searchParams: URLSearchParams, document: OpenAPI.Document, plugins?: RestfulPlugin[]) {
+    constructor(searchParams: OperationParameter, document: OpenAPI.Document, plugins?: RestfulPlugin[]) {
         this.searchParams = searchParams
         this.document = document
         this.plugins = plugins ?? []
@@ -24,20 +51,18 @@ export abstract class RestfulOperation {
         this.operation = this.document.paths![this.path] as OpenAPI.Operation
     }
     plugins: RestfulPlugin[]
-    searchParams: URLSearchParams;
+    searchParams: OperationParameter;
     path: string = "";
     method?: OpenAPIV3.HttpMethods;
     parameters: Record<string, string> = {}
     document: OpenAPI.Document;
     operation: OpenAPI.Operation;
     initialize() {
-        this.path = this.searchParams.get("path") as string
-        this.method = this.searchParams.get("method") as OpenAPIV3.HttpMethods
+        this.path = this.searchParams.path
+        this.method = this.searchParams.method as OpenAPIV3.HttpMethods
         this.parameters = {}
-        for (const [key, value] of this.searchParams) {
-            if (!["method", "path"].includes(key)) {
-                this.parameters[key] = value;
-            }
+        for (const [key, value] of this.searchParams.additionalParameters) {
+            this.parameters[key] = value;
         }
     }
     abstract getOperation(): OpenAPI.Operation;
@@ -105,10 +130,8 @@ export abstract class RestfulOperation {
             }).next()
     }
     copy(path: string, method: string) {
-        const searchParams = new URLSearchParams()
-        this.searchParams.forEach(e => searchParams.append(e[0], e[1]));
-        searchParams.append("path", path)
-        searchParams.append("method", method)
+        const searchParams = new OperationParameter(
+            path, method, this.searchParams.additionalParameters)
         return createRestfulOperation(searchParams, this.document, this.plugins)
     }
     exist(): boolean {
@@ -175,7 +198,7 @@ export abstract class RestfulOperation {
                         // exists path
                         if (paths[p] && paths[p][m]) {
                             const searchParams = new URLSearchParams()
-                            this.searchParams.forEach(e => searchParams.append(e[0], e[1]));
+                            this.searchParams.additionalParameters.forEach(e => searchParams.append(e[0], e[1]));
                             searchParams.append("path", p)
                             searchParams.append("method", m)
                             returnOperations.push(this.copy(p, m))
@@ -225,7 +248,7 @@ export abstract class RestfulOperation {
 }
 
 export class RestfulOperationOasV2 extends RestfulOperation {
-    constructor(searchParams: URLSearchParams, document: OpenAPI.Document, plugins?: RestfulPlugin[]) {
+    constructor(searchParams: OperationParameter, document: OpenAPI.Document, plugins?: RestfulPlugin[]) {
         super(searchParams, document, plugins);
     }
     getDocument() {
@@ -248,7 +271,7 @@ export class RestfulOperationOasV2 extends RestfulOperation {
 }
 
 export class RestfulOperationOasV3 extends RestfulOperation {
-    constructor(searchParams: URLSearchParams, document: OpenAPI.Document, plugins?: RestfulPlugin[]) {
+    constructor(searchParams: OperationParameter, document: OpenAPI.Document, plugins?: RestfulPlugin[]) {
         super(searchParams, document, plugins);
     }
     getDocument() {
