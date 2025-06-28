@@ -96,8 +96,7 @@ export class OpenApiMcpServer {
       if (paths) {
         for (const [path, pathItem] of Object.entries(paths)) {
           if (pathItem) {
-            // Only include non-GET methods as tools
-            const methods = ['post', 'put', 'patch', 'delete'] as const;
+            const methods = ['get', 'post', 'put', 'patch', 'delete'] as const;
             for (const method of methods) {
               const operation = pathItem[method];
               if (operation) {
@@ -429,8 +428,7 @@ export class OpenApiMcpServer {
       let toolCount = 0;
       for (const [path, pathItem] of Object.entries(paths)) {
         if (pathItem) {
-          // Only include non-GET methods as tools
-          const methods = ['post', 'put', 'patch', 'delete'] as const;
+          const methods = ['get', 'post', 'put', 'patch', 'delete'] as const;
           for (const method of methods) {
             const operation = (pathItem as any)[method];
             if (operation) {

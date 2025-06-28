@@ -7,6 +7,7 @@
     import { loading, logMessages } from "$lib/stores/ui";
     import {  writable } from "svelte/store";
     import Card, { Content } from "@smui/card";
+    import { createProxyUrl } from "$lib/utils/proxy";
 
 
     export let data: PageData;
@@ -23,7 +24,12 @@
         };
         const storageKey = "cid-" + cid;
         config = createRestfulComponentConfig(storageKey);
-        config.documentUrl = serverConfig.openApiUrl;
+        if (serverConfig.useProxy) {
+            config.documentUrl = createProxyUrl(serverConfig.openApiUrl)
+        } else {
+            config.documentUrl = serverConfig.openApiUrl
+        }
+        console.log("config.documentUrl", config.documentUrl)
         const requestSetting = writable(serverConfig.requestSettings)
         config.additionalPlugins = [
             new LoggingRestfulPlugin(messageLogger),

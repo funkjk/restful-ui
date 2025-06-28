@@ -6,6 +6,7 @@ export type ConfiguraionIdObject = {
 }
 export type McpServerConfig = {
     openApiUrl: string;
+    useProxy?: boolean;
     serverName: string;
     serverVersion: string;
     timeout: number;

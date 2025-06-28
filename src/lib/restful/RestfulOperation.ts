@@ -237,6 +237,7 @@ export abstract class RestfulOperation {
             const response = await fetchChaing.next(inputParameters, input, init);
             return parseToApiResponse(response)
         } catch (e) {
+            defaultLogger.warn("doFetch", e)
             return {
                 ok: false,
                 url: input as string,

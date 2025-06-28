@@ -4,6 +4,7 @@ import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import type { RestApiResponse } from "./apiFetch";
 import type { RequestSettings } from "$lib/types/request-config";
 import { UseRestfulUIProxyPlugin } from "./BuiltInPlugins";
+import { defaultLogger } from "$lib/utils/logger";
 
 /**
  * MCPサーバー設定をAPI実行時に適用するプラグイン
@@ -16,6 +17,22 @@ export class McpRequestSettingsPlugin extends EmptyRestfulPlugin {
 
   requestSettings: Writable<RequestSettings>;
 
+  doRequestPath(restfulOperation: RestfulOperation, chain: RequestPathPluginChain): string {
+    const setting = get(this.requestSettings)
+    let requestPath = chain.next()
+    if (setting.basePath) {
+      const basePath = restfulOperation.getBasePath()
+      requestPath = requestPath.replace(basePath, setting.basePath)
+    }
+    if (setting.additionalQueryParameter) {
+      if (requestPath.includes("?")) {
+        requestPath += "&" + setting.additionalQueryParameter
+      } else {
+        requestPath += "?" + setting.additionalQueryParameter
+      }
+    }
+    return requestPath
+  }
 
   doExecute(
     _restfulOperation: RestfulOperation,
@@ -57,7 +74,8 @@ export class McpProxyPlugin extends UseRestfulUIProxyPlugin {
   requestSettings: Writable<RequestSettings>;
 
   getProxyUrl(): string {
-    throw new Error("Proxy URL is not implemented");
+    defaultLogger.warn("Proxy URL is not implemented");
+
   }
 
   async doFetch(
@@ -70,10 +88,9 @@ export class McpProxyPlugin extends UseRestfulUIProxyPlugin {
     const settings = get(this.requestSettings);
 
     if (settings.useProxy) {
-      return this.requestUsingProxy(input, init);
-    } else {
-      return chain.next(inputParameters, input, init);
+      defaultLogger.warn("Proxy URL is not implemented");
     }
+    return chain.next(inputParameters, input, init);
   }
 }
 

@@ -1,3 +1,4 @@
+import { defaultLogger } from "$lib/utils/logger";
 import type { RestApiResponse } from "./apiFetch";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain } from "./RestfulPlugin";
@@ -119,7 +120,7 @@ export interface MessageLogger {
 
 export class ConsoleMessageLogger implements MessageLogger {
     log(message: LogMessage): void {
-        console.log(message)
+        defaultLogger.info(message)
     }
 }
 
