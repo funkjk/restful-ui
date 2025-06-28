@@ -5,6 +5,7 @@ const { combine, timestamp, prettyPrint, colorize, errors,  } = winston.format;
 
 export const isBrowser = typeof window !== 'undefined';
 
+
 export const transports = isBrowser ? [
     new BrowserConsole(
         {
@@ -17,8 +18,8 @@ export const transports = isBrowser ? [
         }
     )
 ] : [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: 'mcp-configs/mcp-logger.log' })
+    // new winston.transports.Console(),
+    new winston.transports.File({ filename: '/Users/kenji.funaki/projects/prv/product/restful-ui/mcp-configs/mcp-logger.log' })
 ]
 
 export function createLogger(category?: string) {

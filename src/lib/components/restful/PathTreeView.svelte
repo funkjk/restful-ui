@@ -6,11 +6,10 @@
     import TreeView from "../common/TreeView.svelte";
     export let rootTree: PathTreeObject;
     export let currentOperation: RestfulOperation;
-    import { page } from "$app/stores"; // TODO dont use page store outside page component
+    export let config: RestfulComponentConfig;
     import type { PathTreeObject } from "$lib/restful/PathTree";
-    import { createLink } from "$lib/utils/utils";
     import { PAGE } from "./RestfulApiContent.svelte";
-
+    import type { RestfulComponentConfig } from "$lib/restful/SvelteSupport";
 </script>
 
 {#if rootTree}
@@ -25,15 +24,15 @@
             {#each methods as method (method)}
                 {#if tree.targetApi.api[method]}
                     <a
-                        href={createLink(
-                            $page.route.id + "",
-                            PAGE.OPERATION,
-                            tree.targetApi.path,
-                            method,
-                            currentOperation.getAdditionalParameters(
-                                tree.targetApi.path,
-                            ),
-                        )}
+                        href={config.linkSupport.createLink({
+                            page: PAGE.OPERATION,
+                            restPath: tree.targetApi.path,
+                            restMethod: method,
+                            additionalSearch:
+                                currentOperation.getAdditionalParameters(
+                                    tree.targetApi.path,
+                                ),
+                        })}
                     >
                         <span class="method">{method.toUpperCase()}</span></a
                     >{/if}

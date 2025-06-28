@@ -1,22 +1,17 @@
 <script lang="ts">
     import {
-        DefaultDisplaySupport,
+        createRestfulComponentConfig,
         SetLoadingPlugin,
-        SetRequestPlugin,
-        SvelteRestfulProxy,
-        type RequestSetting,
         type RestfulComponentConfig,
     } from "$lib/restful/SvelteSupport";
-    import { type RestfulPlugin } from "$lib/restful/RestfulPlugin";
     import {
         LoggingRestfulPlugin,
         LogMessage,
     } from "$lib/restful/BuiltInPlugins";
     import { loading, logMessages } from "$lib/stores/ui";
     import RestfulApi from "./RestfulApi.svelte";
-    import { persisted } from "svelte-persisted-store";
     export let url: string;
-    let config: RestfulComponentConfig;
+    export let config: RestfulComponentConfig | null = null;
 
     function setConfig() {
         const messageLogger = {
@@ -25,60 +20,17 @@
             },
         };
         let storageKey = "test";
-        const responses = persisted(storageKey + "-responses", {} as any, {
-            storage: "session",
-        });
-        const parameterHistories = persisted(
-            storageKey + "-parameter-histories",
-            {} as any,
-            { storage: "session" },
-        );
-        const selectedTableKeys = persisted(
-            storageKey + "-table-key",
-            {} as any,
-            { storage: "session" },
-        );
-        const dataTableFilters = persisted(
-            storageKey + "-datatable-filter",
-            {} as any,
-            { storage: "session" },
-        );
-        const dataTableSelectedColumn = persisted(
-            storageKey + "-datatable-selected",
-            {} as any,
-            { storage: "session" },
-        );
-        const dataTableDisplayTypes = persisted(
-            storageKey + "-datatable-displayTypes",
-            {} as any,
-            { storage: "session" },
-        );
-        const requestSetting = persisted(
-            storageKey + "-request-setting",
-            {} as RequestSetting,
-            { storage: "session" },
-        );
-        config = {
-            documentUrl: url,
-            storage: {
-                responses,
-                parameterHistories,
-                dataTableFilters,
-                dataTableSelectedColumn,
-                dataTableDisplayTypes,
-                selectedTableKeys,
-                requestSetting,
-            },
-            additionalPlugins: [
-                new LoggingRestfulPlugin(messageLogger),
-                new SetLoadingPlugin(loading),
-                new SetRequestPlugin(requestSetting),
-                new SvelteRestfulProxy(requestSetting),
-            ] as RestfulPlugin[],
-            displaySupport: DefaultDisplaySupport,
-        };
+        config = createRestfulComponentConfig(storageKey);
+        config.documentUrl = url;
+        config.additionalPlugins = [
+            new LoggingRestfulPlugin(messageLogger),
+            new SetLoadingPlugin(loading),
+            ...config.additionalPlugins,
+        ];
     }
     setConfig();
 </script>
 
-<RestfulApi {config}></RestfulApi>
+{#if config}
+    <RestfulApi {config}></RestfulApi>
+{/if}

@@ -1,17 +1,23 @@
+import { createLogger } from '$lib/utils/logger';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
     CallToolRequestSchema,
     ListToolsRequestSchema,
-    ListResourcesRequestSchema,
-    ReadResourceRequestSchema,
-    ListResourceTemplatesRequestSchema,
-    ErrorCode,
-    McpError,
 } from '@modelcontextprotocol/sdk/types.js';
 
+// console.log(JSON.stringify({"test":"testtest"}))
+
+// console.log(JSON.stringify(
+//     {"cwd":process.cwd()}))
+
+const logger = createLogger("simple-mcp")
+// const logger = console
+logger.info("cwd:"+process.cwd())
+
 async function main() {
-    console.log("start simple-mcp")
+
+    logger.info("start simple-mcp")
 
     // Create server instance
     const server = new Server(
@@ -28,7 +34,7 @@ async function main() {
     );
 
     server.setRequestHandler(ListToolsRequestSchema, async () => {
-        console.log("ListToolsRequestSchema")
+        logger.info("ListToolsRequestSchema")
         return {
             tools: [{
                 name: "calculate_sum",
@@ -62,7 +68,7 @@ async function main() {
 
     // Handle tool execution
     server.setRequestHandler(CallToolRequestSchema, async (request) => {
-        console.log("CallToolRequestSchema", request)
+        logger.info("CallToolRequestSchema", request)
         if (request.params.name === "calculate_sum") {
             const { a, b } = request.params.arguments as any;
             return {
@@ -76,7 +82,7 @@ async function main() {
         }
         if (request.params.name === "my_test") {
             const paramArguments = request.params.arguments as any;
-            console.log("paramArguments", paramArguments)
+            logger.info("paramArguments", arguments)
             return {
                 content: [
                     {
@@ -90,9 +96,7 @@ async function main() {
 
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    console.error("Weather MCP Server running on stdio");
-
-
+    logger.error("Weather MCP Server running on stdio");
 
 }
 

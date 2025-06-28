@@ -4,6 +4,7 @@ import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain, RequestPathPl
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import type { RestApiResponse } from "./apiFetch";
 import { getBaseUrl } from "$lib/utils/proxy";
+import { persisted } from "svelte-persisted-store";
 
 function uniqueArray<T>(arr: T[], fn: (a1: T, a2: T) => boolean) {
     return arr.filter(
@@ -137,6 +138,61 @@ export const DefaultDisplaySupport: RestfulDisplaySupport = {
     }
 }
 
+export function createRestfulComponentConfig(storageKey: string, baseConfig?: Partial<RestfulComponentConfig>): RestfulComponentConfig {
+    const responses = baseConfig?.storage?.responses ?? persisted(storageKey + "-responses", {} as any, {
+        storage: "session",
+    });
+    const parameterHistories = baseConfig?.storage?.parameterHistories ?? persisted(
+        storageKey + "-parameter-histories",
+        {} as any,
+        { storage: "session" },
+    );
+    const selectedTableKeys = baseConfig?.storage?.selectedTableKeys ?? persisted(
+        storageKey + "-table-key",
+        {} as any,
+        { storage: "session" },
+    );
+    const dataTableFilters = baseConfig?.storage?.dataTableFilters ?? persisted(
+        storageKey + "-datatable-filter",
+        {} as any,
+        { storage: "session" },
+    );
+    const dataTableSelectedColumn = baseConfig?.storage?.dataTableSelectedColumn ?? persisted(
+        storageKey + "-datatable-selected",
+        {} as any,
+        { storage: "session" },
+    );
+    const dataTableDisplayTypes = baseConfig?.storage?.dataTableDisplayTypes ?? persisted(
+        storageKey + "-datatable-displayTypes",
+        {} as any,
+        { storage: "session" },
+    );
+    const requestSetting = baseConfig?.storage?.requestSetting ?? persisted(
+        storageKey + "-request-setting",
+        {} as RequestSetting,
+        { storage: "session" },
+    );
+    return {
+        ...baseConfig,
+        storage: {
+            ...baseConfig?.storage,
+            responses,
+            parameterHistories,
+            dataTableFilters,
+            dataTableSelectedColumn,
+            dataTableDisplayTypes,
+            selectedTableKeys,
+            requestSetting,
+        },
+        additionalPlugins: [
+            new SetRequestPlugin(requestSetting),
+            new SvelteRestfulProxy(requestSetting),
+        ] as RestfulPlugin[],
+        displaySupport: DefaultDisplaySupport,
+        linkSupport: new DefaultLinkSupport("/")
+    }
+}
+
 export interface RestfulComponentConfig {
     documentUrl?: string;
     documentRaw?: string;
@@ -151,5 +207,54 @@ export interface RestfulComponentConfig {
     }
     additionalPlugins: RestfulPlugin[];
     displaySupport: RestfulDisplaySupport;
+    linkSupport: LinkSupport;
 }
 
+export type LinkParameter = {
+    page?: string
+    restPath?: string
+    restMethod?: string
+    additionalSearch?: string
+}
+export interface LinkSupport {
+    createBasePath(parameter: LinkParameter): string
+    createQuery(parameter: LinkParameter): string
+    createLink(parameter: LinkParameter): string
+}
+export class DefaultLinkSupport implements LinkSupport {
+    basePath: string
+    constructor(basePath: string) {
+        this.basePath = basePath
+    }
+    createBasePath(_parameter: LinkParameter) {
+        let path = ""
+        if (this.basePath.includes("[...path]")) {
+            path = this.basePath.replaceAll("/[...path]", "") + "/index.html#"
+        } else if (this.basePath === "/") {
+            path = this.basePath + "#"
+        } else {
+            path = this.basePath + "/index.html#"
+        }
+        return path
+    }
+    createQuery(parameter: LinkParameter) {
+        let query = ""
+        if (parameter.page) {
+            query += `?*page=${parameter.page}`
+        } else {
+            query += "?*page=top"
+        }
+        if (parameter.restPath || parameter.restMethod) {
+            query += `&path=${parameter.restPath}&method=${parameter.restMethod}`
+        }
+        if (parameter.additionalSearch) {
+            query += `&${parameter.additionalSearch}`
+        }
+        return query
+    }
+    createLink(parameter: LinkParameter) {
+        const basePath = this.createBasePath(parameter)  
+        const query = this.createQuery(parameter)
+        return new URL(basePath + query, window.location.origin).href.toString();
+    }
+}

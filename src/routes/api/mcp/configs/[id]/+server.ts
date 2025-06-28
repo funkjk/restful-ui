@@ -15,6 +15,12 @@ export const GET = async ({ params }: RequestEvent) => {
     }
 
     const config = await loadConfig(id);
+    if (!config) {
+      return json({
+        success: false,
+        error: 'Config not found',
+      }, { status: 404 });
+    }
 
     return json(config);
   } catch (error) {

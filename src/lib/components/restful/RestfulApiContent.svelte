@@ -7,7 +7,6 @@
 </script>
 
 <script lang="ts">
-	import { page } from "$app/stores";
 	import Operation from "$lib/components/restful/Operation.svelte";
 	import { createRestfulOperation, RestfulOperation } from "$lib/restful/RestfulOperation";
 	import { CachedRestfulPlugin } from "$lib/restful/BuiltInPlugins";
@@ -24,7 +23,6 @@
 	import { fade } from "svelte/transition";
 	import { PathTree } from "$lib/restful/PathTree";
 	import IconButton from "@smui/icon-button";
-	import { createLink } from "$lib/utils/utils";
     import Settings from "./Settings.svelte";
 	export let config: RestfulComponentConfig;
 	export let searchParams: URLSearchParams;
@@ -77,16 +75,15 @@
 					</div>
 					<div style="list-style: none;">
 						<li>
-							<a href={createLink($page.route.id + "")}>
+							<a href={config.linkSupport.createLink({page:PAGE.TOP})}>
 								<IconButton class="material-icons">home</IconButton>
 								{#if drawerOpen}&nbsp;API TOP
 								{/if}</a
 							>
 						</li>
 						<li>
-							<a href={createLink(
-								$page.route.id + "",
-								PAGE.SETTING)}>
+							<a href={config.linkSupport.createLink(
+								{page:PAGE.SETTING})}>
 								<IconButton class="material-icons">settings</IconButton>
 								{#if drawerOpen}&nbsp;Setting
 								{/if}</a
@@ -96,7 +93,7 @@
 				</div>
 				<div></div>
 				{#if drawerOpen}
-					<PathTreeView {currentOperation} {rootTree}></PathTreeView>
+					<PathTreeView {currentOperation} {rootTree} {config}></PathTreeView>
 				{/if}
 			</div>
 			<div></div>

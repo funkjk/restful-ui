@@ -5,8 +5,10 @@
 	import OperationList from "./OperationList.svelte";
     import type { Writable } from "svelte/store";
     import { RestfulOperation } from "$lib/restful/RestfulOperation";
+    import { type RestfulComponentConfig } from "$lib/restful/SvelteSupport";
 
 	const operationStore = getContext("operationStore") as Writable<RestfulOperation>;
+	const config = getContext("config") as RestfulComponentConfig
 	export let value: string = "";
 	export let column: string = "";
 	export let item: object = {};
@@ -17,7 +19,7 @@
 	<Title>Link-{value}</Title>
 	<Content>
 		{#if open}
-			<OperationList {value} {column} {item} currentOperation={$operationStore} ></OperationList>
+			<OperationList {config} {value} {column} {item} currentOperation={$operationStore} ></OperationList>
 		{/if}
 	</Content>
 	<Actions>

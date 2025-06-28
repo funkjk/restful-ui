@@ -38,6 +38,7 @@
         operationStore.set(currentOperation);
     }
     setContext("operationStore", operationStore);
+    setContext("config", config);
     let key = `${currentOperation.method}:${currentOperation.path}`;
     let arrayResponseItems: any[] | null = null;
     $: {

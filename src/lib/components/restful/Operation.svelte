@@ -11,8 +11,6 @@
 		type SvelteCacheStore,
 	} from "$lib/restful/SvelteSupport";
 	import ResponseViiewer from "./response/ResponseViiewer.svelte";
-	import { createLink } from "$lib/utils/utils";
-	import { page } from "$app/stores";
 	import { PAGE } from "./RestfulApiContent.svelte";
 	export let config: RestfulComponentConfig;
 	export let currentOperation: RestfulOperation;
@@ -67,13 +65,12 @@
 			history.replaceState(
 				window.history.state,
 				"",
-				createLink(
-					$page.route.id + "",
-					PAGE.OPERATION,
-					currentOperation.path,
-					currentOperation.method,
-					additionalSearch,
-				),
+				config.linkSupport.createLink({
+					page:PAGE.OPERATION,
+					restPath:currentOperation.path,
+					restMethod:currentOperation.method,
+					additionalSearch:additionalSearch,
+				})
 			);
 			if (currentOperation.method == "get") {
 				if (JSON.stringify(value) === JSON.stringify(currentOperation.getInitialParameterValue())) {

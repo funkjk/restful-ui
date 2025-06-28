@@ -48,17 +48,21 @@ export async function saveConfig(
 }
 
 // 設定を読み込み
-export async function loadConfig(id: string): Promise<McpServerConfigObject> {
+export async function loadConfig(id: string): Promise<McpServerConfigObject | null> {
   const configPath = join(CONFIG_DIR, `${id}.json`);
-  const data = await readFile(configPath, 'utf-8');
-  const parsed = JSON.parse(data);
-
-  // 日付を復元
-  return {
-    ...parsed,
-    createdAt: new Date(parsed.createdAt),
-    updatedAt: new Date(parsed.updatedAt),
-  };
+  try {
+    const data = await readFile(configPath, 'utf8');
+    const parsed = JSON.parse(data);
+    // 日付を復元
+    return {
+      ...parsed,
+      createdAt: new Date(parsed.createdAt),
+      updatedAt: new Date(parsed.updatedAt),
+    };
+  } catch (error) {
+    console.warn(`Failed to load config ${configPath}:`, error);
+    return null;
+  }
 }
 
 // 設定一覧を取得
@@ -91,15 +95,22 @@ export async function listConfigs(): Promise<McpServerConfigObject[]> {
 export async function deleteConfig(id: string): Promise<void> {
   const configPath = join(CONFIG_DIR, `${id}.json`);
   await unlink(configPath);
-} 
+}
 
 
 // 設定を削除
 export async function updateConfig(id: string, config: McpServerConfig): Promise<void> {
   validateConfig(config);
+  const existing = await loadConfig(id);
+  const savedConfig: McpServerConfigObject = {
+    configurationId: id,
+    config,
+    createdAt: existing.createdAt,
+    updatedAt: new Date(),
+  };
   const configPath = join(CONFIG_DIR, `${id}.json`);
-  await writeFile(configPath, JSON.stringify(config, null, 2));
-} 
+  await writeFile(configPath, JSON.stringify(savedConfig, null, 2));
+}
 
 
 function validateConfig(config: McpServerConfig): void {
