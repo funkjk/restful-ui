@@ -499,7 +499,7 @@
                         .length}件)
                 </h2>
                 <p>
-                    POST、PUT、PATCH、DELETEメソッドのAPIがツールとして利用できます。
+                    GET、POST、PUT、PATCH、DELETEメソッドのAPIがツールとして利用できます。
                 </p>
 
                 <DataTable style="width: 100%;">

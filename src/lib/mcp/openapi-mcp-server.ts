@@ -11,7 +11,7 @@ import {
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import type { OpenAPI } from 'openapi-types';
-import { createRestfulOperation, OperationParameter, type InputRestParameters } from '../restful/RestfulOperation';
+import { createRestfulOperation, OperationParameter, RequestBodyType, type InputRestParameters } from '../restful/RestfulOperation';
 import { ConsoleMessageLogger, LoggingRestfulPlugin } from '$lib/restful/BuiltInPlugins';
 import { createMcpRequestPlugins } from '../restful/McpRequestSettingsPlugin';
 import { writable, get, type Writable } from 'svelte/store';
@@ -92,6 +92,8 @@ export class OpenApiMcpServer {
 
       const tools = [];
       const paths = this.openApiDoc.paths;
+      try {
+        
 
       if (paths) {
         for (const [path, pathItem] of Object.entries(paths)) {
@@ -114,18 +116,24 @@ export class OpenApiMcpServer {
                   let schema = {
                     type: "string",
                   } as any
-                  if (param.in === "body") {
-                    schema = {
+                  inputParameters[paramName] = schema
+                }
+                if (bodyParamName && currentOperation.getBodyTypes().length > 0) {
+                  const bodyType = currentOperation.getBodyTypes()[0]
+                  const bodyDifinition = currentOperation.getBodyDefinition(bodyType)
+                  if (bodyType == RequestBodyType.JSON) {
+                    inputParameters[bodyParamName] = {
                       type: "object",
                       additionalProperties: true
                     }
-                  }
-                  inputParameters[paramName] = schema
-                }
-                if (bodyParamName) {
-                  inputParameters[bodyParamName] = {
-                    type: "object",
-                    additionalProperties: true
+                  } else if (bodyType === RequestBodyType.FORM_DATA && bodyDifinition && bodyDifinition.properties) {
+                    for (const [name, property] of Object.entries(bodyDifinition.properties)) {
+                      inputParameters[name] = {
+                        type: property.type ?? "string",
+                      }
+                    }
+                  } else {
+                    defaultLogger.warn("illegal body type", {bodyType, bodyDifinition})
                   }
                 }
 
@@ -143,6 +151,10 @@ export class OpenApiMcpServer {
           }
         }
       }
+      } catch (error) {
+        defaultLogger.error("Error in ListToolsRequestSchema", error)
+        throw new McpError(ErrorCode.InternalError, 'Error in ListToolsRequestSchema');
+      }
 
       return { tools };
     });
@@ -155,7 +167,7 @@ export class OpenApiMcpServer {
 
       const resources = [];
       const paths = this.openApiDoc.paths;
-      
+
 
       if (paths) {
         for (const [path, pathItem] of Object.entries(paths)) {
@@ -165,12 +177,7 @@ export class OpenApiMcpServer {
             }
             const operation = pathItem.get;
             const resourceName = `get_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
-            // TODO query parameters support
-            // const queryParametersSchema = [];
-            // for (const param of operation.parameters ?? []) {
-            //   queryParametersSchema.push(param.name)
-            // }
-            // const queryString = queryParametersSchema.length > 0 ? `?${queryParametersSchema.join(",")}` : "";
+
             resources.push({
               uri: `openapi://${this.config.serverName}${path}`,
               name: resourceName,
@@ -186,7 +193,7 @@ export class OpenApiMcpServer {
 
     // Read resource content
     this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
-      defaultLogger.info("ReadResourceRequestSchema"+JSON.stringify(request.params))
+      defaultLogger.info("ReadResourceRequestSchema" + JSON.stringify(request.params))
       const { uri } = request.params;
 
       if (!this.openApiDoc) {
@@ -200,7 +207,7 @@ export class OpenApiMcpServer {
       }
 
       let resourceName = match[1].replace(`${this.config.serverName}/`, "");
-      defaultLogger.info("resourceName",resourceName)
+      defaultLogger.info("resourceName", resourceName)
       let queryString = ""
       if (resourceName.includes("?")) {
         const [path, query] = resourceName.split("?");
@@ -369,7 +376,7 @@ export class OpenApiMcpServer {
           ],
         };
       } catch (error) {
-        defaultLogger.error(`Failed to execute tool ${name}: ${error instanceof Error ? error.message : String(error)}`,error)
+        defaultLogger.error(`Failed to execute tool ${name}: ${error instanceof Error ? error.message : String(error)}`, error)
         throw new McpError(
           ErrorCode.InternalError,
           `Failed to execute tool ${name}: ${error instanceof Error ? error.message : String(error)}`

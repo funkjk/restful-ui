@@ -171,8 +171,10 @@ export abstract class RestfulOperation {
             }
         }
         return null
-
     }
+    abstract getBodyTypes(): RequestBodyType[];
+    abstract getBodyDefinition(type: RequestBodyType): RequestBodyDefinition | null;
+
     getPathParameterUnderTargetPath() {
         const doc = this.document
         const parameters: string[] = []
@@ -209,17 +211,31 @@ export abstract class RestfulOperation {
         }
         return returnOperations
     }
-    async execute(inputParameters: InputRestParameters): Promise<RestApiResponse> {
+    async execute(inputParameters: InputRestParameters, bodyType?: RequestBodyType): Promise<RestApiResponse> {
         let bodyValue = undefined;
         const requestPath = this.getRequestPath(inputParameters)
         const bodyParamName = this.getBodyValueName()
+        let contentType = undefined;
         if (bodyParamName) {
-            bodyValue = inputParameters[bodyParamName]
+            const rawBodyValue = inputParameters[bodyParamName]
+            if (!bodyType) {
+                bodyType = this.getBodyTypes()[0]
+            }
+            if (bodyType === RequestBodyType.JSON) {
+                bodyValue = JSON.parse(rawBodyValue)
+                contentType = RequestBodyType.JSON
+            } else if (bodyType === RequestBodyType.FORM_DATA) {
+                bodyValue = rawBodyValue
+                contentType = RequestBodyType.FORM_DATA
+            }
         }
         const input = requestPath
         const init = {
             method: this.method!.toUpperCase(),
-            body: bodyValue ? JSON.parse(bodyValue) : undefined,
+            body: bodyValue,
+            headers: contentType ? {
+                "Content-Type": contentType,
+            } : undefined,
         }
         return await new ExecutePluginChain(this.plugins, this, async (inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit) => {
             const response = await this.doFetch(inputParameters, input, init)
@@ -269,6 +285,17 @@ export class RestfulOperationOasV2 extends RestfulOperation {
         const operation = doc.paths[this.path][method];
         return operation!
     }
+    getBodyTypes(): RequestBodyType[] {
+        // TODO
+        if (this.getBodyValueName()) {
+            return [RequestBodyType.JSON]
+        }
+        return []
+    }
+    getBodyDefinition(type: RequestBodyType): RequestBodyDefinition | null {
+        // TODO
+        return null
+    }
 }
 
 export class RestfulOperationOasV3 extends RestfulOperation {
@@ -295,9 +322,96 @@ export class RestfulOperationOasV3 extends RestfulOperation {
             return null;
         }
     }
+    getBodyTypes(): RequestBodyType[] {
+        const op = this.getOperation()
+        const bodyTypes: RequestBodyType[] = []
+        if (op.requestBody && "content" in op.requestBody) {
+            for (const content of Object.entries(op.requestBody.content)) {
+                const mediaType = content[0]
+                if (mediaType.includes(RequestBodyType.JSON)) {
+                    bodyTypes.push(RequestBodyType.JSON)
+                } else if (mediaType.includes(RequestBodyType.FORM_DATA)) {
+                    bodyTypes.push(RequestBodyType.FORM_DATA)
+                } else {
+                    defaultLogger.debug(`unsupported media type[${mediaType}]`)
+                }
+            }
+        }
+        return bodyTypes
+    }
+    getBodyDefinition(type: RequestBodyType): RequestBodyDefinition | null {
+        const op = this.getOperation()
+        function mergeProperties(properties: Record<string, any>[]) {
+            const result = {} as Record<string, any>
+            for (const property of properties) {
+                if ("properties" in property) {
+                    for (const [name, value] of Object.entries(property.properties)) {
+                        result[name] = value
+                    }
+                }
+            }
+            return result
+        }
+        if (op.requestBody && "content" in op.requestBody) {
+            for (const content of Object.entries(op.requestBody.content)) {
+                const mediaType = content[0]
+                if (mediaType.includes(type)) {
+                    const schema = content[1].schema ?? {}
+                    if ("properties" in schema) {
+                        return content[1].schema as RequestBodyDefinition
+                    } else {
+                        if ("allOf" in schema) {
+                            const properties = mergeProperties(schema.allOf ?? [])
+                            return {
+                                properties,
+                                required: []
+                            } as RequestBodyDefinition
+                        } else if ("oneOf" in schema) {
+                            const properties = mergeProperties(schema.oneOf ?? [])
+                            return {
+                                properties,
+                                required: []
+                            } as RequestBodyDefinition
+                        } else if ("anyOf" in schema) {
+                            const properties = mergeProperties(schema.anyOf ?? [])
+                            return {
+                                properties,
+                                required: []
+                            } as RequestBodyDefinition
+                        } else {
+                            defaultLogger.warn("unsupported body definition", {bodyDefinition: content[1].schema})
+                        }
+                    }
+                }
+            }
+        }
+        return null
+    }
     getOperation(): OpenAPIV3.OperationObject {
         const doc = this.getDocument()
         const operation = doc.paths[this.path]![this.method!];
         return operation!
     }
+}
+
+export enum RequestBodyType {
+    FORM_DATA = "application/x-www-form-urlencoded",
+    JSON = "application/json",
+    // TEXT = "text/plain",
+    // XML = "application/xml",
+    // HTML = "text/html",
+    // MULTIPART_FORM_DATA = "multipart/form-data",
+}
+
+
+export type RequestBodyDefinitionProperty = {
+    name: string;
+    type?: string;
+    description?: string;
+    enum?: string[];
+    default?: string;
+}
+export type RequestBodyDefinition = {
+    properties: Record<string, RequestBodyDefinitionProperty>;
+    required: string[];
 }

@@ -145,7 +145,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
-      
+  /sample:
+    post:
+      parameters:
+        - in: path
+          name: configurationId
+          schema:
+            type: string
+          required: true
+          description: MCP Server Configuration id
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+              required:
+                - name
+
       
 components:
   schemas:
