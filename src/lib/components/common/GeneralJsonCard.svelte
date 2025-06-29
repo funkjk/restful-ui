@@ -39,9 +39,7 @@
         </div>
       </div>
 
-      <pre>
-    {JSON.stringify(data, null, "\t")}
-</pre>
+      <pre style="white-space: pre-wrap;">{JSON.stringify(data, null, " ")}</pre>
     </ExpansionPanel>
   </div>
 {/if}
