@@ -32,6 +32,14 @@ paths:
                   properties:
                     configurationId:
                       type: string
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                configurationId:
+                  type: string
+              required:
+                - configurationId
       responses:
         '200':
           description: Successful operation
@@ -74,6 +82,34 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/McpServerConfig'
+      responses:
+        '201':
+          description: Create MCP Server Configurations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  configurationId:
+                    description: Configuration id
+                    type: string
+  /mcp/configs/copy:
+    post:
+      summary: Copy MCP Server Configuration.
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                configurationId:
+                  type: string
+                  description: Configuration id
+                newName:
+                  type: string
+                  description: New name
+              required:
+                - configurationId
       responses:
         '201':
           description: Create MCP Server Configurations
@@ -145,29 +181,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
-  /sample:
-    post:
-      parameters:
-        - in: path
-          name: configurationId
-          schema:
-            type: string
-          required: true
-          description: MCP Server Configuration id
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-              required:
-                - name
 
-      
 components:
   schemas:
     McpServerConfigObject:

@@ -4,7 +4,7 @@
     import dayjs from "dayjs";
     import { type Writable } from "svelte/store";
     import { slide } from "svelte/transition";
-    import DragMovable from "../common/DragMovable.svelte";
+    import DragMovable from "../../common/DragMovable.svelte";
     let consoleElement: HTMLElement;
 
     export let logs: Writable<LogMessage[]>;

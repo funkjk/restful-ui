@@ -22,7 +22,7 @@ export const GET = async ({url}: RequestEvent) => {
   }
 };
 
-// 設定を保存
+// save config
 export const POST = async ({ request }: RequestEvent) => {
   try {
     console.log("POST", request)

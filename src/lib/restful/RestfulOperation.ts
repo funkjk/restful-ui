@@ -213,6 +213,7 @@ export abstract class RestfulOperation {
     }
     async execute(inputParameters: InputRestParameters, bodyType?: RequestBodyType): Promise<RestApiResponse> {
         let bodyValue = undefined;
+        console.log("execute", inputParameters, bodyType)
         const requestPath = this.getRequestPath(inputParameters)
         const bodyParamName = this.getBodyValueName()
         let contentType = undefined;

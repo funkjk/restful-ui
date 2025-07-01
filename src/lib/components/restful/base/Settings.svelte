@@ -1,10 +1,10 @@
 <script lang="ts">
     import { type RestfulComponentConfig } from "$lib/restful/SvelteSupport";
-    import Storage from "./setting/Storage.svelte";
+    import Storage from "../setting/Storage.svelte";
     import Radio from "@smui/radio";
     import FormField from "@smui/form-field";
-    import Request from "./setting/Request.svelte";
-    import McpServer from "./setting/McpServer.svelte";
+    import Request from "../setting/Request.svelte";
+    import McpServer from "../setting/McpServer.svelte";
     export let config: RestfulComponentConfig;
 
     let options = [

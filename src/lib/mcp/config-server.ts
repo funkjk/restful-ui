@@ -10,19 +10,8 @@ function join(path: string, plusPath: string): string {
 // 設定保存用ディレクトリ
 const CONFIG_DIR = join(process.cwd(), 'mcp-configs');
 
-// 設定を保存
-export async function saveConfig(
-  config: McpServerConfig
-): Promise<string> {
-  validateConfig(config);
-  const configurationId = uuidv4();
-  const savedConfig: McpServerConfigObject = {
-    configurationId: configurationId,
-    config,
-    createdAt:new Date(),
-    updatedAt: new Date(),
-  };
 
+async function writeConfig(configurationId:string, config: Partial<McpServerConfigObject>): Promise<McpServerConfigObject> {
   const configPath = join(CONFIG_DIR, `${configurationId}.json`);
 
   // ディレクトリが存在しない場合は作成
@@ -31,8 +20,27 @@ export async function saveConfig(
   } catch (error) {
     // ディレクトリが既に存在する場合は無視
   }
+  const savedConfig = {
+    ...config,
+    configurationId: configurationId,
+    createdAt: config.createdAt ?? new Date(),
+    updatedAt: new Date(),
+  } as McpServerConfigObject;
 
   await writeFile(configPath, JSON.stringify(savedConfig, null, 2));
+  return savedConfig;
+}
+// 設定を保存
+export async function saveConfig(
+  config: McpServerConfig,
+  configurationId?: string,
+): Promise<string> {
+  validateConfig(config);
+  configurationId = configurationId ?? uuidv4();
+
+  await writeConfig(configurationId, {
+    config,
+  });
   return configurationId;
 }
 
@@ -94,14 +102,9 @@ export async function updateConfig(id: string, config: McpServerConfig): Promise
   if (!existing) {
     throw new Error(`Config ${id} not found`);
   }
-  const savedConfig: McpServerConfigObject = {
-    configurationId: id,
+  await writeConfig(id, {
     config,
-    createdAt: existing.createdAt,
-    updatedAt: new Date(),
-  };
-  const configPath = join(CONFIG_DIR, `${id}.json`);
-  await writeFile(configPath, JSON.stringify(savedConfig, null, 2));
+  });
 }
 
 

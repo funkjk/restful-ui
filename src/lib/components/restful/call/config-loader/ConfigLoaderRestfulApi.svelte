@@ -9,7 +9,7 @@
         LogMessage,
     } from "$lib/restful/BuiltInPlugins";
     import { loading, logMessages } from "$lib/stores/ui";
-    import RestfulApi from "./RestfulApi.svelte";
+    import RestfulApi from "../../base/RestfulApi.svelte";
     export let url: string;
     export let config: RestfulComponentConfig | null = null;
 

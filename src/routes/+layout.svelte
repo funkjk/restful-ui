@@ -4,7 +4,7 @@
 	import CircularProgress from "@smui/circular-progress";
 	import { loading, logMessages, notifyMessage } from "$lib/stores/ui";
 	import Snackbar, { Label } from "@smui/snackbar";
-	import LogPanel from "$lib/components/restful/LogPanel.svelte";
+	import LogPanel from "$lib/components/restful/base/LogPanel.svelte";
 	import { persisted } from "svelte-persisted-store";
 	let snackbar: Snackbar;
 	let open = persisted("ui.open-log-panel", true);

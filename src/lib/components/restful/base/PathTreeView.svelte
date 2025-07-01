@@ -3,7 +3,7 @@
         methods,
         type RestfulOperation,
     } from "$lib/restful/RestfulOperation";
-    import TreeView from "../common/TreeView.svelte";
+    import TreeView from "../../common/TreeView.svelte";
     export let rootTree: PathTreeObject;
     export let currentOperation: RestfulOperation;
     export let config: RestfulComponentConfig;

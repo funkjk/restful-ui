@@ -5,7 +5,7 @@
 	import Checkbox from "@smui/checkbox";
 	import FormField from "@smui/form-field";
 	import BodyEditor from "../../common/BodyEditor.svelte";
-	import FormBodyEditor from "./FormBodyEditor.svelte";
+	import FormBodyEditor from "../request/FormBodyEditor.svelte";
 	import ParameterHistoriesMenu from "./ParameterHistoriesMenu.svelte";
 	import Button, { Icon, Label } from "@smui/button";
 	import Select, { Option } from "@smui/select";
@@ -23,7 +23,7 @@
 	let params = operation.parameters as any[];
 
 	const requestBodyTypes = currentOperation.getBodyTypes()
-	let requestBodyType = requestBodyTypes[0]
+	export let requestBodyType: RequestBodyType = requestBodyTypes[0]
 	$: bodyDefinition = currentOperation.getBodyDefinition(requestBodyType)
 	function selectHistory(event: CustomEvent) {
 		value[bodyParamName!] = event.detail;

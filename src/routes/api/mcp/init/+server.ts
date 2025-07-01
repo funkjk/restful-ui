@@ -8,15 +8,27 @@ import type { McpServerState, McpServerInitRequest, McpServerConfig } from '$lib
 
 export const POST = async ({ request }: RequestEvent) => {
   try {
-    const body = await request.json() as McpServerInitRequest;
+    let body: McpServerInitRequest;
+    if (request.headers.get("Content-Type") === "application/x-www-form-urlencoded") {
+      const formData = await request.formData();
+      body = Object.fromEntries(formData) as McpServerInitRequest;
+    } else {
+      body = await request.json() as McpServerInitRequest;
+    }
 
     let config:McpServerConfig;
 
-    // 設定IDが指定されている場合は保存された設定を読み込み
+    // if configurationId is specified, load the saved config
     if ("configurationId" in body) {
       const configurationId = body.configurationId;
       try {
         const savedConfig = await loadConfig(configurationId);
+        if (!savedConfig) {
+          return json({
+            success: false,
+            error: `Config ${configurationId} not found`,
+          }, { status: 404 });
+        }
         config = await createConfig(savedConfig.config);
         console.log(`Loading MCP server from saved config: ${savedConfig.config.serverName} (${body.configurationId})`);
       } catch (error) {
@@ -26,7 +38,6 @@ export const POST = async ({ request }: RequestEvent) => {
         }, { status: 404 });
       }
     } else {
-      // 従来の方法：パラメータから設定を作成
       const { openApiUrl, serverName, serverVersion, timeout, maxRetries, requestSettings } = body;
 
       if (!openApiUrl) {
@@ -36,7 +47,6 @@ export const POST = async ({ request }: RequestEvent) => {
         }, { status: 400 });
       }
 
-      // 設定を作成
       config = await createConfig({
         openApiUrl,
         serverName: serverName || 'openapi-mcp-server',
@@ -48,11 +58,11 @@ export const POST = async ({ request }: RequestEvent) => {
     }
 
     try {
-      // MCPサーバを作成して初期化
+      // create MCP server and initialize
       const mcpServer = await createOpenApiMcpServer(config);
       setMcpServer(mcpServer, config);
 
-      // サーバのHTTPモードでは実際の起動は不要
+      // in HTTP mode, actual startup is not required
       console.log('MCP server initialized via HTTP');
 
       return json({

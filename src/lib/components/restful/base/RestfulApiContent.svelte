@@ -7,14 +7,14 @@
 </script>
 
 <script lang="ts">
-	import Operation from "$lib/components/restful/Operation.svelte";
+	import Operation from "$lib/components/restful/base/Operation.svelte";
 	import { createRestfulOperation, RestfulOperation } from "$lib/restful/RestfulOperation";
 	import { CachedRestfulPlugin } from "$lib/restful/BuiltInPlugins";
 	import {
 		SvelteCacheStore,
 		type RestfulComponentConfig,
 	} from "$lib/restful/SvelteSupport";
-	import GeneralJsonCard from "../common/GeneralJsonCard.svelte";
+	import GeneralJsonCard from "../../common/GeneralJsonCard.svelte";
 	import { Content } from "@smui/dialog";
 	import Drawer, { AppContent } from "@smui/drawer";
 	import PathTreeView from "./PathTreeView.svelte";

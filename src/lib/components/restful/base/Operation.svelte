@@ -4,17 +4,23 @@
 	import GeneralJsonCard from "$lib/components/common/GeneralJsonCard.svelte";
 	import ParamsForm from "$lib/components/restful/request/ParamsForm.svelte";
 	import { writable } from "svelte/store";
-	import type { RestfulOperation } from "$lib/restful/RestfulOperation";
+	import type {
+		RequestBodyType,
+		RestfulOperation,
+	} from "$lib/restful/RestfulOperation";
 	import { CACHE_TYPE, getCacheKey } from "$lib/restful/BuiltInPlugins";
 	import {
 		type RestfulComponentConfig,
 		type SvelteCacheStore,
 	} from "$lib/restful/SvelteSupport";
-	import ResponseViiewer from "./response/ResponseViiewer.svelte";
+	import ResponseViiewer from "../response/ResponseViiewer.svelte";
 	import { PAGE } from "./RestfulApiContent.svelte";
 	export let config: RestfulComponentConfig;
 	export let currentOperation: RestfulOperation;
 	export let cacheStore: SvelteCacheStore;
+
+	const requestBodyTypes = currentOperation.getBodyTypes();
+	export let requestBodyType: RequestBodyType = requestBodyTypes[0];
 
 	let operation = currentOperation.getOperation();
 	let value: any = currentOperation.getInitialParameterValue();
@@ -52,10 +58,13 @@
 		];
 
 	async function execute() {
-		const apiResponse = await currentOperation.execute(value);
+		const apiResponse = await currentOperation.execute(
+			value,
+			requestBodyType,
+		);
 		response = apiResponse.responseBody;
 		isErrorResponse = !apiResponse.ok;
-		executionTime = new Date().toISOString()
+		executionTime = new Date().toISOString();
 
 		if (apiResponse.ok) {
 			let additionalSearch = currentOperation
@@ -66,14 +75,17 @@
 				window.history.state,
 				"",
 				config.linkSupport.createLink({
-					page:PAGE.OPERATION,
-					restPath:currentOperation.path,
-					restMethod:currentOperation.method,
-					additionalSearch:additionalSearch,
-				})
+					page: PAGE.OPERATION,
+					restPath: currentOperation.path,
+					restMethod: currentOperation.method,
+					additionalSearch: additionalSearch,
+				}),
 			);
 			if (currentOperation.method == "get") {
-				if (JSON.stringify(value) === JSON.stringify(currentOperation.getInitialParameterValue())) {
+				if (
+					JSON.stringify(value) ===
+					JSON.stringify(currentOperation.getInitialParameterValue())
+				) {
 					const cacheKey = getCacheKey(
 						CACHE_TYPE.GET_RESPONSE,
 						currentOperation,
@@ -97,12 +109,17 @@ parameters={JSON.stringify(currentOperation.parameters)}
 
 <div>
 	{#if value}
-		<ParamsForm bind:value {currentOperation} {histories}></ParamsForm>
+		<ParamsForm
+			bind:value
+			bind:requestBodyType
+			{currentOperation}
+			{histories}
+		></ParamsForm>
 	{/if}
 	<Button on:click={execute}>Execute</Button>
 </div>
 {#if executionTime}
-Execution Time:{executionTime}
+	Execution Time:{executionTime}
 {/if}
 <ResponseViiewer
 	{config}

@@ -3,14 +3,13 @@
     import LayoutGrid, { Cell } from "@smui/layout-grid";
     import Select, { Option } from "@smui/select";
     import Textfield from "@smui/textfield";
-    import HelperText from "@smui/textfield/helper-text";
     import Tooltip, { Wrapper } from "@smui/tooltip";
 
     export let value: string;
     export let definition: RequestBodyDefinition;
 
     $: properties = definition.properties;
-    $: required = definition.required;
+    $: required = definition.required ?? [];
 
     function initFormValue() {
         const val = {} as Record<string, any>;
