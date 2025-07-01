@@ -12,27 +12,16 @@ const CONFIG_DIR = join(process.cwd(), 'mcp-configs');
 
 // 設定を保存
 export async function saveConfig(
-  config: McpServerConfig,
-  id?: string
+  config: McpServerConfig
 ): Promise<string> {
   validateConfig(config);
-  const configurationId = id || uuidv4();
+  const configurationId = uuidv4();
   const savedConfig: McpServerConfigObject = {
     configurationId: configurationId,
     config,
-    createdAt: id ? new Date() : new Date(), // 新規作成時は現在時刻
+    createdAt:new Date(),
     updatedAt: new Date(),
   };
-
-  // 既存の設定を更新する場合は、作成日時を保持
-  if (id) {
-    try {
-      const existing = await loadConfig(id);
-      savedConfig.createdAt = existing.createdAt;
-    } catch {
-      // 存在しない場合は新規作成扱い
-    }
-  }
 
   const configPath = join(CONFIG_DIR, `${configurationId}.json`);
 
@@ -56,6 +45,7 @@ export async function loadConfig(id: string): Promise<McpServerConfigObject | nu
     // 日付を復元
     return {
       ...parsed,
+      configurationId:id,
       createdAt: new Date(parsed.createdAt),
       updatedAt: new Date(parsed.updatedAt),
     };
@@ -75,8 +65,7 @@ export async function listConfigs(): Promise<McpServerConfigObject[]> {
       if (file.endsWith('.json')) {
         try {
           const id = file.replace('.json', '');
-          const config = await loadConfig(id);
-          config.configurationId = id;
+          const config = await loadConfig(id) as McpServerConfigObject;
           configs.push(config);
         } catch (error) {
           console.warn(`Failed to load config ${file}:`, error);
@@ -102,6 +91,9 @@ export async function deleteConfig(id: string): Promise<void> {
 export async function updateConfig(id: string, config: McpServerConfig): Promise<void> {
   validateConfig(config);
   const existing = await loadConfig(id);
+  if (!existing) {
+    throw new Error(`Config ${id} not found`);
+  }
   const savedConfig: McpServerConfigObject = {
     configurationId: id,
     config,

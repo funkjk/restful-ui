@@ -138,7 +138,8 @@
     "uri-template-lite": "^23.4.0",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
-    "winston-transport-browserconsole": "^1.0.5"
+    "winston-transport-browserconsole": "^1.0.5",
+    "zod": "^3.25.67"
   },
   "eslintConfig": {
     "extends": [

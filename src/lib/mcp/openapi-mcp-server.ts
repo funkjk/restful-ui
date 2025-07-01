@@ -8,6 +8,7 @@ import {
   ErrorCode,
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
+import { z } from "zod";
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import type { OpenAPI } from 'openapi-types';
@@ -130,6 +131,9 @@ export class OpenApiMcpServer {
                     for (const [name, property] of Object.entries(bodyDifinition.properties)) {
                       inputParameters[name] = {
                         type: property.type ?? "string",
+                        description: property.description,
+                        enum: property.enum,
+                        default: property.default,
                       }
                     }
                   } else {
