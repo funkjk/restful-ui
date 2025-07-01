@@ -3,15 +3,72 @@
     import Card, { Content, Actions } from "@smui/card";
     import Button, { Label } from "@smui/button";
     import { persisted } from "svelte-persisted-store";
-    import UrlBasedRestfulApi from "./UrlBasedRestfulApi.svelte";
     import { createProxyUrl } from "$lib/utils/proxy";
     import Checkbox from "$lib/components/common/Checkbox.svelte";
+    import SetServerNameDialog from "../../setting/SetServerNameDialog.svelte";
+    import {
+        createRestfulComponentConfig,
+        SetLoadingPlugin,
+        type RestfulComponentConfig,
+    } from "$lib/restful/SvelteSupport";
+    import {
+        LoggingRestfulPlugin,
+        type LogMessage,
+    } from "$lib/restful/BuiltInPlugins";
+    import { loading, logMessages } from "$lib/stores/ui";
+    import RestfulApi from "../../base/RestfulApi.svelte";
+    import { get } from "svelte/store";
+    import type { McpServerConfig } from "$lib/types/api-config";
     let url = persisted("base-url", "", { storage: "session" });
     let editingUrl: string =
         "http://localhost:4210/oas/restful-api-sample_mcp-config.yaml";
     let useProxy: boolean = false;
-</script>
 
+    let config: RestfulComponentConfig | null;
+    $: config = createConfig();
+
+    function createConfig() {
+        if (!$url) {
+            return null;
+        }
+        const messageLogger = {
+            log(message: LogMessage): void {
+                logMessages.update((e) => [...e, message]);
+            },
+        };
+        let storageKey = "test";
+        const config = createRestfulComponentConfig(storageKey);
+        config.documentUrl = $url;
+        config.additionalPlugins = [
+            new LoggingRestfulPlugin(messageLogger),
+            new SetLoadingPlugin(loading),
+            ...config.additionalPlugins,
+        ];
+        return config;
+    }
+    async function save(serverName: string) {
+        if (!config?.documentUrl) {
+            return;
+        }
+        const serverConfig: McpServerConfig = {
+            openApiUrl: config.documentUrl,
+            serverName: serverName,
+            serverVersion: "1.0.0",
+            timeout: 10000,
+            maxRetries: 3,
+            requestSettings: get(config.storage.requestSetting),
+        };
+        const response = await fetch("/api/mcp/configs", {
+            method: "POST",
+            body: JSON.stringify(serverConfig),
+        });
+        const data = await response.json();
+        if (response.ok) {
+            const { configurationId } = data;
+            window.location.href = `/cid/${configurationId}`;
+        }
+    }
+</script>
 
 {#if $url}
     <Card>
@@ -22,10 +79,14 @@
             <Button on:click={() => url.set("")}>
                 <Label>clear</Label>
             </Button>
+            <SetServerNameDialog buttonText="Create new Config" on:save={(e) => save(e.detail)}
+            ></SetServerNameDialog>
         </Actions>
     </Card>
 
-    <UrlBasedRestfulApi url={$url}></UrlBasedRestfulApi>
+    {#if config}
+        <RestfulApi {config}></RestfulApi>
+    {/if}
 {:else}
     <Card>
         <Content>
@@ -34,7 +95,10 @@
                 style="width: 100%;"
                 label="Open API URL"
             ></Textfield>
-            <Checkbox bind:checked={useProxy} label="Use Restful-UI Proxy to get OAS file"></Checkbox>
+            <Checkbox
+                bind:checked={useProxy}
+                label="Use Restful-UI Proxy to get OAS file"
+            ></Checkbox>
         </Content>
         <Actions>
             <Button

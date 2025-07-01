@@ -1,7 +1,7 @@
 import { defaultLogger } from "$lib/utils/logger";
 import type { RestApiResponse } from "./apiFetch";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
-import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain } from "./RestfulPlugin";
+import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain, RequestPathPluginChain } from "./RestfulPlugin";
 
 
 // using any for Promise or reactive objecect
@@ -228,4 +228,45 @@ export interface ProxyResponseBody {
     headers: { [s: string]: unknown; } | ArrayLike<unknown>;
     status: number;
     responseBody: string
+}
+
+
+export interface RequestSetting {
+    headers: { name: string, value: string }[],
+    additionalQueryParameter?: string,
+    basePath?: string,
+    useProxy: boolean,
+}
+
+export abstract class AbstractRequestSettingApplyPlugin extends EmptyRestfulPlugin {
+    abstract getRequestSetting():RequestSetting
+    doRequestPath(restfulOperation: RestfulOperation, chain: RequestPathPluginChain): string {
+        const setting = this.getRequestSetting()
+        let requestPath = chain.next()
+        if (setting.basePath) {
+            const basePath = restfulOperation.getBasePath()
+            requestPath = requestPath.replace(basePath, setting.basePath)
+        }
+        if (setting.additionalQueryParameter) {
+            if (requestPath.includes("?")) {
+                requestPath += "&" + setting.additionalQueryParameter
+            } else {
+                requestPath += "?" + setting.additionalQueryParameter
+            }
+        }
+        return requestPath
+    }
+
+    doExecute(_restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+        const setting = this.getRequestSetting()
+        const nextInit = init ?? {}
+        if (setting.headers) {
+            const additionalHeaders: any = {}
+            for (const header of setting.headers) {
+                additionalHeaders[header.name] = header.value
+            }
+            nextInit.headers = { ...nextInit.headers, ...additionalHeaders }
+        }
+        return chain.next(inputParameters, input, nextInit)
+    }
 }

@@ -1,36 +1,22 @@
 <script lang="ts">
-    import {
-        createRestfulComponentConfig,
-        SetLoadingPlugin,
-        type RestfulComponentConfig,
-    } from "$lib/restful/SvelteSupport";
-    import {
-        LoggingRestfulPlugin,
-        LogMessage,
-    } from "$lib/restful/BuiltInPlugins";
-    import { loading, logMessages } from "$lib/stores/ui";
-    import RestfulApi from "../../base/RestfulApi.svelte";
-    export let url: string;
-    export let config: RestfulComponentConfig | null = null;
+    import type { McpServerConfig } from "$lib/types/api-config";
+    import ConfigRestfulApi from "./ConfigRestfulApi.svelte";
 
-    function setConfig() {
-        const messageLogger = {
-            log(message: LogMessage): void {
-                logMessages.update((e) => [...e, message]);
-            },
-        };
-        let storageKey = "test";
-        config = createRestfulComponentConfig(storageKey);
-        config.documentUrl = url;
-        config.additionalPlugins = [
-            new LoggingRestfulPlugin(messageLogger),
-            new SetLoadingPlugin(loading),
-            ...config.additionalPlugins,
-        ];
+    export let configurationId: string;
+    let serverConfig: McpServerConfig;
+    async function loadConfig() {
+        const config = await fetch("/api/mcp/configs/" + configurationId)
+        return config.json()
     }
-    setConfig();
+    $: {
+        loadConfig().then((config) => {
+            serverConfig = config.config;
+        })
+    }
 </script>
 
-{#if config}
-    <RestfulApi {config}></RestfulApi>
+
+{#if serverConfig}
+    <ConfigRestfulApi {configurationId} {serverConfig}></ConfigRestfulApi>
 {/if}
+
