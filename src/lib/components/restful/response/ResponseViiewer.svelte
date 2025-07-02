@@ -1,6 +1,6 @@
 <script lang="ts">
     import GeneralDataTable from "$lib/components/common/GeneralDataTable.svelte";
-    import GeneralJsonCard, { CardType } from "$lib/components/common/GeneralJsonCard.svelte";
+    import GeneralJsonCard from "$lib/components/common/GeneralJsonCard.svelte";
     import PathLinkColumn from "./PathLinkColumn.svelte";
     import { writable } from "svelte/store";
     import type { RestfulOperation } from "$lib/restful/RestfulOperation";
@@ -12,7 +12,7 @@
     import SelectTableKey from "./SelectTableKey.svelte";
     import { syncObject } from "$lib/utils/ObjectStore";
     import type { SelectedRoot } from "$lib/utils/object-array";
-    import type { DisplayTypes } from "$lib/components/common/ObjectNestableDataTable.svelte";
+    import { CardType, type DisplayTypes } from "$lib/utils/utils";
     export let config: RestfulComponentConfig;
     export let currentOperation: RestfulOperation;
     export let cacheStore: SvelteCacheStore;
@@ -70,7 +70,7 @@
     }
 </script>
 
-<SelectTableKey bind:tableKey {response} on:select={selectTableKey}
+<SelectTableKey bind:tableKey {response} onselect={selectTableKey}
 ></SelectTableKey>
 
 {#if arrayResponseItems}

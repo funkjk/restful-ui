@@ -1,83 +1,7 @@
-<script lang="ts" context="module">
-    import {
-        ObjectArray,
-        ColumnDefinition,
-        type SelectedRoot,
-        MoveDirection,
-        moveSelected,
-    } from "$lib/utils/object-array";
-    function convertToDataTableHeaders(
-        objectArray: ObjectArray,
-        selectedColumns: SelectedRoot,
-    ) {
-        const selectedDefinition =
-            objectArray.getSelectedColumnDefinition(selectedColumns);
-        const headerRowSize = Math.max(
-            ...selectedDefinition.map((e) => e.getKey().length),
-        );
-        const ret: DataTableHeaderColumn[][] = [];
-        for (let rowIdx = 0; rowIdx < headerRowSize; rowIdx++) {
-            ret[rowIdx] = [];
-            for (let colIdx = 0; colIdx < selectedDefinition.length; colIdx++) {
-                const def = selectedDefinition[colIdx];
-                if (rowIdx > def.getKey().length - 1) {
-                    ret[rowIdx].push({
-                        dummyFlag: true,
-                        parentFlag: false,
-                    });
-                } else if (rowIdx > def.getKey().length - 1) {
-                    ret[rowIdx].push({
-                        dummyFlag: false,
-                        definition: def,
-                        parentFlag: false,
-                    });
-                } else {
-                    let parent: ColumnDefinition = def;
-                    for (
-                        let diffIdx = 0;
-                        diffIdx < def.getKey().length - 1 - rowIdx;
-                        diffIdx++
-                    ) {
-                        parent = def.parentColumn as ColumnDefinition;
-                    }
-                    if (
-                        ret[rowIdx][colIdx - 1]?.definition
-                            ?.getKey()
-                            .join(".") === parent.getKey().join(".")
-                    ) {
-                        ret[rowIdx].push({
-                            dummyFlag: true,
-                            definition: parent,
-                            parentFlag: true,
-                        });
-                    } else {
-                        ret[rowIdx].push({
-                            dummyFlag: false,
-                            definition: parent,
-                            parentFlag: true,
-                        });
-                    }
-                }
-            }
-        }
-        return ret;
-    }
-    interface DataTableHeaderColumn {
-        definition?: ColumnDefinition;
-        dummyFlag: boolean;
-        parentFlag: boolean;
-    }
-    export enum DisplayType {
-        LONG_STING = "LONG_STING",
-        TIMESTAMP = "TIMESTAMP",
-        DEFAULT = "DEFAULT",
-    }
-    export interface DisplayTypes {
-        [propertyName: string]: DisplayType;
-    }
-</script>
-
 <script lang="ts">
+    import { convertToDataTableHeaders, DisplayType, type DisplayTypes, type DataTableHeaderColumn } from "$lib/utils/utils";
+
+
     import dayjs from "dayjs";
 
     import List, { Item, Separator } from "@smui/list";
@@ -85,6 +9,13 @@
     import Menu from "@smui/menu";
 
     import Button, { Label } from "@smui/button";
+    import {
+        ObjectArray,
+        ColumnDefinition,
+        type SelectedRoot,
+        MoveDirection,
+        moveSelected,
+    } from "$lib/utils/object-array";
 
     import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
     import IconButton from "@smui/icon-button";
@@ -101,7 +32,10 @@
     let headers: DataTableHeaderColumn[][];
     let hidedColumns: ColumnDefinition[] = [];
     $: {
-        if (!selectedColumns.selected || selectedColumns.selected.length === 0) {
+        if (
+            !selectedColumns.selected ||
+            selectedColumns.selected.length === 0
+        ) {
             selectedColumns = objectArray.initialSelectedColumns;
         }
         selectedColumnDefinition =
@@ -162,8 +96,8 @@
         }
     }
     function move(header: DataTableHeaderColumn, direction: MoveDirection) {
-        const key = header.definition!.getKey()
-        selectedColumns = moveSelected(selectedColumns, key, direction)
+        const key = header.definition!.getKey();
+        selectedColumns = moveSelected(selectedColumns, key, direction);
     }
     function expandShrink(header: DataTableHeaderColumn) {
         const m = header.definition?.isExpanded(selectedColumns)
@@ -192,13 +126,13 @@
     <slot name="tableOperation"></slot>
     {#if hidedColumns.length > 0}
         <span style="min-width:180px">
-            <Button on:click={() => menu.setOpen(true)}>
+            <Button onclick={() => menu.setOpen(true)}>
                 <Label>Show hided column</Label>
             </Button>
             <Menu bind:this={menu}>
                 <List>
                     {#each hidedColumns as column, index (index)}
-                        <Item on:SMUI:action={() => selectHidedItem(column)}>
+                        <Item onSMUIAction={() => selectHidedItem(column)}>
                             {column.getKey().join(".")}
                         </Item>
                     {/each}
@@ -217,17 +151,18 @@
                         {#if header.dummyFlag === false}
                             {#if selectedColumns.selected.length > 1}
                                 <ActionMenu>
-                                    <IconButton
-                                        let:openMenu
-                                        slot="action"
-                                        class="material-icons"
-                                        on:click={openMenu}
-                                        >menu
-                                    </IconButton>
+                                    {#snippet content({openMenu})}
+                                        <IconButton
+                                            class="material-icons"
+                                            onclick={openMenu}
+                                        >
+                                            menu
+                                        </IconButton>
+                                    {/snippet}
                                     <List>
                                         {#each Object.values(MoveDirection) as direction, index (index)}
                                             <Item
-                                                on:SMUI:action={() =>
+                                                onSMUIAction={() =>
                                                     move(header, direction)}
                                             >
                                                 {direction.toLocaleLowerCase()}
@@ -235,7 +170,7 @@
                                         {/each}
                                         <Separator />
                                         <Item
-                                            on:SMUI:action={() =>
+                                            onSMUIAction={() =>
                                                 deselect(header)}
                                         >
                                             delete
@@ -244,7 +179,7 @@
                                             <Separator />
                                             {#each Object.values(DisplayType) as dataType, index (index)}
                                                 <Item
-                                                    on:SMUI:action={() =>
+                                                    onSMUIAction={() =>
                                                         changeDataType(
                                                             header,
                                                             dataType,
@@ -261,7 +196,7 @@
                             {#if header.definition?.isExpandable()}
                                 <IconButton
                                     class="material-icons"
-                                    on:click={() => expandShrink(header)}
+                                    onclick={() => expandShrink(header)}
                                     >{header.definition?.isExpanded(
                                         selectedColumns,
                                     )

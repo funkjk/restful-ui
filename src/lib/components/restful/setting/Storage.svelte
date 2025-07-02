@@ -46,8 +46,8 @@
 {/each}
 
 
-<Button on:click={save}>Save</Button>
-<Button on:click={clear}>Clear</Button>
+<Button onclick={save}>Save</Button>
+<Button onclick={clear}>Clear</Button>
 
 <style>
     :global(.editor-box > div) {

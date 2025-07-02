@@ -255,7 +255,7 @@
             <!-- 詳細設定 -->
             <div class="advanced-settings">
                 <Button
-                    on:click={() =>
+                    onclick={() =>
                         (showAdvancedSettings = !showAdvancedSettings)}
                     variant="outlined"
                 >
@@ -341,7 +341,7 @@
                         <strong>エラー:</strong>
                         {$mcpServerState.error}
                         <Button
-                            on:click={mcpActions.clearError}
+                            onclick={mcpActions.clearError}
                             variant="outlined"
                         >
                             <Label>エラーをクリア</Label>
@@ -353,17 +353,17 @@
 
         <Actions>
             {#if $mcpServerState.isRunning}
-                <Button on:click={stopMcpServer} variant="outlined">
+                <Button onclick={stopMcpServer} variant="outlined">
                     <Label>MCPサーバを停止</Label>
                 </Button>
             {:else}
-                <Button on:click={startMcpServer} variant="raised">
+                <Button onclick={startMcpServer} variant="raised">
                     <Label>MCPサーバを起動</Label>
                 </Button>
             {/if}
 
             <Button
-                on:click={openSaveDialog}
+                onclick={openSaveDialog}
                 variant="outlined"
                 disabled={!$mcpServerState.isRunning}
             >
@@ -379,7 +379,7 @@
 
             <div class="config-management">
                 <Button
-                    on:click={() =>
+                    onclick={() =>
                         (showConfigManagement = !showConfigManagement)}
                     variant="outlined"
                 >
@@ -432,7 +432,7 @@
                                                 <div class="action-buttons">
                                                     <IconButton
                                                         class="material-icons"
-                                                        on:click={() =>
+                                                        onclick={() =>
                                                             loadAndApplyConfig(
                                                                 config.configurationId,
                                                             )}
@@ -443,7 +443,7 @@
                                                     </IconButton>
                                                     <IconButton
                                                         class="material-icons"
-                                                        on:click={() =>
+                                                        onclick={() =>
                                                             startServerFromConfig(
                                                                 config.configurationId
                                                             )}
@@ -455,7 +455,7 @@
                                                     </IconButton>
                                                     <IconButton
                                                         class="material-icons"
-                                                        on:click={() =>
+                                                        onclick={() =>
                                                             editConfig(config)}
                                                         title="設定を編集"
                                                         size="mini"
@@ -464,7 +464,7 @@
                                                     </IconButton>
                                                     <IconButton
                                                         class="material-icons"
-                                                        on:click={() =>
+                                                        onclick={() =>
                                                             deleteConfig(
                                                                 config.configurationId
                                                             )}
@@ -528,7 +528,7 @@
                                 <Cell>
                                     <IconButton
                                         class="material-icons"
-                                        on:click={() => copyToolInfo(tool)}
+                                        onclick={() => copyToolInfo(tool)}
                                         title="ツール情報をコピー"
                                     >
                                         content_copy
@@ -572,7 +572,7 @@
                                 <Cell>
                                     <IconButton
                                         class="material-icons"
-                                        on:click={() =>
+                                        onclick={() =>
                                             copyResourceInfo(resource)}
                                         title="リソース情報をコピー"
                                     >
@@ -651,10 +651,10 @@
         </div>
     </DialogContent>
     <DialogActions>
-        <Button on:click={() => (saveConfigDialog = false)}>
+        <Button onclick={() => (saveConfigDialog = false)}>
             <Label>キャンセル</Label>
         </Button>
-        <Button on:click={saveConfig} variant="raised">
+        <Button onclick={saveConfig} variant="raised">
             <Label>{editingConfigId ? "更新" : "保存"}</Label>
         </Button>
     </DialogActions>

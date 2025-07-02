@@ -8,7 +8,7 @@
     export let currentOperation: RestfulOperation;
     export let config: RestfulComponentConfig;
     import type { PathTreeObject } from "$lib/restful/PathTree";
-    import { PAGE } from "./RestfulApiContent.svelte";
+    import { PAGE } from "$lib/utils/utils";
     import type { RestfulComponentConfig } from "$lib/restful/SvelteSupport";
 </script>
 

@@ -1,21 +1,17 @@
 <script lang="ts">
     import Menu from "@smui/menu";
     import List, { Item, Separator, Text } from "@smui/list";
-    import { createEventDispatcher } from "svelte";
     import Button, { Label } from "@smui/button";
     import { getTargetNestKeys, isObjectArray } from "$lib/utils/utils";
-    export let response: any = null;
-    export let tableKey = "";
-    const dispatch = createEventDispatcher<any>();
-
-    $: tableKeyCandidates = response
+	let { onselect, tableKey, response } : { onselect: (key: string) => void, tableKey: string, response: any } = $props();
+    let tableKeyCandidates = $derived(response
         ? getTargetNestKeys(response, isObjectArray)
-        : [];
+        : []);
 
     let tableKeyMenu: Menu;
     function selectTableKey(key: string) {
         tableKey = key
-        dispatch("select", key)
+        onselect(key)
     }
 </script>
 
@@ -28,18 +24,18 @@
                 >"
             {/if}
             <span>
-                <Button on:click={() => tableKeyMenu.setOpen(true)}>
+                <Button onclick={() => tableKeyMenu.setOpen(true)}>
                     <Label>Select Table Key</Label>
                 </Button>
                 <Menu bind:this={tableKeyMenu}>
                     <List>
-                        <Item on:SMUI:action={() => selectTableKey("")}>
+                        <Item onSMUIaction={() => selectTableKey("")}>
                             <Text>None</Text>
                         </Item>
                         <Separator />
                         {#each tableKeyCandidates as candidate (candidate)}
                             <Item
-                                on:SMUI:action={() => selectTableKey(candidate)}
+                                onSMUIaction={() => selectTableKey(candidate)}
                             >
                                 <Text>{candidate}</Text>
                             </Item>

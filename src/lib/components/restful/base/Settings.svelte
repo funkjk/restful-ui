@@ -18,9 +18,9 @@
 {#each options as option (option)}
     <FormField>
         <Radio bind:group={selected} value={option} />
-        <span slot="label">
+        {#snippet label()}
             {option.name}
-        </span>
+        {/snippet}
     </FormField>
 {/each}
 

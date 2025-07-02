@@ -20,12 +20,13 @@
     import { get } from "svelte/store";
     import type { McpServerConfig } from "$lib/types/api-config";
     let url = persisted("base-url", "", { storage: "session" });
-    let editingUrl: string =
-        "http://localhost:4210/oas/restful-api-sample_mcp-config.yaml";
+    let editingUrl: string = $state("http://localhost:4210/oas/restful-api-sample_mcp-config.yaml");
     let useProxy: boolean = false;
 
-    let config: RestfulComponentConfig | null;
-    $: config = createConfig();
+    let config: RestfulComponentConfig | null = $state(null);
+    $effect(() => {
+        config = createConfig();
+    });
 
     function createConfig() {
         if (!$url) {
@@ -76,10 +77,10 @@
             <a href={$url} target="_blank">{$url}</a>
         </Content>
         <Actions>
-            <Button on:click={() => url.set("")}>
+            <Button onclick={() => url.set("")}>
                 <Label>clear</Label>
             </Button>
-            <SetServerNameDialog buttonText="Create new Config" on:save={(e) => save(e.detail)}
+            <SetServerNameDialog buttonText="Create new Config" onsave={(e) => save(e.detail)}
             ></SetServerNameDialog>
         </Actions>
     </Card>
@@ -102,7 +103,7 @@
         </Content>
         <Actions>
             <Button
-                on:click={() =>
+                onclick={() =>
                     url.set(useProxy ? createProxyUrl(editingUrl) : editingUrl)}
             >
                 <Label>set</Label>

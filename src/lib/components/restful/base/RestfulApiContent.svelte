@@ -1,11 +1,3 @@
-<script lang="ts" context="module">
-	export enum PAGE {
-		OPERATION = "operation",
-		SETTING = "setting",
-		TOP = "top",
-	}
-</script>
-
 <script lang="ts">
 	import Operation from "$lib/components/restful/base/Operation.svelte";
 	import { createRestfulOperation, RestfulOperation } from "$lib/restful/RestfulOperation";
@@ -24,6 +16,7 @@
 	import { PathTree } from "$lib/restful/PathTree";
 	import IconButton from "@smui/icon-button";
     import Settings from "./Settings.svelte";
+    import { PAGE } from "$lib/utils/utils";
 	export let config: RestfulComponentConfig;
 	export let searchParams: URLSearchParams;
 
@@ -68,7 +61,7 @@
 					<div>
 						<IconButton
 							class="material-icons"
-							on:click={() => (drawerOpen = !drawerOpen)}
+							onclick={() => (drawerOpen = !drawerOpen)}
 						>
 							{drawerOpen ? "chevron_left" : "chevron_right"}
 						</IconButton>

@@ -14,7 +14,7 @@
 		type SvelteCacheStore,
 	} from "$lib/restful/SvelteSupport";
 	import ResponseViiewer from "../response/ResponseViiewer.svelte";
-	import { PAGE } from "./RestfulApiContent.svelte";
+    import { PAGE } from "$lib/utils/utils";
 	export let config: RestfulComponentConfig;
 	export let currentOperation: RestfulOperation;
 	export let cacheStore: SvelteCacheStore;
@@ -116,7 +116,7 @@ parameters={JSON.stringify(currentOperation.parameters)}
 			{histories}
 		></ParamsForm>
 	{/if}
-	<Button on:click={execute}>Execute</Button>
+	<Button onclick={execute}>Execute</Button>
 </div>
 {#if executionTime}
 	Execution Time:{executionTime}

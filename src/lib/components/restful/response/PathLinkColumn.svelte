@@ -23,14 +23,14 @@
 		{/if}
 	</Content>
 	<Actions>
-		<Button on:click={() => (open = false)}>
+		<Button onclick={() => (open = false)}>
 			<Label>Close</Label>
 		</Button>
 	</Actions>
 </Dialog>
 <div style="display: flex; justify-content: center;">
 	<Button>
-		<Icon class="material-icons" on:click={() => (open = true)}>list</Icon>
+		<Icon class="material-icons" onclick={() => (open = true)}>list</Icon>
 	</Button><Label style="margin:auto 0px; text-align:left;width:100%;"
 		>{value}</Label
 	>

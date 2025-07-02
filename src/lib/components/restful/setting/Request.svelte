@@ -54,7 +54,7 @@
 <Checkbox bind:checked={useProxy} label="Use Restful-UI Proxy to call API"></Checkbox>
 
 <h3>Request Headers</h3>
-{#each headers as header (header.name)}
+{#each headers as header, index (index)}
     <div>
         <Textfield bind:value={header.name} label="name" style="width:30%;"
         ></Textfield>
@@ -62,7 +62,7 @@
         ></Textfield>
     </div>
 {/each}
-<Button on:click={addHeader}>Add</Button>
+<Button onclick={addHeader}>Add</Button>
 
 <h3>additional Query Parameters</h3>
 <Textfield
@@ -71,5 +71,5 @@
     style="width:100%;"
 ></Textfield>
 
-<Button on:click={save}>Save</Button>
-<Button on:click={clear}>Clear</Button>
+<Button onclick={save}>Save</Button>
+<Button onclick={clear}>Clear</Button>
