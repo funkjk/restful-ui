@@ -18,7 +18,7 @@
 <div class="app">
 	<Header />
 
-	<main>
+	<main style={$open ? "padding-bottom: 200px;" : "padding-bottom: 15px;"}>
 		<slot />
 	</main>
 

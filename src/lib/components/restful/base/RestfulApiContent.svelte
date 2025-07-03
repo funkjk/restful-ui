@@ -142,7 +142,6 @@
 	.main-content {
 		overflow: auto;
 		padding: 16px;
-		height: 100%;
 		box-sizing: border-box;
 	}
 </style>

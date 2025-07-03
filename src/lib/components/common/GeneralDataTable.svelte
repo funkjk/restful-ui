@@ -72,6 +72,7 @@
 >
 	<div style="min-width: 100px;display:flex;" slot="tableOperation">
 		<Textfield
+			class="filter-textfield"
 			bind:value={filterValue}
 			label="Filter"
 			style="min-width:400px;"

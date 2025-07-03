@@ -108,7 +108,7 @@
 				</Select>
 			{/if}
 			{#if canCallGet}
-				<Button on:click={callGet}
+				<Button onclick={callGet} class="call-get-button"
 					><Icon class="material-icons">arrow_circle_down</Icon><Label
 						>call get</Label
 					></Button

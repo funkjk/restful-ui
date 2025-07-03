@@ -2,7 +2,8 @@
     import Dialog, { Title, Content, Actions } from "@smui/dialog";
     import Button, { Label } from "@smui/button";
     import Textfield from "@smui/textfield";
-    let {onsave, serverName = $state(""), buttonText = "Set Server Name"} = $props();
+    let {onsave, buttonText = "Set Server Name"} = $props();
+    let serverName = $state("");
 
     let open = $state(false);
 
