@@ -3,9 +3,11 @@
     import {
         createRestfulComponentConfig,
         DefaultLinkSupport,
+        RuningMode,
         SetLoadingPlugin,
         SetRequestPlugin,
         SvelteRestfulProxy,
+        type ConfigLoaderComponentConfig,
         type LinkParameter,
         type RestfulComponentConfig,
     } from "$lib/restful/SvelteSupport";
@@ -21,13 +23,12 @@
     import { writable } from "svelte/store";
     import Card, { Content } from "@smui/card";
     import { createProxyUrl } from "$lib/utils/proxy";
-    import SetServerNameDialog from "../../setting/SetServerNameDialog.svelte";
 
     export let serverConfig: McpServerConfig;
     export let configurationId: string;
     const url = serverConfig.openApiUrl;
 
-    let config: RestfulComponentConfig;
+    let config: ConfigLoaderComponentConfig;
     async function setConfig() {
         const messageLogger = {
             log(message: LogMessage): void {
@@ -35,13 +36,20 @@
             },
         };
         const storageKey = "cid-" + configurationId;
-        config = createRestfulComponentConfig(storageKey);
+        
+        config = {
+            ...createRestfulComponentConfig(storageKey, {
+                runningMode: RuningMode.LOAD_CONFIG,
+            }),
+            configurationId: configurationId,
+            config: serverConfig,
+            runningMode: RuningMode.LOAD_CONFIG,
+        };
         if (serverConfig.useProxy) {
             config.documentUrl = createProxyUrl(serverConfig.openApiUrl);
         } else {
             config.documentUrl = serverConfig.openApiUrl;
         }
-        console.log("config.documentUrl", config.documentUrl);
         const requestSetting = writable(serverConfig.requestSettings);
         config.additionalPlugins = [
             new LoggingRestfulPlugin(messageLogger),
@@ -61,7 +69,11 @@
         });
         class PathParameterLinkSupport extends DefaultLinkSupport {
             createBasePath(_parameter: LinkParameter): string {
-                return "/cid/" + configurationId + "/#";
+                if (_parameter.basePath) {
+                    return _parameter.basePath + "#";
+                } else {
+                    return "/cid/" + configurationId + "/#";
+                }
             }
         }
         config.linkSupport = new PathParameterLinkSupport("/");
@@ -89,11 +101,6 @@
             <div>name: {serverConfig.serverName}</div>
         {/if}
         <div>url: <a href={url} target="_blank">{url}</a></div>
-        <SetServerNameDialog
-            buttonText="Set Server Name"
-            serverName={serverConfig.serverName}
-            on:save={(e) => updateServeronfig(e.detail)}
-        ></SetServerNameDialog>
     </Content>
 </Card>
 

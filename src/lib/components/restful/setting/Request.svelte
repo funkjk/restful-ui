@@ -6,11 +6,11 @@
     import Textfield from "@smui/textfield";
     import { onMount } from "svelte";
     import { get } from "svelte/store";
-    export let config: RestfulComponentConfig;
-    let headers: any[] = [];
-    let additionalQueryParameter: string | undefined = "";
-    let basePath: string | undefined = "";
-    let useProxy: boolean = false;
+    let {config}:{config:RestfulComponentConfig} = $props();
+    let headers: any[] = $state([]);
+    let additionalQueryParameter = $state("");
+    let basePath  = $state("");
+    let useProxy: boolean = $state(false);
     function addHeader() {
         headers = [...headers, { name: "", value: "" }];
     }
@@ -23,8 +23,8 @@
             headers = [];
             addHeader();
         }
-        additionalQueryParameter = requestSetting.additionalQueryParameter;
-        basePath = requestSetting.basePath;
+        additionalQueryParameter = requestSetting.additionalQueryParameter ?? "";
+        basePath = requestSetting.basePath ?? "";
         useProxy = requestSetting.useProxy
     });
 
@@ -65,11 +65,7 @@
 <Button onclick={addHeader}>Add</Button>
 
 <h3>additional Query Parameters</h3>
-<Textfield
-    bind:value={additionalQueryParameter}
-    label="value"
-    style="width:100%;"
-></Textfield>
+<Textfield bind:value={additionalQueryParameter} label="value" style="width:100%;"></Textfield>
 
 <Button onclick={save}>Save</Button>
 <Button onclick={clear}>Clear</Button>

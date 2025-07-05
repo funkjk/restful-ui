@@ -5,6 +5,7 @@ import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import type { RestApiResponse } from "./apiFetch";
 import { getBaseUrl } from "$lib/utils/proxy";
 import { persisted } from "svelte-persisted-store";
+import type { McpServerConfig } from "$lib/types/api-config";
 
 function uniqueArray<T>(arr: T[], fn: (a1: T, a2: T) => boolean) {
     return arr.filter(
@@ -157,8 +158,13 @@ export function createRestfulComponentConfig(storageKey: string, baseConfig?: Pa
             new SvelteRestfulProxy(requestSetting),
         ] as RestfulPlugin[],
         displaySupport: DefaultDisplaySupport,
-        linkSupport: new DefaultLinkSupport("/")
+        linkSupport: new DefaultLinkSupport("/"),
+        runningMode: baseConfig?.runningMode ?? RuningMode.SESSION_STORAGE
     }
+}
+export enum RuningMode {
+    SESSION_STORAGE = "session-storage",
+    LOAD_CONFIG = "load-config"
 }
 
 export interface RestfulComponentConfig {
@@ -176,9 +182,16 @@ export interface RestfulComponentConfig {
     additionalPlugins: RestfulPlugin[];
     displaySupport: RestfulDisplaySupport;
     linkSupport: LinkSupport;
+    runningMode: RuningMode;
+}
+export interface ConfigLoaderComponentConfig extends RestfulComponentConfig {
+    runningMode: RuningMode.LOAD_CONFIG;
+    configurationId: string;
+    config: McpServerConfig;
 }
 
 export type LinkParameter = {
+    basePath?: string
     page?: string
     restPath?: string
     restMethod?: string
@@ -195,15 +208,15 @@ export class DefaultLinkSupport implements LinkSupport {
         this.basePath = basePath
     }
     createBasePath(_parameter: LinkParameter) {
-        let path = ""
-        if (this.basePath.includes("[...path]")) {
-            path = this.basePath.replaceAll("/[...path]", "") + "/index.html#"
-        } else if (this.basePath === "/") {
-            path = this.basePath + "#"
-        } else {
-            path = this.basePath + "/index.html#"
-        }
-        return path
+        const basePath = _parameter.basePath ?? this.basePath
+        // if (basePath.includes("[...path]")) {
+        //     path = basePath.replaceAll("/[...path]", "") + "/index.html#"
+        // } else if (basePath === "/") {
+        //     path = basePath + "#"
+        // } else {
+        //     path = basePath + "/index.html#"
+        // }
+        return basePath + "#"
     }
     createQuery(parameter: LinkParameter) {
         let query = ""

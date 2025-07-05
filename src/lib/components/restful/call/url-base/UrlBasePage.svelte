@@ -5,7 +5,6 @@
     import { persisted } from "svelte-persisted-store";
     import { createProxyUrl } from "$lib/utils/proxy";
     import Checkbox from "$lib/components/common/Checkbox.svelte";
-    import SetServerNameDialog from "../../setting/SetServerNameDialog.svelte";
     import {
         createRestfulComponentConfig,
         SetLoadingPlugin,
@@ -80,8 +79,6 @@
             <Button onclick={() => url.set("")}>
                 <Label>clear</Label>
             </Button>
-            <SetServerNameDialog buttonText="Create new Config" onsave={(e) => save(e.detail)}
-            ></SetServerNameDialog>
         </Actions>
     </Card>
 
