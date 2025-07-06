@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('test config api', async ({ page }) => {
+test('test config routing', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'SET' }).click();
   await page.getByRole('button', { name: 'SETTING' }).click();

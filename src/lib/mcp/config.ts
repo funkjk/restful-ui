@@ -1,8 +1,8 @@
-import type { McpServerConfig, McpServerConfigObject } from '$lib/types/api-config';
 
 import { readFile } from 'fs/promises';
+import type { ServerConfig, ServerConfigResponse } from '$lib/restful/serverSupport';
 
-export type McpServerCliConfig = Partial<McpServerConfig> & {
+export type McpServerCliConfig = Partial<ServerConfig> & {
   file?: string;
 }
 
@@ -13,18 +13,18 @@ export const defaultConfig: McpServerCliConfig = {
   maxRetries: 3
 };
 
-export async function createConfig(overrides: McpServerCliConfig): Promise<McpServerConfig> {
+export async function createConfig(overrides: McpServerCliConfig): Promise<ServerConfig> {
   let config: McpServerCliConfig = overrides
   if (config.file) {
     const fileContent = await readFile(config.file, 'utf8');
-    const fileConfig = JSON.parse(fileContent) as McpServerConfigObject;
+    const fileConfig = JSON.parse(fileContent) as ServerConfigResponse;
     config = fileConfig.config
   }
 
   return {
     ...defaultConfig,
     ...config,
-  } as McpServerConfig;
+  } as ServerConfig;
 }
 
 export function validateUrl(url: string): boolean {

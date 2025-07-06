@@ -8,7 +8,6 @@
     
     import Card, { Content, Actions } from "@smui/card";
     import { notifyMessage } from "$lib/stores/ui";
-    import type { McpServerConfig } from "$lib/types/api-config";
     import { PAGE } from "$lib/utils/utils";
     import Button, { Label } from "@smui/button";
     import Textfield from "@smui/textfield";
@@ -17,6 +16,7 @@
     import GeneralJsonCard from "$lib/components/common/GeneralJsonCard.svelte";
     import IconButton from "@smui/icon-button";
     import { goto } from "$app/navigation";
+    import type { ServerConfig } from "$lib/restful/serverSupport";
     let { config }: { config: RestfulComponentConfig } = $props();
     let serverName = $state("");
     let serverVersion = $state("1.0.0");
@@ -42,7 +42,7 @@
     onMount(() => {});
 
     async function save() {
-        const request: McpServerConfig = {
+        const request: ServerConfig = {
             openApiUrl: config.documentUrl!,
             useProxy: false,
             serverName,
@@ -51,7 +51,7 @@
             maxRetries,
             requestSettings: get(config.storage.requestSetting),
         };
-        const response = await fetch("/api/mcp/configs", {
+        const response = await fetch("/api/configs", {
             method: "POST",
             body: JSON.stringify(request),
         });
@@ -69,9 +69,9 @@
     }
     async function update() {
         const loaderConfig = config as ConfigLoaderComponentConfig;
-        const request: McpServerConfig = serverCofig;
+        const request: ServerConfig = serverCofig;
         const response = await fetch(
-            "/api/mcp/configs/" + loaderConfig.configurationId,
+            "/api/configs/" + loaderConfig.configurationId,
             {
                 method: "PUT",
                 body: JSON.stringify(request),
@@ -86,7 +86,7 @@
     async function deleteServer() {
         const loaderConfig = config as ConfigLoaderComponentConfig;
         const response = await fetch(
-            "/api/mcp/configs/" + loaderConfig.configurationId,
+            "/api/configs/" + loaderConfig.configurationId,
             {
                 method: "DELETE",
             },
@@ -104,7 +104,7 @@
     }
     async function copy() {
         const loaderConfig = config as ConfigLoaderComponentConfig;
-        const response = await fetch("/api/mcp/configs/copy", {
+        const response = await fetch("/api/configs/copy", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",

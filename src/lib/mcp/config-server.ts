@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { writeFile, readFile, readdir, unlink, mkdir } from 'fs/promises';
-import type { McpServerConfig, McpServerConfigObject } from '$lib/types/api-config';
+import type { ServerConfig, ServerConfigResponse } from '$lib/restful/serverSupport';
 
 
 function join(path: string, plusPath: string): string {
@@ -11,7 +11,7 @@ function join(path: string, plusPath: string): string {
 const CONFIG_DIR = join(process.cwd(), 'mcp-configs');
 
 
-async function writeConfig(configurationId:string, config: Partial<McpServerConfigObject>): Promise<McpServerConfigObject> {
+async function writeConfig(configurationId:string, config: Partial<ServerConfigResponse>): Promise<ServerConfigResponse> {
   const configPath = join(CONFIG_DIR, `${configurationId}.json`);
 
   // ディレクトリが存在しない場合は作成
@@ -25,14 +25,14 @@ async function writeConfig(configurationId:string, config: Partial<McpServerConf
     configurationId: configurationId,
     createdAt: config.createdAt ?? new Date(),
     updatedAt: new Date(),
-  } as McpServerConfigObject;
+  } as ServerConfigResponse;
 
   await writeFile(configPath, JSON.stringify(savedConfig, null, 2));
   return savedConfig;
 }
 // 設定を保存
 export async function saveConfig(
-  config: McpServerConfig,
+  config: ServerConfig,
   configurationId?: string,
 ): Promise<string> {
   validateConfig(config);
@@ -45,7 +45,7 @@ export async function saveConfig(
 }
 
 // 設定を読み込み
-export async function loadConfig(id: string): Promise<McpServerConfigObject | null> {
+export async function loadConfig(id: string): Promise<ServerConfigResponse | null> {
   const configPath = join(CONFIG_DIR, `${id}.json`);
   try {
     const data = await readFile(configPath, 'utf8');
@@ -64,16 +64,16 @@ export async function loadConfig(id: string): Promise<McpServerConfigObject | nu
 }
 
 // 設定一覧を取得
-export async function listConfigs(): Promise<McpServerConfigObject[]> {
+export async function listConfigs(): Promise<ServerConfigResponse[]> {
   try {
     const files = await readdir(CONFIG_DIR);
-    const configs: McpServerConfigObject[] = [];
+    const configs: ServerConfigResponse[] = [];
 
     for (const file of files) {
       if (file.endsWith('.json')) {
         try {
           const id = file.replace('.json', '');
-          const config = await loadConfig(id) as McpServerConfigObject;
+          const config = await loadConfig(id) as ServerConfigResponse;
           configs.push(config);
         } catch (error) {
           console.warn(`Failed to load config ${file}:`, error);
@@ -96,7 +96,7 @@ export async function deleteConfig(id: string): Promise<void> {
 
 
 // 設定を削除
-export async function updateConfig(id: string, config: McpServerConfig): Promise<void> {
+export async function updateConfig(id: string, config: ServerConfig): Promise<void> {
   validateConfig(config);
   const existing = await loadConfig(id);
   if (!existing) {
@@ -108,7 +108,7 @@ export async function updateConfig(id: string, config: McpServerConfig): Promise
 }
 
 
-function validateConfig(config: McpServerConfig): void {
+function validateConfig(config: ServerConfig): void {
   if (!config.openApiUrl) {
     throw new Error('OpenAPI URL is required in config');
   }

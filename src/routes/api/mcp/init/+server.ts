@@ -4,7 +4,8 @@ import { createOpenApiMcpServer } from '$lib/mcp/openapi-mcp-server';
 import { createConfig } from '$lib/mcp/config';
 import { loadConfig } from '$lib/mcp/config-server';
 import { setMcpServer, getMcpServer, getServerConfig, clearMcpServer, isServerInitialized } from '$lib/mcp/server-state';
-import type { McpServerState, McpServerInitRequest, McpServerConfig } from '$lib/types/api-config';
+import type { McpServerState, McpServerInitRequest } from '$lib/types/api-config';
+import type { ServerConfig } from '$lib/restful/serverSupport';
 
 export const POST = async ({ request }: RequestEvent) => {
   try {
@@ -16,7 +17,7 @@ export const POST = async ({ request }: RequestEvent) => {
       body = await request.json() as McpServerInitRequest;
     }
 
-    let config:McpServerConfig;
+    let config:ServerConfig;
 
     // if configurationId is specified, load the saved config
     if ("configurationId" in body) {

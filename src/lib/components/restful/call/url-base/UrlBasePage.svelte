@@ -17,7 +17,7 @@
     import { loading, logMessages } from "$lib/stores/ui";
     import RestfulApi from "../../base/RestfulApi.svelte";
     import { get } from "svelte/store";
-    import type { McpServerConfig } from "$lib/types/api-config";
+    import type { ServerConfig } from "$lib/restful/serverSupport";
     let url = persisted("base-url", "", { storage: "session" });
     let editingUrl: string = $state("http://localhost:4210/oas/restful-api-sample_mcp-config.yaml");
     let useProxy: boolean = false;
@@ -50,7 +50,7 @@
         if (!config?.documentUrl) {
             return;
         }
-        const serverConfig: McpServerConfig = {
+        const serverConfig: ServerConfig = {
             openApiUrl: config.documentUrl,
             serverName: serverName,
             serverVersion: "1.0.0",
@@ -58,7 +58,7 @@
             maxRetries: 3,
             requestSettings: get(config.storage.requestSetting),
         };
-        const response = await fetch("/api/mcp/configs", {
+        const response = await fetch("/api/configs", {
             method: "POST",
             body: JSON.stringify(serverConfig),
         });

@@ -1,7 +1,8 @@
 import { writable, get } from 'svelte/store';
 import { persisted } from 'svelte-persisted-store';
 import type { RequestSettings } from '$lib/types/request-config';
-import type { McpServerState, McpServerConfig, McpServerConfigObject } from '$lib/types/api-config';
+import type { McpServerState } from '$lib/types/api-config';
+import type { ServerConfig, ServerConfigResponse } from '$lib/restful/serverSupport';
 
 export interface ToolInfo {
   name: string;
@@ -165,7 +166,7 @@ export const mcpActions = {
       // 現在の設定を取得
       const settings = get(mcpSettings);
 
-      const config: McpServerConfig = {
+      const config: ServerConfig = {
         openApiUrl,
         serverName: settings.serverName,
         serverVersion: settings.serverVersion,
@@ -174,7 +175,7 @@ export const mcpActions = {
         requestSettings: requestSettings,
       };
 
-      const response = await fetch('/api/mcp/configs', {
+      const response = await fetch('/api/configs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,9 +198,9 @@ export const mcpActions = {
   },
 
   // 設定一覧を取得
-  async listConfigs(): Promise<McpServerConfigObject[]> {
+  async listConfigs(): Promise<ServerConfigResponse[]> {
     try {
-      const response = await fetch('/api/mcp/configs');
+      const response = await fetch('/api/configs');
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -207,7 +208,7 @@ export const mcpActions = {
       }
 
       const result = await response.json();
-      return result as McpServerConfigObject[];
+      return result as ServerConfigResponse[];
     } catch (error) {
       throw new Error(
         error instanceof Error ? error.message : 'Unknown error occurred while fetching configs'
@@ -216,9 +217,9 @@ export const mcpActions = {
   },
 
   // 設定を読み込み
-  async loadConfig(id: string): Promise<McpServerConfig> {
+  async loadConfig(id: string): Promise<ServerConfig> {
     try {
-      const response = await fetch(`/api/mcp/configs/${id}`);
+      const response = await fetch(`/api/configs/${id}`);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -237,7 +238,7 @@ export const mcpActions = {
   // 設定を削除
   async deleteConfig(id: string): Promise<void> {
     try {
-      const response = await fetch(`/api/mcp/configs/${id}`, {
+      const response = await fetch(`/api/configs/${id}`, {
         method: 'DELETE',
       });
 
@@ -253,7 +254,7 @@ export const mcpActions = {
   },
 
   // 設定を適用（UI上の設定を更新）
-  applyConfig(savedConfig: McpServerConfig): void {
+  applyConfig(savedConfig: ServerConfig): void {
     mcpSettings.set(savedConfig)
   },
 };

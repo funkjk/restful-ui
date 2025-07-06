@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { deleteConfig, loadConfig, updateConfig } from '$lib/mcp/config-server';
-import type { McpServerConfig } from '$lib/types/api-config';
+import type { ServerConfig } from '$lib/restful/serverSupport';
 
 // 特定の設定を読み込み
 export const GET = async ({ params }: RequestEvent) => {
@@ -51,7 +51,7 @@ export const DELETE = async ({ params }: RequestEvent) => {
 export const PUT = async ({ params, request }: RequestEvent) => {
   try {
     const { id } = params;
-    const config = await request.json() as McpServerConfig;
+    const config = await request.json() as ServerConfig;
     await updateConfig(id!, config);
     return json({
       success: true,

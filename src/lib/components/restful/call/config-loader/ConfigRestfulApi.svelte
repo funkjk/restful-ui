@@ -9,7 +9,6 @@
         SvelteRestfulProxy,
         type LinkParameter,
     } from "$lib/restful/SvelteSupport";
-    import type { McpServerConfig } from "$lib/types/api-config";
     import {
         LoggingRestfulPlugin,
         LogMessage,
@@ -18,11 +17,11 @@
     import { writable } from "svelte/store";
     import Card, { Content } from "@smui/card";
     import { createProxyUrl } from "$lib/utils/proxy";
-
+    import type { ServerConfig } from "$lib/restful/serverSupport";
     let {
         serverConfig,
         configurationId,
-    }: { serverConfig: McpServerConfig; configurationId: string } = $props();
+    }: { serverConfig: ServerConfig; configurationId: string } = $props();
 
     const url = serverConfig.openApiUrl;
 
@@ -57,7 +56,7 @@
         ];
         localConfig.storage.requestSetting = requestSetting;
         localConfig.storage.requestSetting.subscribe((value) => {
-            fetch("/api/mcp/configs/" + configurationId, {
+            fetch("/api/configs/" + configurationId, {
                 method: "PUT",
                 body: JSON.stringify({
                     ...serverConfig,

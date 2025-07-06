@@ -1,23 +1,9 @@
+import type { ServerConfig } from "$lib/restful/serverSupport";
 import type { ResourceInfo, ToolInfo } from "$lib/stores/mcp";
 import type { RequestSettings } from "./request-config";
 
 export type ConfiguraionIdObject = {
   configurationId: string;
-}
-export type McpServerConfig = {
-    openApiUrl: string;
-    useProxy?: boolean;
-    serverName: string;
-    serverVersion: string;
-    timeout: number;
-    maxRetries: number;
-    requestSettings: RequestSettings;
-}
-export type McpServerConfigObject = {
-    configurationId: string;
-    createdAt: Date;
-    updatedAt: Date;
-    config: McpServerConfig;
 }
 export type McpServerState = {
     isRunning: boolean;
@@ -32,4 +18,4 @@ export type OperationResponse = {
     success: boolean;
     message: string;
 }
-export type McpServerInitRequest = ConfiguraionIdObject | McpServerConfig;
+export type McpServerInitRequest = ConfiguraionIdObject | ServerConfig;

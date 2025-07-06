@@ -2,10 +2,9 @@ import { get, type Writable } from "svelte/store";
 import { AbstractRequestSettingApplyPlugin, CACHE_TYPE, compareBodyParameter, UseRestfulUIProxyPlugin, type CacheBody, type CacheBodyParameter, type CacheStore, type RequestSetting } from "./BuiltInPlugins";
 import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain, RequestPathPluginChain, type RestfulPlugin } from "./RestfulPlugin";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
-import type { RestApiResponse } from "./apiFetch";
 import { getBaseUrl } from "$lib/utils/proxy";
 import { persisted } from "svelte-persisted-store";
-import type { McpServerConfig } from "$lib/types/api-config";
+import type { ServerConfig } from "./serverSupport";
 
 function uniqueArray<T>(arr: T[], fn: (a1: T, a2: T) => boolean) {
     return arr.filter(
@@ -187,7 +186,7 @@ export interface RestfulComponentConfig {
 export interface ConfigLoaderComponentConfig extends RestfulComponentConfig {
     runningMode: RuningMode.LOAD_CONFIG;
     configurationId: string;
-    config: McpServerConfig;
+    config: ServerConfig;
 }
 
 export type LinkParameter = {

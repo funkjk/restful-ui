@@ -27,7 +27,7 @@ paths:
           application/json:
             schema:
               oneOf:
-                - $ref: '#/components/schemas/McpServerConfig'
+                - $ref: '#/components/schemas/ServerConfig'
                 - type: object
                   properties:
                     configurationId:
@@ -56,7 +56,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
-  /mcp/configs:
+  /configs:
     get:
       summary: List MCP Server Configurations.
       parameters:
@@ -74,14 +74,14 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/McpServerConfigObject'
+                  $ref: '#/components/schemas/ServerConfigResponse'
     post:
       summary: Create MCP Server Configurations.
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/McpServerConfig'
+              $ref: '#/components/schemas/ServerConfig'
       responses:
         '201':
           description: Create MCP Server Configurations
@@ -93,7 +93,7 @@ paths:
                   configurationId:
                     description: Configuration id
                     type: string
-  /mcp/configs/copy:
+  /copy:
     post:
       summary: Copy MCP Server Configuration.
       requestBody:
@@ -121,7 +121,7 @@ paths:
                   configurationId:
                     description: Configuration id
                     type: string
-  /mcp/configs/{configurationId}:
+  /configs/{configurationId}:
     get:
       summary: Get MCP Server Configuration.
       parameters:
@@ -143,7 +143,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/McpServerConfigObject'
+                $ref: '#/components/schemas/ServerConfigResponse'
     put:
       summary: Update MCP Server Configuration.
       parameters:
@@ -157,7 +157,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/McpServerConfig'
+              $ref: '#/components/schemas/ServerConfig'
       responses:
         '200':
           description: Inforamtion
@@ -184,7 +184,7 @@ paths:
 
 components:
   schemas:
-    McpServerConfigObject:
+    ServerConfigResponse:
       type: object
       properties:
         configurationId:
@@ -196,8 +196,8 @@ components:
           type: string
           format: date-time
         config:
-          $ref: '#/components/schemas/McpServerConfig'
-    McpServerConfig:
+          $ref: '#/components/schemas/ServerConfig'
+    ServerConfig:
       type: object
       properties:
         openApiUrl:

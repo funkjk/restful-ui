@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { listConfigs, saveConfig } from '$lib/mcp/config-server';
-import type { McpServerConfig } from '$lib/types/api-config';
+import type { ServerConfig } from '$lib/restful/serverSupport';
 
 // 設定一覧を取得
 export const GET = async ({url}: RequestEvent) => {
@@ -26,7 +26,7 @@ export const GET = async ({url}: RequestEvent) => {
 export const POST = async ({ request }: RequestEvent) => {
   try {
     console.log("POST", request)
-    const config = await request.json() as McpServerConfig;
+    const config = await request.json() as ServerConfig;
     console.log("config", config)
 
     if (!config.openApiUrl) {
