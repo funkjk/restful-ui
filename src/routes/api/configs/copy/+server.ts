@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { loadConfig, saveConfig } from '$lib/mcp/config-server';
+import { loadConfig, saveConfig } from '$lib/restful/config-server/ConfigStore';
 import { v4 as uuidv4 } from 'uuid';
 
 // copy config

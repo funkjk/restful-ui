@@ -32,6 +32,7 @@ test('test config api', async ({ page }) => {
 
   const selConfigGetAll = cssescape('*page=operation&path=/configs&method=get');
   await page.locator(`a[href$="${selConfigGetAll}"]`).click();
+  await page.getByText("get /configs").click();
   await page.getByRole('button', { name: 'EXECUTE' }).click();
   await page.locator(".filter-textfield>input").fill(configId);
   await page.getByText("list").click();

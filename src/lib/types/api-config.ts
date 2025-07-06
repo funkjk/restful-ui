@@ -1,6 +1,4 @@
-import type { ServerConfig } from "$lib/restful/serverSupport";
-import type { ResourceInfo, ToolInfo } from "$lib/stores/mcp";
-import type { RequestSettings } from "./request-config";
+import type { ServerConfig } from "$lib/restful/config-server/ServerSupport";
 
 export type ConfiguraionIdObject = {
   configurationId: string;
@@ -19,3 +17,14 @@ export type OperationResponse = {
     message: string;
 }
 export type McpServerInitRequest = ConfiguraionIdObject | ServerConfig;
+
+export type ResourceInfo = {
+    name: string;
+    description: string;
+    type: string;
+    properties: Record<string, any>;
+}
+export type ToolInfo = {
+    name: string;
+    description: string;
+}

@@ -12,11 +12,11 @@
     import Button, { Label } from "@smui/button";
     import Textfield from "@smui/textfield";
     import { onMount } from "svelte";
-    import { derived, get } from "svelte/store";
+    import { get } from "svelte/store";
     import GeneralJsonCard from "$lib/components/common/GeneralJsonCard.svelte";
     import IconButton from "@smui/icon-button";
     import { goto } from "$app/navigation";
-    import type { ServerConfig } from "$lib/restful/serverSupport";
+    import type { ServerConfig } from "$lib/restful/config-server/ServerSupport";
     let { config }: { config: RestfulComponentConfig } = $props();
     let serverName = $state("");
     let serverVersion = $state("1.0.0");

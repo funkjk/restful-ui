@@ -1,4 +1,4 @@
-import type { ServerConfig } from '$lib/restful/serverSupport';
+import type { ServerConfig } from '$lib/restful/config-server/ServerSupport';
 import type { OpenApiMcpServer } from './openapi-mcp-server';
 
 // グローバルサーバー状態

@@ -2,10 +2,10 @@ import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { createOpenApiMcpServer } from '$lib/mcp/openapi-mcp-server';
 import { createConfig } from '$lib/mcp/config';
-import { loadConfig } from '$lib/mcp/config-server';
 import { setMcpServer, getMcpServer, getServerConfig, clearMcpServer, isServerInitialized } from '$lib/mcp/server-state';
 import type { McpServerState, McpServerInitRequest } from '$lib/types/api-config';
-import type { ServerConfig } from '$lib/restful/serverSupport';
+import type { ServerConfig } from '$lib/restful/config-server/ServerSupport';
+import { loadConfig } from '$lib/restful/config-server/ConfigStore';
 
 export const POST = async ({ request }: RequestEvent) => {
   try {

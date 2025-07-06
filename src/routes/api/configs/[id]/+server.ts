@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { deleteConfig, loadConfig, updateConfig } from '$lib/mcp/config-server';
-import type { ServerConfig } from '$lib/restful/serverSupport';
+import { deleteConfig, loadConfig, updateConfig } from '$lib/restful/config-server/ConfigStore';
+import type { ServerConfig } from '$lib/restful/config-server/ServerSupport';
 
 // 特定の設定を読み込み
 export const GET = async ({ params }: RequestEvent) => {

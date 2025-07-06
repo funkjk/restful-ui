@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { loadConfig } from '$lib/mcp/config-server';
+import { loadConfig } from '$lib/restful/config-server/ConfigStore';
 
 export const load = async ({ params }: { params: { cid: string } }) => {
 

@@ -1,6 +1,6 @@
 <script lang="ts">
+    import type { ServerConfig } from "$lib/restful/config-server/ServerSupport";
     import ConfigRestfulApi from "./ConfigRestfulApi.svelte";
-    import type { ServerConfig } from "$lib/restful/serverSupport";
     let { configurationId }: { configurationId: string } = $props();
     let loadedConfigPromise: Promise<{
         configurationId: string;

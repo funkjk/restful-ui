@@ -1,6 +1,6 @@
 
 import { readFile } from 'fs/promises';
-import type { ServerConfig, ServerConfigResponse } from '$lib/restful/serverSupport';
+import type { ServerConfig, ServerConfigResponse } from '$lib/restful/config-server/ServerSupport';
 
 export type McpServerCliConfig = Partial<ServerConfig> & {
   file?: string;
