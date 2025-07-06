@@ -24,7 +24,6 @@ test('test config routing', async ({ page }) => {
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'download' }).click();
   const download = await downloadPromise;downloadPromise
-  console.log(download);
   const readable = await download.createReadStream();
   const text = await readableToString(readable);
   const json = JSON.parse(text);
