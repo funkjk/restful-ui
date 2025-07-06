@@ -2,21 +2,23 @@
     import type { McpServerConfig } from "$lib/types/api-config";
     import ConfigRestfulApi from "./ConfigRestfulApi.svelte";
 
-    export let configurationId: string;
-    let serverConfig: McpServerConfig;
+    let { configurationId }: { configurationId: string } = $props();
+    let loadedConfigPromise: Promise<{
+        configurationId: string;
+        config: McpServerConfig;
+    }> = $derived(loadConfig());
     async function loadConfig() {
-        const config = await fetch("/api/mcp/configs/" + configurationId)
-        return config.json()
-    }
-    $: {
-        loadConfig().then((config) => {
-            serverConfig = config.config;
-        })
+        const config = await fetch("/api/mcp/configs/" + configurationId);
+        const loadedConfig = await config.json();
+        return loadedConfig;
     }
 </script>
 
-
-{#if serverConfig}
-    <ConfigRestfulApi {configurationId} {serverConfig}></ConfigRestfulApi>
-{/if}
-
+{#await loadedConfigPromise}
+    <div>loading...</div>
+{:then loadedConfig}
+    {#if loadedConfig.configurationId === configurationId}
+        <ConfigRestfulApi {configurationId} serverConfig={loadedConfig.config}
+        ></ConfigRestfulApi>
+    {/if}
+{/await}

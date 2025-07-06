@@ -7,14 +7,9 @@
         SetLoadingPlugin,
         SetRequestPlugin,
         SvelteRestfulProxy,
-        type ConfigLoaderComponentConfig,
         type LinkParameter,
-        type RestfulComponentConfig,
     } from "$lib/restful/SvelteSupport";
-    import type {
-        McpServerConfig,
-        McpServerConfigObject,
-    } from "$lib/types/api-config";
+    import type { McpServerConfig } from "$lib/types/api-config";
     import {
         LoggingRestfulPlugin,
         LogMessage,
@@ -24,20 +19,23 @@
     import Card, { Content } from "@smui/card";
     import { createProxyUrl } from "$lib/utils/proxy";
 
-    export let serverConfig: McpServerConfig;
-    export let configurationId: string;
+    let {
+        serverConfig,
+        configurationId,
+    }: { serverConfig: McpServerConfig; configurationId: string } = $props();
+
     const url = serverConfig.openApiUrl;
 
-    let config: ConfigLoaderComponentConfig;
-    async function setConfig() {
+    let config = $derived(createConfig());
+    async function createConfig() {
         const messageLogger = {
             log(message: LogMessage): void {
                 logMessages.update((e) => [...e, message]);
             },
         };
         const storageKey = "cid-" + configurationId;
-        
-        config = {
+
+        const localConfig = {
             ...createRestfulComponentConfig(storageKey, {
                 runningMode: RuningMode.LOAD_CONFIG,
             }),
@@ -46,19 +44,19 @@
             runningMode: RuningMode.LOAD_CONFIG,
         };
         if (serverConfig.useProxy) {
-            config.documentUrl = createProxyUrl(serverConfig.openApiUrl);
+            localConfig.documentUrl = createProxyUrl(serverConfig.openApiUrl);
         } else {
-            config.documentUrl = serverConfig.openApiUrl;
+            localConfig.documentUrl = serverConfig.openApiUrl;
         }
         const requestSetting = writable(serverConfig.requestSettings);
-        config.additionalPlugins = [
+        localConfig.additionalPlugins = [
             new LoggingRestfulPlugin(messageLogger),
             new SetLoadingPlugin(loading),
             new SetRequestPlugin(requestSetting),
             new SvelteRestfulProxy(requestSetting),
         ];
-        config.storage.requestSetting = requestSetting;
-        config.storage.requestSetting.subscribe((value) => {
+        localConfig.storage.requestSetting = requestSetting;
+        localConfig.storage.requestSetting.subscribe((value) => {
             fetch("/api/mcp/configs/" + configurationId, {
                 method: "PUT",
                 body: JSON.stringify({
@@ -76,22 +74,9 @@
                 }
             }
         }
-        config.linkSupport = new PathParameterLinkSupport("/");
+        localConfig.linkSupport = new PathParameterLinkSupport("/");
+        return localConfig;
     }
-    async function updateServeronfig(serverName: string) {
-        const requestServerConfig: McpServerConfig = {
-            ...serverConfig,
-            serverName: serverName,
-        };
-        const response = await fetch("/api/mcp/configs/" + configurationId, {
-            method: "PUT",
-            body: JSON.stringify(requestServerConfig),
-        });
-        if (response.ok) {
-            serverConfig.serverName = serverName;
-        }
-    }
-    setConfig();
 </script>
 
 <Card style="margin-bottom: 10px;">
@@ -104,4 +89,8 @@
     </Content>
 </Card>
 
-<RestfulApi {config}></RestfulApi>
+{#await config}
+    <div>loading...</div>
+{:then resolvedConfig}
+    <RestfulApi config={resolvedConfig}></RestfulApi>
+{/await}

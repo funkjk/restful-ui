@@ -17,11 +17,11 @@
 		const searchString = href.substring(href.search("#") + 1, href.length);
 		searchParams = new URLSearchParams(searchString);
 		// TODO
-		history.replaceState(
-			window.history.state,
-			"",
-			location.href.replaceAll("/index.html/", "/index.html"),
-		);
+		// history.replaceState(
+		// 	window.history.state,
+		// 	"",
+		// 	location.href.replaceAll("/index.html/", "/index.html"),
+		// );
 	}
 
 	async function initialize() {

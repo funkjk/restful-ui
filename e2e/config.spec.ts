@@ -7,8 +7,9 @@ test('test config api', async ({ page }) => {
   await page.getByRole('button', { name: 'SET' }).click();
   await page.getByRole('button', { name: 'SETTING' }).click();
   await page.getByText('▶ mcp/').click();
-  const selConfigPost = cssescape('*page=operation&path=/mcp/configs&method=post');
+  const selConfigPost = cssescape('?*page=operation&path=/mcp/configs&method=post');
   await page.locator(`a[href$="${selConfigPost}"]`).click();
+  await expect(page).toHaveURL(/\/#\?\*page=operation&path=\/mcp\/configs&method=post/);
   const configData = {
     "openApiUrl": "http://localhost:4210/oas/restful-api-sample_mcp-config.yaml",
     "serverName": "openapi-mcp-config",

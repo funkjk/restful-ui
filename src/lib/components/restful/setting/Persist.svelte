@@ -5,6 +5,7 @@
         type RestfulComponentConfig,
     } from "$lib/restful/SvelteSupport";
 
+    
     import Card, { Content, Actions } from "@smui/card";
     import { notifyMessage } from "$lib/stores/ui";
     import type { McpServerConfig } from "$lib/types/api-config";
@@ -15,6 +16,7 @@
     import { derived, get } from "svelte/store";
     import GeneralJsonCard from "$lib/components/common/GeneralJsonCard.svelte";
     import IconButton from "@smui/icon-button";
+    import { goto } from "$app/navigation";
     let { config }: { config: RestfulComponentConfig } = $props();
     let serverName = $state("");
     let serverVersion = $state("1.0.0");
@@ -56,10 +58,11 @@
         if (response.ok) {
             notifyMessage.notify("Save");
             const data = await response.json();
-            location.href = config.linkSupport.createLink({
+            const link = config.linkSupport.createLink({
                 page: PAGE.SETTING,
-                basePath: `/cid/${data.configurationId}`,
+                basePath: `/cid/${data.configurationId}/`,
             });
+            goto(link);
         } else {
             notifyMessage.notify("Save failed" + response.statusText);
         }
@@ -90,10 +93,11 @@
         );
         if (response.ok) {
             notifyMessage.notify("Delete");
-            location.href = config.linkSupport.createLink({
+            const link = config.linkSupport.createLink({
                 page: PAGE.TOP,
                 basePath: `/`,
             });
+            goto(link);
         } else {
             notifyMessage.notify("Delete failed" + response.statusText);
         }
@@ -110,10 +114,11 @@
         if (response.ok) {
             notifyMessage.notify("Copy");
             const data = await response.json();
-            location.href = config.linkSupport.createLink({
+            const link = config.linkSupport.createLink({
                 page: PAGE.SETTING,
-                basePath: `/cid/${data.configurationId}`,
+                basePath: `/cid/${data.configurationId}/`,
             });
+            goto(link);
         } else {
             notifyMessage.notify("Copy failed" + response.statusText);
         }
@@ -137,6 +142,10 @@
 </script>
 
 <h3>Persist</h3>
+
+{#if config.runningMode === RuningMode.LOAD_CONFIG}
+    <h4>ID: <span class="configuration-id">{(config as ConfigLoaderComponentConfig).configurationId}</span></h4>
+{/if}
 
 <Card>
     <Content>
