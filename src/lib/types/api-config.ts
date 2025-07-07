@@ -18,13 +18,20 @@ export type OperationResponse = {
 }
 export type McpServerInitRequest = ConfiguraionIdObject | ServerConfig;
 
-export type ResourceInfo = {
+export interface ToolInfo {
     name: string;
     description: string;
-    type: string;
-    properties: Record<string, any>;
-}
-export type ToolInfo = {
+    method: string;
+    path: string;
+    parameters?: any;
+  }
+  
+  export interface ResourceInfo {
+    uri: string;
     name: string;
     description: string;
-}
+    method: string;
+    path: string;
+    parameters?: any;
+    mimeType: string;
+  }
