@@ -9,7 +9,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
     const { method, params, id } = body;
 
     // MCPサーバが初期化されていない場合はエラー
-    if (!isServerInitialized()) {
+    if (!isServerInitialized("default")) {
       return json({
         jsonrpc: '2.0',
         id,
@@ -43,7 +43,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
     if (method === 'tools/list') {
       try {
         const tools = [];
-        const serverInstance = getMcpServer();
+        const serverInstance = getMcpServer("default");
         const openApiDoc = serverInstance?.getOpenApiDoc();
         
         if (openApiDoc?.paths) {
@@ -98,7 +98,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
     if (method === 'resources/list') {
       try {
         const resources = [];
-        const serverInstance = getMcpServer();
+        const serverInstance = getMcpServer("default");
         
         if (serverInstance) {
           const availableResources = serverInstance.getAvailableResources();
@@ -147,7 +147,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
           });
         }
 
-        const serverInstance = getMcpServer();
+        const serverInstance = getMcpServer("default");
         if (!serverInstance) {
           throw new Error('MCP server not available');
         }
@@ -221,7 +221,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
     if (method === 'tools/call') {
       try {
         const { name, arguments: args } = params;
-        const serverInstance2 = getMcpServer();
+        const serverInstance2 = getMcpServer("default");
         const openApiDoc = serverInstance2?.getOpenApiDoc();
         
         if (!openApiDoc) {
@@ -263,7 +263,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
         }
 
         // Execute the tool using the existing MCP server logic
-        const serverInstance3 = getMcpServer();
+        const serverInstance3 = getMcpServer("default");
         if (!serverInstance3) {
           throw new Error('MCP server not available');
         }
@@ -318,9 +318,9 @@ export const POST: RequestHandler = async ({ request, url }) => {
 // GET request for status
 export const GET: RequestHandler = async ({url}) => {
   console.log("GET request received", url);
-  const config = getServerConfig();
+  const config = getServerConfig("default");
   return json({
-    status: isServerInitialized() ? 'running' : 'stopped',
+    status: isServerInitialized("default") ? 'running' : 'stopped',
     openApiUrl: config?.openApiUrl || null,
     serverInfo: {
       name: 'openapi-mcp-server',

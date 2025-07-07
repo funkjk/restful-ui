@@ -18,6 +18,7 @@ import { defaultLogger } from '$lib/utils/logger';
 import type { RestfulPlugin } from '$lib/restful/RestfulPlugin';
 import { createTools, executeTool } from './setup/McpTool';
 import { createResources, createResourceTemplates, readResource } from './setup/McpResrouce';
+import type { ResourceInfo } from '$lib/types/api-config';
 
 export interface OpenApiMcpServerConfig {
   serverName: string;
@@ -215,7 +216,7 @@ export class OpenApiMcpServer {
     return tools;
   }
 
-  getAvailableResources(progressCallback?: ProgressCallback) {
+  getAvailableResources(progressCallback?: ProgressCallback) : ResourceInfo[] {
     if (!this.openApiDoc) {
       return [];
     }
@@ -254,116 +255,13 @@ export class OpenApiMcpServer {
     return resources;
   }
 
-  // async executeResource(resourceName: string, parameters: any = {}): Promise<any> {
-  //   if (!this.openApiDoc) {
-  //     throw new Error('OpenAPI document not loaded');
-  //   }
+  async executeResource(resourceName: string, parameters: any = {}): Promise<any> {
+    return readResource(this.openApiDoc!, resourceName, parameters, this.plugins)
+  }
 
-  //   // Parse resource name to extract method and path
-  //   const [method, ...pathParts] = resourceName.split('_');
-
-  //   if (method !== 'get') {
-  //     throw new Error(`Resource must be a GET operation: ${resourceName}`);
-  //   }
-
-  //   // Find the actual path in the OpenAPI document
-  //   let actualPath: string | null = null;
-  //   const paths = this.openApiDoc.paths;
-
-  //   if (paths) {
-  //     for (const p of Object.keys(paths)) {
-  //       if (p.replace(/[^a-zA-Z0-9]/g, '_') === pathParts.join('_')) {
-  //         actualPath = p;
-  //         break;
-  //       }
-  //     }
-  //   }
-
-  //   if (!actualPath) {
-  //     throw new Error(`Path not found for resource: ${resourceName}`);
-  //   }
-
-  //   // Create URLSearchParams for RestfulOperation
-  //   const searchParams = new URLSearchParams();
-  //   searchParams.set('path', actualPath);
-  //   searchParams.set('method', 'get');
-
-  //   const plugins = this.createPlugins();
-
-  //   // Create RestfulOperation
-  //   const operation = createRestfulOperation(searchParams, this.openApiDoc, plugins);
-
-  //   if (!operation.exist()) {
-  //     throw new Error(`Operation not found: GET ${actualPath}`);
-  //   }
-
-  //   // Execute the API call
-  //   const response = await operation.execute(parameters as InputRestParameters);
-
-  //   return {
-  //     url: response.url,
-  //     status: response.status,
-  //     ok: response.ok,
-  //     headers: response.headers,
-  //     body: response.responseBody,
-  //     bodyType: response.responseBodyType,
-  //   };
-  // }
-
-  // async executeTool(toolName: string, parameters: any): Promise<any> {
-  //   defaultLogger.info("executeTool", toolName, parameters)
-  //   if (!this.openApiDoc) {
-  //     throw new Error('OpenAPI document not loaded');
-  //   }
-
-  //   // Parse tool name to extract method and path
-  //   const [method, ...pathParts] = toolName.split('_');
-
-  //   // Find the actual path in the OpenAPI document
-  //   let actualPath: string | null = null;
-  //   const paths = this.openApiDoc.paths;
-
-  //   if (paths) {
-  //     for (const p of Object.keys(paths)) {
-  //       if (p.replace(/[^a-zA-Z0-9]/g, '_') === pathParts.join('_')) {
-  //         actualPath = p;
-  //         break;
-  //       }
-  //     }
-  //   }
-
-  //   if (!actualPath) {
-  //     throw new Error(`Path not found for tool: ${toolName}`);
-  //   }
-
-  //   // Create URLSearchParams for RestfulOperation
-  //   const searchParams = new URLSearchParams();
-  //   searchParams.set('path', actualPath);
-  //   searchParams.set('method', method);
-
-  //   const plugins = this.createPlugins();
-
-  //   // Create RestfulOperation
-  //   const operation = createRestfulOperation(searchParams, this.openApiDoc, plugins);
-
-  //   if (!operation.exist()) {
-  //     throw new Error(`Operation not found: ${method} ${actualPath}`);
-  //   }
-
-  //   defaultLogger.info("executeTool", parameters)
-
-  //   // Execute the API call
-  //   const response = await operation.execute(parameters as InputRestParameters);
-
-  //   return {
-  //     url: response.url,
-  //     status: response.status,
-  //     ok: response.ok,
-  //     headers: response.headers,
-  //     body: response.responseBody,
-  //     bodyType: response.responseBodyType,
-  //   };
-  // }
+  async executeTool(toolName: string, parameters: any): Promise<any> {
+    return executeTool(this.openApiDoc!, this.plugins, toolName, parameters)
+  }
 
   // async executeToolWithProgress(toolName: string, parameters: any, eventSender?: SseEventSender): Promise<any> {
   //   if (!this.openApiDoc) {

@@ -1,28 +1,30 @@
 import type { ServerConfig } from '$lib/restful/config-server/ServerSupport';
 import type { OpenApiMcpServer } from './openapi-mcp-server';
 
-// グローバルサーバー状態
-let mcpServerInstance: OpenApiMcpServer | null = null;
-let serverConfig: ServerConfig | null = null;
 
-export function setMcpServer(server: OpenApiMcpServer, config: ServerConfig) {
-  mcpServerInstance = server;
-  serverConfig = config;
+type ServerState = {
+  mcpServer: OpenApiMcpServer | null;
+  serverConfig: ServerConfig | null;
 }
 
-export function getMcpServer(): OpenApiMcpServer | null {
-  return mcpServerInstance;
+let mcpServerInstance: Map<string, ServerState> = new Map();
+
+export function setMcpServer(cid:string, server: OpenApiMcpServer, config: ServerConfig) {
+  mcpServerInstance.set(cid, {mcpServer: server, serverConfig: config});
 }
 
-export function getServerConfig(): ServerConfig | null {
-  return serverConfig;
+export function getMcpServer(cid:string): OpenApiMcpServer | null {
+  return mcpServerInstance.get(cid)?.mcpServer ?? null;
 }
 
-export function clearMcpServer() {
-  mcpServerInstance = null;
-  serverConfig = null;
+export function getServerConfig(cid:string): ServerConfig | null {
+  return mcpServerInstance.get(cid)?.serverConfig ?? null;
 }
 
-export function isServerInitialized(): boolean {
-  return mcpServerInstance !== null;
+export function clearMcpServer(cid:string) {
+  mcpServerInstance.delete(cid);
+}
+
+export function isServerInitialized(cid:string): boolean {
+  return mcpServerInstance.has(cid);
 } 

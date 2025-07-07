@@ -61,7 +61,7 @@ export const POST = async ({ request }: RequestEvent) => {
     try {
       // create MCP server and initialize
       const mcpServer = await createOpenApiMcpServer(config);
-      setMcpServer(mcpServer, config);
+      setMcpServer("default", mcpServer, config);
 
       // in HTTP mode, actual startup is not required
       console.log('MCP server initialized via HTTP');
@@ -91,12 +91,12 @@ export const POST = async ({ request }: RequestEvent) => {
 };
 
 export const GET = async () => {
-  const serverInstance = getMcpServer();
+  const serverInstance = getMcpServer("default");
   const serverState: McpServerState = {
-    isRunning: isServerInitialized(),
-    openApiUrl: getServerConfig()?.openApiUrl ?? "",
-    serverName: getServerConfig()?.serverName ?? "",
-    serverVersion: getServerConfig()?.serverVersion ?? "",
+    isRunning: isServerInitialized("default"),
+    openApiUrl: getServerConfig("default")?.openApiUrl ?? "",
+    serverName: getServerConfig("default")?.serverName ?? "",
+    serverVersion: getServerConfig("default")?.serverVersion ?? "",
     availableTools: serverInstance?.getAvailableTools() ?? [],
     availableResources: serverInstance?.getAvailableResources() ?? [],
   }
@@ -104,7 +104,7 @@ export const GET = async () => {
 };
 
 export const DELETE = async () => {
-  clearMcpServer();
+  clearMcpServer("default");
 
   return json({
     success: true,
