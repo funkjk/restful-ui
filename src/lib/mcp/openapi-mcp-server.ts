@@ -18,7 +18,7 @@ import { defaultLogger } from '$lib/utils/logger';
 import type { RestfulPlugin } from '$lib/restful/RestfulPlugin';
 import { createTools, executeTool } from './setup/McpTool';
 import { createResources, createResourceTemplates, readResource } from './setup/McpResrouce';
-import type { ResourceInfo } from '$lib/types/api-config';
+import type { ResourceInfo, ResourceTemplateInfo, ToolInfo } from '$lib/types/api-config';
 
 export interface OpenApiMcpServerConfig {
   serverName: string;
@@ -96,6 +96,7 @@ export class OpenApiMcpServer {
     this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
       try {
         const resources = await createResources(this.openApiDoc!, this.config.serverName);
+        defaultLogger.info("ListResourcesRequestSchema:"+this.config.serverName, resources)
         return { resources };
       } catch (error) {
         defaultLogger.error("Failed to create resources", error)
@@ -174,89 +175,39 @@ export class OpenApiMcpServer {
   }
 
 
-  getAvailableTools(progressCallback?: ProgressCallback) {
+  async getAvailableTools(progressCallback?: ProgressCallback) : Promise<ToolInfo[]> {
     if (!this.openApiDoc) {
       return [];
     }
 
     progressCallback?.('Loading available tools', 'start');
 
-    const tools = [];
-    const paths = this.openApiDoc.paths;
-
-    if (paths) {
-      let toolCount = 0;
-      for (const [path, pathItem] of Object.entries(paths)) {
-        if (pathItem) {
-          const methods = ['get', 'post', 'put', 'patch', 'delete'] as const;
-          for (const method of methods) {
-            const operation = (pathItem as any)[method];
-            if (operation) {
-              const toolName = `${method.toLowerCase()}_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
-              tools.push({
-                name: toolName,
-                description: operation.summary || operation.description || `${method.toUpperCase()} ${path}`,
-                method: method.toUpperCase(),
-                path,
-                parameters: operation.parameters,
-              });
-              toolCount++;
-
-              // 進捗を報告
-              if (toolCount % 10 === 0) {
-                progressCallback?.(`Loaded ${toolCount} tools`);
-              }
-            }
-          }
-        }
-      }
-      progressCallback?.(`Loaded ${toolCount} tools total`, 'complete');
-    }
-
+    const tools: ToolInfo[] = await createTools(this.openApiDoc!, this.plugins);
+    progressCallback?.('Loading available tools', 'complete');
     return tools;
   }
 
-  getAvailableResources(progressCallback?: ProgressCallback) : ResourceInfo[] {
+  async getAvailableResources(progressCallback?: ProgressCallback) : Promise<ResourceInfo[]> {
     if (!this.openApiDoc) {
       return [];
     }
 
     progressCallback?.('Loading available resources', 'start');
 
-    const resources = [];
-    const paths = this.openApiDoc.paths;
-
-    if (paths) {
-      let resourceCount = 0;
-      for (const [path, pathItem] of Object.entries(paths)) {
-        if (pathItem && pathItem.get) {
-          const operation = pathItem.get;
-          const resourceName = `get_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
-          resources.push({
-            uri: `openapi://${resourceName}`,
-            name: resourceName,
-            description: operation.summary || operation.description || `GET ${path}`,
-            method: 'GET',
-            path,
-            parameters: operation.parameters,
-            mimeType: 'application/json',
-          });
-          resourceCount++;
-
-          // 進捗を報告
-          if (resourceCount % 10 === 0) {
-            progressCallback?.(`Loaded ${resourceCount} resources`);
-          }
-        }
-      }
-      progressCallback?.(`Loaded ${resourceCount} resources total`, 'complete');
-    }
-
-    return resources;
+    const resourcesResponse = await createResources(this.openApiDoc!, this.config.serverName);
+    return resourcesResponse;
   }
 
-  async executeResource(resourceName: string, parameters: any = {}): Promise<any> {
-    return readResource(this.openApiDoc!, resourceName, parameters, this.plugins)
+  async getAvailableResourceTemplates(progressCallback?: ProgressCallback) : Promise<ResourceTemplateInfo[]> {
+    if (!this.openApiDoc) {
+      return [];
+    }
+
+    const resourceTemplatesResponse = await createResourceTemplates(this.openApiDoc!, this.config.serverName);
+    return resourceTemplatesResponse;
+  }
+  async executeResource(resourceName: string): Promise<any> {
+    return readResource(this.openApiDoc!, this.config.serverName, resourceName, this.plugins)
   }
 
   async executeTool(toolName: string, parameters: any): Promise<any> {

@@ -1,5 +1,6 @@
 import { createRestfulOperation, OperationParameter, RequestBodyType, type InputRestParameters } from "$lib/restful/RestfulOperation";
 import type { RestfulPlugin } from "$lib/restful/RestfulPlugin";
+import type { ToolInfo } from "$lib/types/api-config";
 import { defaultLogger } from "$lib/utils/logger";
 import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
 import type { OpenAPI } from "openapi-types";
@@ -7,12 +8,12 @@ import type { OpenAPI } from "openapi-types";
 export async function createTools(
     openApiDoc: OpenAPI.Document,
     plugins: RestfulPlugin[]
-) {
+) : Promise<ToolInfo[]> {
     if (!openApiDoc) {
         throw new McpError(ErrorCode.InternalError, 'OpenAPI document not loaded');
     }
 
-    const tools = [];
+    const tools: ToolInfo[] = [];
     const paths = openApiDoc.paths;
         if (paths) {
             for (const [path, pathItem] of Object.entries(paths)) {
@@ -74,7 +75,7 @@ export async function createTools(
             }
         }
 
-    return { tools };
+    return tools;
 }
 
 export async function executeTool(

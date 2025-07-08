@@ -1,5 +1,6 @@
+import { loadConfig } from '$lib/restful/config-server/ConfigStore';
 import type { ServerConfig } from '$lib/restful/config-server/ServerSupport';
-import type { OpenApiMcpServer } from './openapi-mcp-server';
+import { createOpenApiMcpServer, type OpenApiMcpServer } from './openapi-mcp-server';
 
 
 type ServerState = {
@@ -28,3 +29,17 @@ export function clearMcpServer(cid:string) {
 export function isServerInitialized(cid:string): boolean {
   return mcpServerInstance.has(cid);
 } 
+
+export async function startInitializeMcpServer(cid:string) {
+  if (isServerInitialized(cid)) {
+    return true;
+  }
+  const serverConfig = await loadConfig(cid);
+  if (serverConfig) {
+    const mcpServer = await createOpenApiMcpServer(serverConfig.config);
+    setMcpServer(cid, mcpServer, serverConfig.config);
+    return true
+  } else {
+    return false
+  }
+}

@@ -97,8 +97,8 @@ export const GET = async () => {
     openApiUrl: getServerConfig("default")?.openApiUrl ?? "",
     serverName: getServerConfig("default")?.serverName ?? "",
     serverVersion: getServerConfig("default")?.serverVersion ?? "",
-    availableTools: serverInstance?.getAvailableTools() ?? [],
-    availableResources: serverInstance?.getAvailableResources() ?? [],
+    availableTools: await serverInstance?.getAvailableTools() ?? [],
+    availableResources: await serverInstance?.getAvailableResources() ?? [],
   }
   return json(serverState);
 };

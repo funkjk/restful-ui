@@ -1,19 +1,23 @@
 import { createRestfulOperation, OperationParameter, RequestBodyType } from "$lib/restful/RestfulOperation";
 import type { RestfulPlugin } from "$lib/restful/RestfulPlugin";
+import type { ResourceInfo, ResourceTemplateInfo } from "$lib/types/api-config";
 import { defaultLogger } from "$lib/utils/logger";
 import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
 import type { OpenAPI } from "openapi-types";
+// @ts-ignore
+import UriTemplate from 'uri-template-lite';
 
 export async function createResources(
     openApiDoc: OpenAPI.Document,
     serverName: string
-) {
+) : Promise<ResourceInfo[]> {
+
 
     if (!openApiDoc) {
         throw new McpError(ErrorCode.InternalError, 'OpenAPI document not loaded');
       }
 
-      const resources = [];
+      const resources: ResourceInfo[] = [];
       const paths = openApiDoc.paths;
 
 
@@ -24,7 +28,7 @@ export async function createResources(
               continue;
             }
             const operation = pathItem.get;
-            const resourceName = `get_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const resourceName = `get_${path}`;
 
             resources.push({
               uri: `openapi://${serverName}${path}`,
@@ -36,14 +40,14 @@ export async function createResources(
         }
       }
 
-      return { resources };
+      return resources;
 }
 
 export async function createResourceTemplates(
     openApiDoc: OpenAPI.Document,
     serverName: string
-) {
-    const resourceTemplates = [];
+) : Promise<ResourceTemplateInfo[]> {
+    const resourceTemplates: ResourceTemplateInfo[] = [];
     if (!openApiDoc) {
       throw new McpError(ErrorCode.InternalError, 'OpenAPI document not loaded');
     }
@@ -56,7 +60,7 @@ export async function createResourceTemplates(
             continue;
           }
           const operation = pathItem.get;
-          const resourceName = `get_${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
+          const resourceName = `get_${path}`;
           resourceTemplates.push({
             uriTemplate: `openapi://${serverName}${path}`,
             name: resourceName,
@@ -67,7 +71,7 @@ export async function createResourceTemplates(
       }
     }
 
-    return { resourceTemplates };
+    return resourceTemplates;
 
 }
 
@@ -98,6 +102,7 @@ export async function readResource(
       queryString = query
     }
 
+    const resoucePath = resourceName.replace(/^get_/, "");
 
     const paths = openApiDoc.paths
     // Find the actual path in the OpenAPI document
@@ -106,7 +111,7 @@ export async function readResource(
     for (const [path] of Object.entries(paths)) {
       // @ts-ignore // there are no latest types for uri-template-lite
       const template = new UriTemplate(path)
-      const match = template.match(resourceName)
+      const match = template.match(resoucePath)
       if (match) {
         actualPath = path
         additionalQueryParameter = match
