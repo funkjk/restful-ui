@@ -10,9 +10,9 @@
 	} from "$lib/restful/RestfulOperation";
 	import { CACHE_TYPE, getCacheKey } from "$lib/restful/BuiltInPlugins";
 	import {
-		type RestfulComponentConfig,
-		type SvelteCacheStore,
-	} from "$lib/restful/SvelteSupport";
+    type RestfulComponentConfig,
+} from "$lib/restful/RestfulInterfaces";
+import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
 	import ResponseViiewer from "../response/ResponseViiewer.svelte";
     import { PAGE } from "$lib/utils/utils";
 	export let config: RestfulComponentConfig;

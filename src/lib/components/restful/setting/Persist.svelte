@@ -3,7 +3,7 @@
         RuningMode,
         type ConfigLoaderComponentConfig,
         type RestfulComponentConfig,
-    } from "$lib/restful/SvelteSupport";
+    } from "$lib/restful/RestfulInterfaces";
 
     
     import Card, { Content, Actions } from "@smui/card";

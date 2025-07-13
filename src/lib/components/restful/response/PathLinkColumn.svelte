@@ -5,7 +5,7 @@
 	import OperationList from "./OperationList.svelte";
     import type { Writable } from "svelte/store";
     import { RestfulOperation } from "$lib/restful/RestfulOperation";
-    import { type RestfulComponentConfig } from "$lib/restful/SvelteSupport";
+    import { type RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 
 	const operationStore = getContext("operationStore") as Writable<RestfulOperation>;
 	const config = getContext("config") as RestfulComponentConfig

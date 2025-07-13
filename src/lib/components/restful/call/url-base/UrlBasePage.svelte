@@ -8,16 +8,15 @@
     import {
         createRestfulComponentConfig,
         SetLoadingPlugin,
-        type RestfulComponentConfig,
-    } from "$lib/restful/SvelteSupport";
+    } from "$lib/adapters/svelte/RestfulSvelteAdapter";
+    import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
     import {
         LoggingRestfulPlugin,
         type LogMessage,
     } from "$lib/restful/BuiltInPlugins";
     import { loading, logMessages } from "$lib/stores/ui";
     import RestfulApi from "../../base/RestfulApi.svelte";
-    import { get } from "svelte/store";
-    import type { ServerConfig } from "$lib/restful/serverSupport";
+
     let url = persisted("base-url", "", { storage: "session" });
     let editingUrl: string = $state("http://localhost:4210/oas/restful-api-sample_mcp-config.yaml");
     let useProxy: boolean = false;
@@ -46,28 +45,6 @@
         ];
         return config;
     }
-    async function save(serverName: string) {
-        if (!config?.documentUrl) {
-            return;
-        }
-        const serverConfig: ServerConfig = {
-            openApiUrl: config.documentUrl,
-            serverName: serverName,
-            serverVersion: "1.0.0",
-            timeout: 10000,
-            maxRetries: 3,
-            requestSettings: get(config.storage.requestSetting),
-        };
-        const response = await fetch("/api/configs", {
-            method: "POST",
-            body: JSON.stringify(serverConfig),
-        });
-        const data = await response.json();
-        if (response.ok) {
-            const { configurationId } = data;
-            window.location.href = `/cid/${configurationId}`;
-        }
-    }
 </script>
 
 {#if $url}
@@ -92,7 +69,7 @@
                 bind:value={editingUrl}
                 style="width: 100%;"
                 label="Open API URL"
-            ></Textfield>
+            />
             <Checkbox
                 bind:checked={useProxy}
                 label="Use Restful-UI Proxy to get OAS file"

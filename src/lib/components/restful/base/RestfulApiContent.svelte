@@ -3,9 +3,9 @@
 	import { createRestfulOperation, RestfulOperation } from "$lib/restful/RestfulOperation";
 	import { CachedRestfulPlugin } from "$lib/restful/BuiltInPlugins";
 	import {
-		SvelteCacheStore,
-		type RestfulComponentConfig,
-	} from "$lib/restful/SvelteSupport";
+    type RestfulComponentConfig,
+} from "$lib/restful/RestfulInterfaces";
+import { SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
 	import GeneralJsonCard from "../../common/GeneralJsonCard.svelte";
 	import { Content } from "@smui/dialog";
 	import Drawer, { AppContent } from "@smui/drawer";

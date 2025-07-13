@@ -1,0 +1,112 @@
+# Cursor Rules for My CloudHub Portal
+
+## プロジェクト概要
+このプロジェクトはSvelteKitベースのRESTful UIポータルアプリケーションです。OpenAPI仕様書を読み込んでインタラクティブなAPI探索とテストを提供し、MCPサーバ機能も統合されています。
+
+## 技術スタック
+- **フロントエンド**: SvelteKit + TypeScript
+- **UI**: Svelte Material UI (SMUI)
+- **API**: OpenAPI/Swagger 解析
+- **テスト**: Vitest + Playwright
+- **MCP**: Model Context Protocol Server
+- **ビルド**: Vite, pnpm, svelte-kit
+
+## コーディング規約
+
+### ファイル命名規則
+- Svelteコンポーネント: PascalCase (例: `GeneralDataTable.svelte`)
+- TypeScriptファイル: camelCase (例: `apiFetch.ts`)
+- ルートファイル: SvelteKit規約に従う (`+page.svelte`, `+server.ts`)
+- テストファイル: `.spec.ts` または `.test.ts` サフィックス
+
+### コードスタイル
+- TypeScriptの厳密な型チェックを推奨
+- Svelte 5の新しい構文を使用
+- Material UIコンポーネントは`@smui/`パッケージを使用
+- 非同期処理には`svelte-asyncable`を活用
+
+### コンポーネント設計
+- 再利用可能なコンポーネントは`src/lib/components/`に配置
+- ページ固有のコンポーネントは`src/routes/`内に配置（ロジックは含めない）
+- ビジネスロジックは`src/lib/`内の適切なディレクトリに配置
+- ストアは`src/lib/stores/`に配置
+- ユーティリティ関数は`src/lib/utils/`に配置
+- API関連のロジックは`src/lib/restful/`に配置
+- データ処理ロジックは`src/lib/services/`に配置
+
+### Svelte依存性の分離設計
+- **Svelte依存**: UIコンポーネント、ストア、ルートファイル
+- **Svelte非依存**: ビジネスロジック、API操作、データ処理、ユーティリティ関数
+- **設計原則**:
+  - ビジネスロジックは純粋なTypeScript/JavaScriptで実装
+  - Svelteコンポーネントは表示とユーザーインタラクションのみに集中
+  - データ変換やAPI操作はSvelteに依存しない形で実装
+  - テストしやすい構造を維持（Svelte非依存部分は単体テストが容易）
+  - `src/lib/restful/SvelteSupport.ts`はSvelte依存部分なので、適切に分離する
+  - プラグインシステムはSvelte非依存で設計し、Svelte依存部分はアダプターとして実装
+
+### API関連
+- REST API操作は`src/lib/restful/`に配置
+- OpenAPI解析ロジックは適切に分離
+- プロキシ機能は`src/routes/api/proxy/`に配置
+- MCPサーバ関連は`src/lib/mcp/`に配置
+
+## 開発ガイドライン
+
+### 新機能追加時
+1. まずTASKS.mdにタスクを追加
+2. ビジネスロジックは`src/lib/`内に配置し、`src/routes/`内には配置しない
+3. Svelte依存部分と非依存部分を明確に分離して設計
+4. 必要に応じてStorybookでコンポーネントをテスト
+5. TypeScriptの型定義を適切に作成
+6. テストケースを追加（Vitest + Playwright）
+
+### バグ修正時
+1. TASKS.mdのBugセクションを確認
+2. 再現手順を明確にする
+3. テストケースで修正を検証
+
+### リファクタリング時
+1. 内部メソッドは`_`プレフィックスを使用
+2. クラス設計はResponseクラスのようなインターフェースを参考にする
+3. 型安全性を保つ
+4. `src/routes/`内のロジックは`src/lib/`内の適切な場所に移動する
+5. コンポーネントは表示とユーザーインタラクションのみに集中し、ビジネスロジックは分離する
+6. Svelte依存部分と非依存部分の境界を明確にし、必要に応じて分離する
+
+## テスト戦略
+- **Svelte非依存部分**: Vitestでの単体テスト（高速で信頼性が高い）
+- **Svelte依存部分**: 
+  - コンポーネントテスト: Storybook
+  - 統合テスト: Vitest + Svelte Testing Library
+- **E2Eテスト**: Playwright
+- **型チェック**: `svelte-check`
+- **テスト設計**: Svelte非依存部分を重点的にテストし、UI部分は統合テストでカバー
+
+## パフォーマンス考慮事項
+- リクエストキャッシュの適切な管理
+- 大きなデータセットのページネーション対応
+- バイナリデータの適切な処理
+
+## セキュリティ考慮事項
+- プロキシ機能でのオリジン検証
+- OAuth対応の準備
+- 適切なCORS設定
+
+## デバッグ・ログ
+- Winstonログシステムの活用
+- ブラウザコンソールでのログ出力
+- リクエスト/レスポンスの詳細ログ
+
+## 今後の改善予定
+- Swagger Editor統合
+- OAuth認証対応
+- バイナリデータ対応
+- 拡張クライアントライブラリ作成
+- フォームボディ形式対応
+- ページネーション対応
+
+## 注意事項
+- このプロジェクトは開発中であり、TASKS.mdの内容を常に確認すること
+- MCPサーバ機能は新機能なので、適切なドキュメント化を心がける
+- Material UIのテーマカスタマイズは`src/theme/`で管理 

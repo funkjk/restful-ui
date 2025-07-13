@@ -5,9 +5,9 @@
     import { writable } from "svelte/store";
     import type { RestfulOperation } from "$lib/restful/RestfulOperation";
     import {
-        type RestfulComponentConfig,
-        type SvelteCacheStore,
-    } from "$lib/restful/SvelteSupport";
+    type RestfulComponentConfig,
+} from "$lib/restful/RestfulInterfaces";
+import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
     import { setContext } from "svelte";
     import SelectTableKey from "./SelectTableKey.svelte";
     import { syncObject } from "$lib/utils/ObjectStore";

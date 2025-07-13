@@ -1,14 +1,16 @@
 <script lang="ts">
     import RestfulApi from "$lib/components/restful/base/RestfulApi.svelte";
     import {
-        createRestfulComponentConfig,
         DefaultLinkSupport,
         RuningMode,
+        type LinkParameter,
+    } from "$lib/restful/RestfulInterfaces";
+    import {
+        createRestfulComponentConfig,
         SetLoadingPlugin,
         SetRequestPlugin,
         SvelteRestfulProxy,
-        type LinkParameter,
-    } from "$lib/restful/SvelteSupport";
+    } from "$lib/adapters/svelte/RestfulSvelteAdapter";
     import {
         LoggingRestfulPlugin,
         LogMessage,

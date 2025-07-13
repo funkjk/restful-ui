@@ -4,7 +4,7 @@
 	import RestfulApiContent from "./RestfulApiContent.svelte";
 	import * as SwaggerParser from "@apidevtools/swagger-parser";
 	import { onMount } from "svelte";
-	import { type RestfulComponentConfig } from "$lib/restful/SvelteSupport";
+	import { type RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 	import { createRawStringSwaggerParserResolver } from "$lib/utils/utils";
 	export let config: RestfulComponentConfig;
 	const InitializeStatusDone = "DONE"

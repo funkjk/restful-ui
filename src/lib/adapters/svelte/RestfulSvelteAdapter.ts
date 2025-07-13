@@ -1,15 +1,18 @@
 import { get, type Writable } from "svelte/store";
-import { AbstractRequestSettingApplyPlugin, CACHE_TYPE, compareBodyParameter, UseRestfulUIProxyPlugin, type CacheBody, type CacheBodyParameter, type CacheStore, type RequestSetting } from "./BuiltInPlugins";
-import { EmptyRestfulPlugin, FetchPluginChain, type RestfulPlugin } from "./RestfulPlugin";
-import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
-import { getBaseUrl } from "$lib/utils/proxy";
 import { persisted } from "svelte-persisted-store";
-import type { ServerConfig } from "./config-server/ServerSupport";
+import { CACHE_TYPE, compareBodyParameter, type CacheBody, type CacheBodyParameter, type CacheStore, type RequestSetting } from "$lib/restful/BuiltInPlugins";
+import { AbstractRequestSettingApplyPlugin, UseRestfulUIProxyPlugin } from "$lib/restful/BuiltInPlugins";
+import { EmptyRestfulPlugin, FetchPluginChain, type RestfulPlugin } from "$lib/restful/RestfulPlugin";
+import type { InputRestParameters, RestfulOperation } from "$lib/restful/RestfulOperation";
+import { getBaseUrl } from "$lib/utils/proxy";
+import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
+import { RuningMode, DefaultLinkSupport } from "$lib/restful/RestfulInterfaces";
 
 function uniqueArray<T>(arr: T[], fn: (a1: T, a2: T) => boolean) {
     return arr.filter(
         (elem, index, self) => self.findIndex(e => fn(e, elem)) === index)
 }
+
 export class SvelteCacheStore implements CacheStore {
     constructor(responses: Writable<any>, bodyParameterHstories: Writable<any>) {
         this.responses = responses
@@ -44,7 +47,6 @@ export class SvelteCacheStore implements CacheStore {
             throw new Error("Unkwon type " + type)
         }
     }
-
 }
 
 export class SetRequestPlugin extends AbstractRequestSettingApplyPlugin {
@@ -57,6 +59,7 @@ export class SetRequestPlugin extends AbstractRequestSettingApplyPlugin {
         return get(this.requestSetting)
     }
 }
+
 export class SetLoadingPlugin extends EmptyRestfulPlugin {
     constructor(loading: Writable<boolean>) {
         super()
@@ -73,6 +76,7 @@ export class SetLoadingPlugin extends EmptyRestfulPlugin {
         }
     }
 }
+
 export class SvelteRestfulProxy extends UseRestfulUIProxyPlugin {
     constructor(requestSetting: Writable<RequestSetting>) {
         super()
@@ -88,20 +92,6 @@ export class SvelteRestfulProxy extends UseRestfulUIProxyPlugin {
         } else {
             const response = await chain.next(inputParameters, input, init)
             return response
-        }
-    }
-}
-
-export interface RestfulDisplaySupport {
-    getArrayResponse(restfulOperation: RestfulOperation, responseBody: Record<string, any>): Record<string, any>[] | null
-}
-// TODO remove it
-export const DefaultDisplaySupport: RestfulDisplaySupport = {
-    getArrayResponse(restfulOperation: RestfulOperation, responseBody: Record<string, any>): Record<string, any>[] | null {
-        if (Array.isArray(responseBody)) {
-            return responseBody
-        } else {
-            return null
         }
     }
 }
@@ -156,85 +146,8 @@ export function createRestfulComponentConfig(storageKey: string, baseConfig?: Pa
             new SetRequestPlugin(requestSetting),
             new SvelteRestfulProxy(requestSetting),
         ] as RestfulPlugin[],
-        displaySupport: DefaultDisplaySupport,
-        linkSupport: new DefaultLinkSupport("/"),
+        displaySupport: baseConfig?.displaySupport ?? { getArrayResponse: (restfulOperation, responseBody) => Array.isArray(responseBody) ? responseBody : null },
+        linkSupport: baseConfig?.linkSupport ?? new DefaultLinkSupport("/"),
         runningMode: baseConfig?.runningMode ?? RuningMode.SESSION_STORAGE
     }
-}
-export enum RuningMode {
-    SESSION_STORAGE = "session-storage",
-    LOAD_CONFIG = "load-config"
-}
-
-export interface RestfulComponentConfig {
-    documentUrl?: string;
-    documentRaw?: string;
-    storage: {
-        responses: Writable<any>;
-        parameterHistories: Writable<any>;
-        dataTableFilters: Writable<any>;
-        dataTableSelectedColumn: Writable<any>;
-        dataTableDisplayTypes: Writable<any>;
-        selectedTableKeys: Writable<any>;
-        requestSetting: Writable<RequestSetting>;
-    }
-    additionalPlugins: RestfulPlugin[];
-    displaySupport: RestfulDisplaySupport;
-    linkSupport: LinkSupport;
-    runningMode: RuningMode;
-}
-export interface ConfigLoaderComponentConfig extends RestfulComponentConfig {
-    runningMode: RuningMode.LOAD_CONFIG;
-    configurationId: string;
-    config: ServerConfig;
-}
-
-export type LinkParameter = {
-    basePath?: string
-    page?: string
-    restPath?: string
-    restMethod?: string
-    additionalSearch?: string
-}
-export interface LinkSupport {
-    createBasePath(parameter: LinkParameter): string
-    createQuery(parameter: LinkParameter): string
-    createLink(parameter: LinkParameter): string
-}
-export class DefaultLinkSupport implements LinkSupport {
-    basePath: string
-    constructor(basePath: string) {
-        this.basePath = basePath
-    }
-    createBasePath(_parameter: LinkParameter) {
-        const basePath = _parameter.basePath ?? this.basePath
-        // if (basePath.includes("[...path]")) {
-        //     path = basePath.replaceAll("/[...path]", "") + "/index.html#"
-        // } else if (basePath === "/") {
-        //     path = basePath + "#"
-        // } else {
-        //     path = basePath + "/index.html#"
-        // }
-        return basePath + "#"
-    }
-    createQuery(parameter: LinkParameter) {
-        let query = ""
-        if (parameter.page) {
-            query += `?*page=${parameter.page}`
-        } else {
-            query += "?*page=top"
-        }
-        if (parameter.restPath || parameter.restMethod) {
-            query += `&path=${parameter.restPath}&method=${parameter.restMethod}`
-        }
-        if (parameter.additionalSearch) {
-            query += `&${parameter.additionalSearch}`
-        }
-        return query
-    }
-    createLink(parameter: LinkParameter) {
-        const basePath = this.createBasePath(parameter)  
-        const query = this.createQuery(parameter)
-        return new URL(basePath + query, window.location.origin).href.toString();
-    }
-}
+} 

@@ -1,6 +1,6 @@
 <script lang="ts">
     import Checkbox from "$lib/components/common/Checkbox.svelte";
-    import type { RestfulComponentConfig } from "$lib/restful/SvelteSupport";
+    import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
     import { notifyMessage } from "$lib/stores/ui";
     import Button from "@smui/button";
     import Textfield from "@smui/textfield";

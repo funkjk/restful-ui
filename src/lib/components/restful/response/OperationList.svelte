@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { RestfulOperation } from "$lib/restful/RestfulOperation";
-    import type { RestfulComponentConfig } from "$lib/restful/SvelteSupport";
+    import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 
     export let config: RestfulComponentConfig;
     export let value: string = "";

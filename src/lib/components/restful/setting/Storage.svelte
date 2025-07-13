@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { RestfulComponentConfig } from "$lib/restful/SvelteSupport";
+    import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
     import { notifyMessage } from "$lib/stores/ui";
     import Button from "@smui/button";
     import { onMount } from "svelte";

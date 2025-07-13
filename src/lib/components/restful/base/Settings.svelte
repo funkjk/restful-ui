@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type RestfulComponentConfig } from "$lib/restful/SvelteSupport";
+    import { type RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
     import Storage from "../setting/Storage.svelte";
     import Radio from "@smui/radio";
     import FormField from "@smui/form-field";

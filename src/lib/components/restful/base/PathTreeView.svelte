@@ -9,7 +9,7 @@
     export let config: RestfulComponentConfig;
     import type { PathTreeObject } from "$lib/restful/PathTree";
     import { PAGE } from "$lib/utils/utils";
-    import type { RestfulComponentConfig } from "$lib/restful/SvelteSupport";
+    import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 </script>
 
 {#if rootTree}
