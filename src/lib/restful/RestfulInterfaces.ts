@@ -7,7 +7,7 @@ export interface RestfulDisplaySupport {
 }
 
 export const DefaultDisplaySupport: RestfulDisplaySupport = {
-    getArrayResponse(restfulOperation: RestfulOperation, responseBody: Record<string, any>): Record<string, any>[] | null {
+    getArrayResponse(_restfulOperation: RestfulOperation, responseBody: Record<string, any>): Record<string, any>[] | null {
         if (Array.isArray(responseBody)) {
             return responseBody
         } else {

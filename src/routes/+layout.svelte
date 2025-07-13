@@ -8,7 +8,7 @@
 	import { persisted } from "svelte-persisted-store";
 	let snackbar: Snackbar;
 	let open = persisted("ui.open-log-panel", true);
-	notifyMessage.subscribe((message) => {
+	notifyMessage.subscribe((message: string) => {
 		if (snackbar && message) {
 			snackbar.open();
 		}
