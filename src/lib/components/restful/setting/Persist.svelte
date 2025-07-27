@@ -19,18 +19,22 @@
     import type { ServerConfig } from "$lib/restful/config-server/ServerSupport";
     let { config }: { config: RestfulComponentConfig } = $props();
     let serverName = $state("");
+    let openApiUrl = $state("");
     let serverVersion = $state("1.0.0");
     let timeout = $state(10000);
     let maxRetries = $state(3);
     if (config.runningMode === RuningMode.LOAD_CONFIG) {
         const loaderConfig = config as ConfigLoaderComponentConfig;
         serverName = loaderConfig.config.serverName;
+        openApiUrl = loaderConfig.config.openApiUrl;
         serverVersion = loaderConfig.config.serverVersion;
         timeout = loaderConfig.config.timeout;
         maxRetries = loaderConfig.config.maxRetries;
+    } else {
+        openApiUrl = config.documentUrl!;
     }
     const serverCofig = $derived({
-        openApiUrl: config.documentUrl!,
+        openApiUrl: openApiUrl,
         useProxy: false,
         serverName,
         serverVersion,
@@ -82,6 +86,13 @@
         } else {
             notifyMessage.notify("Update failed" + response.statusText);
         }
+    }
+    function gotoTop() {
+        const link = config.linkSupport.createLink({
+            page: PAGE.TOP,
+            basePath: `/`,
+        });
+        goto(link);
     }
     async function deleteServer() {
         const loaderConfig = config as ConfigLoaderComponentConfig;
@@ -152,6 +163,9 @@
         <h4>Server Name</h4>
         <Textfield bind:value={serverName} label="value" style="width:100%;"
         ></Textfield>
+        <h4>Open API URL</h4>
+        <Textfield bind:value={openApiUrl} label="value" style="width:100%;"
+        ></Textfield>
     </Content>
     <Actions>
         {#if config.runningMode === RuningMode.LOAD_CONFIG}
@@ -182,6 +196,9 @@
             </Button>
             <Button onclick={deleteServer}>
                 <Label>Delete</Label>
+            </Button>
+            <Button onclick={gotoTop}>
+                <Label>GoTo Top</Label>
             </Button>
         </Actions>
     </Card>

@@ -16,6 +16,7 @@
     } from "$lib/restful/BuiltInPlugins";
     import { loading, logMessages } from "$lib/stores/ui";
     import RestfulApi from "../../base/RestfulApi.svelte";
+    import ConfigList from "$lib/components/restful/call/config-loader/ConfigList.svelte";
 
     let url = persisted("base-url", "", { storage: "session" });
     let editingUrl: string = $state("http://localhost:4210/oas/restful-api-sample_mcp-config.yaml");
@@ -63,8 +64,11 @@
         <RestfulApi {config}></RestfulApi>
     {/if}
 {:else}
-    <Card>
-        <Content>
+
+<div style="display:flex; flex-direction: row;">
+    <div style="width: 70%;">
+        <Card>
+            <Content>
             <Textfield
                 bind:value={editingUrl}
                 style="width: 100%;"
@@ -84,4 +88,11 @@
             </Button>
         </Actions>
     </Card>
+    </div>
+
+    <div style="margin-left: 10px;">
+        <ConfigList></ConfigList>
+    </div>
+</div>
+
 {/if}
