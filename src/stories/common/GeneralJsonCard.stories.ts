@@ -1,5 +1,6 @@
-import GeneralJsonCard, { CardType } from '$lib/components/common/GeneralJsonCard.svelte';
-import type { Meta, StoryObj } from '@storybook/svelte';
+import GeneralJsonCard from '$lib/components/common/GeneralJsonCard.svelte';
+import { CardType } from '$lib/utils/utils';
+import type { Meta, StoryObj } from '@storybook/sveltekit';
 
 const meta = {
   title: 'common/GeneralJsonCard',

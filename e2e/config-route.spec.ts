@@ -5,13 +5,13 @@ test('test config routing', async ({ page }) => {
   await page.getByRole('button', { name: 'SET' }).click();
   await page.getByRole('button', { name: 'SETTING' }).click();
   await page.getByText('Persist').click();
-  await page.getByRole('textbox').fill("my-server");
+  await page.getByRole('textbox').first().fill("my-server");
   await page.getByRole('button', { name: 'SAVE' }).click();
   await expect(page).toHaveURL(/\/cid\/[\w-]+\//);
 
   await page.getByText('Persist').click();
   const configurationId = await page.locator(".configuration-id").textContent();
-  await page.getByRole('textbox').fill("my-server-upd");
+  await page.getByRole('textbox').first().fill("my-server-upd");
   await page.waitForTimeout(1000);
   await page.getByRole('button', { name: 'UPDATE' }).click();
 

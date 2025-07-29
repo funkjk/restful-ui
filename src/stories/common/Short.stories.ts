@@ -1,5 +1,5 @@
 import Short from '$lib/components/common/Short.svelte';
-import type { Meta, StoryObj } from '@storybook/svelte';
+import type { Meta, StoryObj } from '@storybook/sveltekit';
 
 const meta = {
   title: 'common/Short',

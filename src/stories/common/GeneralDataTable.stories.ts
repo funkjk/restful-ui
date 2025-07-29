@@ -1,5 +1,5 @@
 import GeneralDataTable from '$lib/components/common/GeneralDataTable.svelte';
-import type { Meta, StoryObj } from '@storybook/svelte';
+import type { Meta, StoryObj } from '@storybook/sveltekit';
 import SampleData from "./data/api-response.json"
 
 const meta = {
