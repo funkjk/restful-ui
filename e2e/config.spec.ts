@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import cssescape from 'css.escape'
 import { config } from 'process';
 
+test.describe.configure({ mode: 'serial' });
+
 test('test config api', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'SET' }).click();

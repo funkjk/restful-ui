@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+test.describe.configure({ mode: 'serial' });
+
+
 test('test config routing', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'SET' }).click();
