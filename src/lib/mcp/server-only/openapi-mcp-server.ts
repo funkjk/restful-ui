@@ -13,6 +13,16 @@ if (typeof process === 'undefined' || !process.versions || !process.versions.nod
   throw new Error('MCP server requires Node.js environment');
 }
 
+// Check for required Node.js modules
+const requiredModules = ['util', 'os', 'stream', 'crypto', 'buffer', 'process', 'events'];
+for (const moduleName of requiredModules) {
+  try {
+    require(moduleName);
+  } catch (error) {
+    throw new Error(`Required Node.js module '${moduleName}' is not available`);
+  }
+}
+
 // Only import Node.js specific modules on server-side
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
