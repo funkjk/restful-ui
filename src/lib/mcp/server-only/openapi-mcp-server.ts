@@ -8,6 +8,11 @@ if (browser) {
   throw new Error('MCP server code cannot run in browser environment');
 }
 
+// Check if we're in a Node.js environment
+if (typeof process === 'undefined' || !process.versions || !process.versions.node) {
+  throw new Error('MCP server requires Node.js environment');
+}
+
 // Only import Node.js specific modules on server-side
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
