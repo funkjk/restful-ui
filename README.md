@@ -1,5 +1,5 @@
 
-# My CloudHub Portal
+# RESTful UI portal application
 
 A SvelteKit-based RESTful UI portal application that loads OpenAPI specifications and provides interactive API exploration and testing.
 
@@ -11,22 +11,7 @@ A SvelteKit-based RESTful UI portal application that loads OpenAPI specification
 - 🔧 Interactive API call testing
 - 📊 Response display in data tables
 - 🎨 Modern Material UI-based design
-- 🤖 **MCP Server functionality (New feature)**
-
-## MCP Server Integration
-
-This project integrates functionality to create MCP (Model Context Protocol) servers from OpenAPI specifications.
-
-### How to use MCP Server
-
-```bash
-# Install dependencies
-pnpm install
-
-pnpm run dev
-```
-
-For detailed usage instructions, please refer to [src/lib/mcp/README.md](src/lib/mcp/README.md).
+- 🤖 MCP Server functionality (New feature)
 
 ## Development Environment Setup
 
