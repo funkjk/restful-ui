@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { RestfulComponentConfig } from "$lib/restful/SvelteSupport";
+    import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
     import { notifyMessage } from "$lib/stores/ui";
     import Button from "@smui/button";
     import { onMount } from "svelte";
@@ -9,6 +9,7 @@
     const keys = [
         "dataTableFilters",
         "dataTableSelectedColumn",
+        "dataTableDisplayTypes",
         "parameterHistories",
         "responses",
         "selectedTableKeys",
@@ -45,8 +46,8 @@
 {/each}
 
 
-<Button on:click={save}>Save</Button>
-<Button on:click={clear}>Clear</Button>
+<Button onclick={save}>Save</Button>
+<Button onclick={clear}>Clear</Button>
 
 <style>
     :global(.editor-box > div) {

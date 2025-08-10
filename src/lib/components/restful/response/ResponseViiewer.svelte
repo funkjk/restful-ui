@@ -1,17 +1,18 @@
 <script lang="ts">
     import GeneralDataTable from "$lib/components/common/GeneralDataTable.svelte";
-    import GeneralJsonCard, { CardType } from "$lib/components/common/GeneralJsonCard.svelte";
+    import GeneralJsonCard from "$lib/components/common/GeneralJsonCard.svelte";
     import PathLinkColumn from "./PathLinkColumn.svelte";
     import { writable } from "svelte/store";
     import type { RestfulOperation } from "$lib/restful/RestfulOperation";
     import {
-        type RestfulComponentConfig,
-        type SvelteCacheStore,
-    } from "$lib/restful/SvelteSupport";
+    type RestfulComponentConfig,
+} from "$lib/restful/RestfulInterfaces";
+import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
     import { setContext } from "svelte";
     import SelectTableKey from "./SelectTableKey.svelte";
     import { syncObject } from "$lib/utils/ObjectStore";
-    import type { HeaderColumn } from "$lib/components/common/ObjectNestableDataTable.svelte";
+    import type { SelectedRoot } from "$lib/utils/object-array";
+    import { CardType, type DisplayTypes } from "$lib/utils/utils";
     export let config: RestfulComponentConfig;
     export let currentOperation: RestfulOperation;
     export let cacheStore: SvelteCacheStore;
@@ -20,6 +21,7 @@
     const dataTableFilters = config.storage.dataTableFilters;
     const selectedTableKeys = config.storage.selectedTableKeys;
     const dataTableSelectedColumn = config.storage.dataTableSelectedColumn;
+    const dataTableDisplayTypes = config.storage.dataTableDisplayTypes;
 
     let columnView: any = {};
 
@@ -36,6 +38,7 @@
         operationStore.set(currentOperation);
     }
     setContext("operationStore", operationStore);
+    setContext("config", config);
     let key = `${currentOperation.method}:${currentOperation.path}`;
     let arrayResponseItems: any[] | null = null;
     $: {
@@ -53,11 +56,13 @@
 
     let filter: string;
     let tableKey: string;
-    let selectedColumns: HeaderColumn[];
+    let selectedColumns: SelectedRoot;
+    let displayTypes: DisplayTypes;
     $: {
         filter = syncObject(filter, dataTableFilters, key, "");
         tableKey = syncObject(tableKey, selectedTableKeys, key, "");
-        selectedColumns = syncObject(selectedColumns,dataTableSelectedColumn , key, []);
+        selectedColumns = syncObject(selectedColumns,dataTableSelectedColumn , key, {selected:[]});
+        displayTypes = syncObject(displayTypes,dataTableDisplayTypes , key, {});
     }
     // reset filter when tableKey is set
     function selectTableKey() {
@@ -65,7 +70,7 @@
     }
 </script>
 
-<SelectTableKey bind:tableKey {response} on:select={selectTableKey}
+<SelectTableKey bind:tableKey {response} onselect={selectTableKey}
 ></SelectTableKey>
 
 {#if arrayResponseItems}
@@ -73,6 +78,7 @@
         items={arrayResponseItems}
         {columnView}
         bind:selectedColumns
+        bind:displayTypes
         bind:filterValue={filter}
     ></GeneralDataTable>
 {/if}

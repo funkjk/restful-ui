@@ -1,21 +1,12 @@
-<script lang="ts" context="module">
-	export enum PAGE {
-		OPERATION = "operation",
-		SETTING = "setting",
-		TOP = "top",
-	}
-</script>
-
 <script lang="ts">
-	import { page } from "$app/stores";
-	import Operation from "$lib/components/restful/Operation.svelte";
+	import Operation from "$lib/components/restful/base/Operation.svelte";
 	import { createRestfulOperation, RestfulOperation } from "$lib/restful/RestfulOperation";
 	import { CachedRestfulPlugin } from "$lib/restful/BuiltInPlugins";
 	import {
-		SvelteCacheStore,
-		type RestfulComponentConfig,
-	} from "$lib/restful/SvelteSupport";
-	import GeneralJsonCard from "../common/GeneralJsonCard.svelte";
+    type RestfulComponentConfig,
+} from "$lib/restful/RestfulInterfaces";
+import { SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
+	import GeneralJsonCard from "../../common/GeneralJsonCard.svelte";
 	import { Content } from "@smui/dialog";
 	import Drawer, { AppContent } from "@smui/drawer";
 	import PathTreeView from "./PathTreeView.svelte";
@@ -24,8 +15,8 @@
 	import { fade } from "svelte/transition";
 	import { PathTree } from "$lib/restful/PathTree";
 	import IconButton from "@smui/icon-button";
-	import { createLink } from "$lib/utils/utils";
     import Settings from "./Settings.svelte";
+    import { PAGE } from "$lib/utils/utils";
 	export let config: RestfulComponentConfig;
 	export let searchParams: URLSearchParams;
 
@@ -70,23 +61,22 @@
 					<div>
 						<IconButton
 							class="material-icons"
-							on:click={() => (drawerOpen = !drawerOpen)}
+							onclick={() => (drawerOpen = !drawerOpen)}
 						>
 							{drawerOpen ? "chevron_left" : "chevron_right"}
 						</IconButton>
 					</div>
 					<div style="list-style: none;">
 						<li>
-							<a href={createLink($page.route.id + "")}>
+							<a href={config.linkSupport.createLink({page:PAGE.TOP})}>
 								<IconButton class="material-icons">home</IconButton>
 								{#if drawerOpen}&nbsp;API TOP
 								{/if}</a
 							>
 						</li>
 						<li>
-							<a href={createLink(
-								$page.route.id + "",
-								PAGE.SETTING)}>
+							<a href={config.linkSupport.createLink(
+								{page:PAGE.SETTING})}>
 								<IconButton class="material-icons">settings</IconButton>
 								{#if drawerOpen}&nbsp;Setting
 								{/if}</a
@@ -96,7 +86,7 @@
 				</div>
 				<div></div>
 				{#if drawerOpen}
-					<PathTreeView {currentOperation} {rootTree}></PathTreeView>
+					<PathTreeView {currentOperation} {rootTree} {config}></PathTreeView>
 				{/if}
 			</div>
 			<div></div>
@@ -152,7 +142,6 @@
 	.main-content {
 		overflow: auto;
 		padding: 16px;
-		height: 100%;
 		box-sizing: border-box;
 	}
 </style>

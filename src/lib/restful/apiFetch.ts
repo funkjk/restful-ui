@@ -20,7 +20,7 @@ export async function parseToApiResponse(response:Response) :Promise<RestApiResp
     for (const pair of response.headers.entries()) {
         headers[pair[0].toLocaleLowerCase()] = pair[1]
     }
-    if (headers["content-type"].includes("json")) {
+    if (headers["content-type"] && headers["content-type"].includes("json")) {
         responseBody = await response.json()
         responseBodyType = RESEPONSE_BODY_TYPE.JSON
     } else {
@@ -36,3 +36,6 @@ export async function parseToApiResponse(response:Response) :Promise<RestApiResp
         responseBodyType
     }
 }
+// export async function parseToApiRequest(response:Response) :Promise<RestApiResponse>{
+    
+// }

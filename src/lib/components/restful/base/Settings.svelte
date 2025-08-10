@@ -1,14 +1,16 @@
 <script lang="ts">
-    import { type RestfulComponentConfig } from "$lib/restful/SvelteSupport";
-    import Storage from "./setting/Storage.svelte";
+    import { type RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
+    import Storage from "../setting/Storage.svelte";
     import Radio from "@smui/radio";
     import FormField from "@smui/form-field";
-    import Request from "./setting/Request.svelte";
+    import Request from "../setting/Request.svelte";
+    import Persist from "../setting/Persist.svelte";
     export let config: RestfulComponentConfig;
 
     let options = [
         { name: "Request", value: Request },
         { name: "Storage", value: Storage },
+        { name: "Persist", value: Persist },
     ];
     let selected = options[0];
 </script>
@@ -16,9 +18,9 @@
 {#each options as option (option)}
     <FormField>
         <Radio bind:group={selected} value={option} />
-        <span slot="label">
+        {#snippet label()}
             {option.name}
-        </span>
+        {/snippet}
     </FormField>
 {/each}
 

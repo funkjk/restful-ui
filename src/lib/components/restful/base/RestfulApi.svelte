@@ -4,24 +4,26 @@
 	import RestfulApiContent from "./RestfulApiContent.svelte";
 	import * as SwaggerParser from "@apidevtools/swagger-parser";
 	import { onMount } from "svelte";
-	import { type RestfulComponentConfig } from "$lib/restful/SvelteSupport";
+	import { RuningMode, type RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 	import { createRawStringSwaggerParserResolver } from "$lib/utils/utils";
+    import Persist from "../setting/Persist.svelte";
 	export let config: RestfulComponentConfig;
-	const InitializeStatusDone = "DONE"
+	const InitializeStatusDone = "DONE";
+	const InitializeStatusInitializing = "initializing";
 
 	let document: OpenAPI.Document;
-	let initializeMessage:string = "initializing";
+	let initializeMessage: string = InitializeStatusInitializing;
 	let searchParams = new URLSearchParams();
 	$: {
 		const href = $page.url.href;
 		const searchString = href.substring(href.search("#") + 1, href.length);
 		searchParams = new URLSearchParams(searchString);
 		// TODO
-		history.replaceState(
-			window.history.state,
-			"",
-			location.href.replaceAll("/index.html/", "/index.html"),
-		);
+		// history.replaceState(
+		// 	window.history.state,
+		// 	"",
+		// 	location.href.replaceAll("/index.html/", "/index.html"),
+		// );
 	}
 
 	async function initialize() {
@@ -45,14 +47,17 @@
 		try {
 			await initialize();
 		} catch (e) {
-			initializeMessage = "" + e
+			initializeMessage = "" + e;
 			console.warn(e);
 		}
 	});
 </script>
 
 {#if initializeMessage !== InitializeStatusDone}
-	{initializeMessage}
+{initializeMessage}
+	{#if initializeMessage !== InitializeStatusInitializing && config.runningMode === RuningMode.LOAD_CONFIG}
+		<Persist {config}></Persist>
+	{/if}
 {:else}
 	<RestfulApiContent {document} {config} {searchParams}></RestfulApiContent>
 {/if}

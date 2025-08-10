@@ -1,7 +1,8 @@
 <script lang="ts">
     import Menu from "@smui/menu";
     import Button, { Label } from "@smui/button";
-    export let title = "Open Menu";
+  import type { Snippet } from "svelte"
+  let { content, title, children } : { content: Snippet; title: string; children: Snippet; } = $props()
 
     let menu: Menu;
     function openMenu() {
@@ -15,15 +16,18 @@
     let menuStartElement: HTMLElement;
 </script>
 
-<slot name="action" {menu} {openMenu}>
-    <Button on:click={openMenu}>
+{#if content}
+    {@render content({openMenu})}
+{:else}
+    <Button onclick={openMenu}>
         <Label>${title}</Label>
     </Button>
-</slot>
+{/if}
+
 <span bind:this={menuStartElement}>
     <span class="action-menu" style:top={menuTop  +"px"} style:left={menuLeft  +"px"}>
         <Menu bind:this={menu}>
-            <slot></slot>
+            {@render children()}
         </Menu>
     </span>
 </span>

@@ -1,34 +1,37 @@
 <script lang="ts">
-	import ObjectNestableDataTable, {
-		getSelectableHeaderColumn,
-	} from "$lib/components/common/ObjectNestableDataTable.svelte";
+    import type { DisplayTypes } from "$lib/utils/utils";
+
+	import {
+		someKeywordInObject,
+		type SelectedRoot,
+	} from "$lib/utils/object-array";
+
+	import ObjectNestableDataTable from "$lib/components/common/ObjectNestableDataTable.svelte";
 
 	import Textfield from "@smui/textfield";
 	import { Pagination } from "@smui/data-table";
 	import Select, { Option } from "@smui/select";
 	import IconButton from "@smui/icon-button";
 	import { Label } from "@smui/common";
-	import { SvelteComponent } from "svelte";
 
 	export let items: Record<string, any>[] = [];
 	export let filterValue = "";
 	let rowsPerPage = 10;
 	let currentPage = 0;
 
-	export let columns: string[] = [];
 	type Component = $$Generic<typeof SvelteComponent>;
 	export let columnView: { [key: string]: Component } = {};
-	export let selectedColumns = getSelectableHeaderColumn(items[0]).filter(
-		(e) => e.isTop,
-	);
+	export let displayTypes: DisplayTypes = {};
+	export let selectedColumns: SelectedRoot = { selected: [] };
+	// export let selectedColumns = getSelectableHeaderColumn(items[0]).filter(
+	// 	(e) => e.isTop,
+	// );
 	function filter(items: Record<string, any>[], filterValue: string) {
 		const filterStrings = filterValue.split(" ");
 		let retItems = items;
 		for (let str of filterStrings) {
 			retItems = retItems.filter((item) =>
-				Object.keys(item).some((prop) =>
-					(item[prop] + "").includes(str),
-				),
+				someKeywordInObject(item, str),
 			);
 		}
 		return retItems;
@@ -59,16 +62,17 @@
 	// 	});
 	// 	items = items;
 	// }
-
 </script>
 
 <ObjectNestableDataTable
 	items={slice}
 	bind:selectedColumns
+	bind:displayTypes
 	{columnView}
 >
 	<div style="min-width: 100px;display:flex;" slot="tableOperation">
 		<Textfield
+			class="filter-textfield"
 			bind:value={filterValue}
 			label="Filter"
 			style="min-width:400px;"
@@ -91,28 +95,28 @@
 			class="material-icons"
 			action="first-page"
 			title="First page"
-			on:click={() => (currentPage = 0)}
+			onclick={() => (currentPage = 0)}
 			disabled={currentPage === 0}>first_page</IconButton
 		>
 		<IconButton
 			class="material-icons"
 			action="prev-page"
 			title="Prev page"
-			on:click={() => currentPage--}
+			onclick={() => currentPage--}
 			disabled={currentPage === 0}>chevron_left</IconButton
 		>
 		<IconButton
 			class="material-icons"
 			action="next-page"
 			title="Next page"
-			on:click={() => currentPage++}
+			onclick={() => currentPage++}
 			disabled={currentPage === lastPage}>chevron_right</IconButton
 		>
 		<IconButton
 			class="material-icons"
 			action="last-page"
 			title="Last page"
-			on:click={() => (currentPage = lastPage)}
+			onclick={() => (currentPage = lastPage)}
 			disabled={currentPage === lastPage}>last_page</IconButton
 		>
 	</Pagination>

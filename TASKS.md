@@ -1,16 +1,13 @@
 ## Refactroing
 
- - refactoring anypoint.ts file
  - rename inner method to _xx
  - apiFetch class shoule be has methods(eg. json()) like Response class(isn't it?)
- - refactoring utils.ts
  - SearchParameter
  - Table selectedColumns
  - url-base
 
 # Bug
 
- - get request cache only hold default parameter
  - Sveltkit routing slash end bug?
 
 ## Improvement
@@ -19,16 +16,16 @@
  - enable swagger-editor
  - add "copy as curl" button to logconsole
  - support form body format
- - add move left right button to Object datatable
  - can use other option to send to plugin
  - disable caching request
- - hold datetime with caching reqesut
  - enable paging with pagable API
+ - select key to link under api
  - tag filter
  - deprecated api
  - oauth
  - oas file upload
  - oas file editor
+ - enable linking url data in datatable
 
 
 
@@ -56,6 +53,11 @@
  - proxy for get oas file
  - remove anypoint feature
  - proxy for execute api
+ - refactoring anypoint.ts file
+ - refactoring utils.ts
+ - add move left right button to Object datatable
+ - hold datetime with caching reqesut
+ - get request cache only hold default parameter
 
 
 ## Extension

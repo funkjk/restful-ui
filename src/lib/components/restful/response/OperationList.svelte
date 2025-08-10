@@ -1,12 +1,12 @@
 <script lang="ts">
     import type { RestfulOperation } from "$lib/restful/RestfulOperation";
+    import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 
+    export let config: RestfulComponentConfig;
     export let value: string = "";
     export let column: string = "";
     export let item: object = {};
     export let currentOperation: RestfulOperation;
-    import { page } from "$app/stores"; // TODO dont use page store outside page component
-    import { createLink } from "$lib/utils/utils";
 
     $: operationList = currentOperation.getUnderOperations(column);
 
@@ -16,13 +16,12 @@
 {#each operationList as operation (operation)}
     <div>
         <a
-            href={createLink(
-                $page.route.id + "",
-                "operation",
-                operation.path,
-                operation.method,
-                `${column}=${value}&${additionalParamter}`,
-            )}
+            href={config.linkSupport.createLink({
+                page: "operation",
+                restPath: operation.path,
+                restMethod: operation.method,
+                additionalSearch: `${column}=${value}&${additionalParamter}`,
+            })}
         >
             {operation.method}
             {operation.path}

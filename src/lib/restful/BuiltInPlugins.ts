@@ -1,7 +1,7 @@
-import { getBaseUrl } from "$lib/utils/proxy";
+import { defaultLogger } from "$lib/utils/logger";
 import type { RestApiResponse } from "./apiFetch";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
-import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain } from "./RestfulPlugin";
+import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain, RequestPathPluginChain } from "./RestfulPlugin";
 
 
 // using any for Promise or reactive objecect
@@ -28,6 +28,10 @@ export enum CACHE_TYPE {
     GET_RESPONSE = "GET_RESPONSE",
     BODY_PARAMETER = "BODY_PARAMETER"
 }
+export interface CachedGetResponse {
+    response: any,
+    executionTime: string
+}
 
 export function getCacheKey(keyType: CACHE_TYPE, restfulOperation: RestfulOperation, inputParameters?: InputRestParameters) {
     if (keyType == CACHE_TYPE.GET_RESPONSE) {
@@ -52,7 +56,6 @@ export class CachedRestfulPlugin extends EmptyRestfulPlugin {
         const response = await chain.next(inputParameters, input, init)
         if (response.ok) {
             await this.storeBodyParameter(restfulOperation, inputParameters)
-            await this.storeGetResponse(restfulOperation, inputParameters, response.responseBody)
         }
         return response
     }
@@ -71,13 +74,6 @@ export class CachedRestfulPlugin extends EmptyRestfulPlugin {
             await this.cacheStore.store(CACHE_TYPE.BODY_PARAMETER, getCacheKey(CACHE_TYPE.BODY_PARAMETER, restfulOperation, inputParameters), cacheValue);
         }
     }
-    async storeGetResponse(restfulOperation: RestfulOperation, inputParameters: InputRestParameters, responseBody: Record<string, string>) {
-        if (restfulOperation.method == "get") {
-            await this.cacheStore.store(CACHE_TYPE.GET_RESPONSE, getCacheKey(CACHE_TYPE.GET_RESPONSE, restfulOperation, inputParameters), responseBody);
-        }
-    }
-
-
 }
 
 export enum LOG_TYPE {
@@ -122,6 +118,12 @@ export interface MessageLogger {
     log(message: LogMessage): void
 }
 
+export class ConsoleMessageLogger implements MessageLogger {
+    log(message: LogMessage): void {
+        defaultLogger.info(message)
+    }
+}
+
 export class LoggingRestfulPlugin extends EmptyRestfulPlugin {
     constructor(logger: MessageLogger) {
         super()
@@ -152,7 +154,7 @@ export class SetHeaderPlugin extends EmptyRestfulPlugin {
 
 }
 
-export class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
+export abstract class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
     async doFetch(_restfulOperation: RestfulOperation, _chain: FetchPluginChain, _inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         return this.requestUsingProxy(input, init);
     }
@@ -206,9 +208,7 @@ export class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
         }
         return response
     }
-    getProxyUrl(): string {
-        return getBaseUrl() + "api/proxy";
-    }
+    abstract getProxyUrl(): string;
     async doProxyRequest(requestBody: ProxyRequestBody): Promise<Response> {
         const response = await fetch(this.getProxyUrl(), {
             method: "POST",
@@ -228,4 +228,45 @@ export interface ProxyResponseBody {
     headers: { [s: string]: unknown; } | ArrayLike<unknown>;
     status: number;
     responseBody: string
+}
+
+
+export interface RequestSetting {
+    headers: { name: string, value: string }[],
+    additionalQueryParameter?: string,
+    basePath?: string,
+    useProxy: boolean,
+}
+
+export abstract class AbstractRequestSettingApplyPlugin extends EmptyRestfulPlugin {
+    abstract getRequestSetting():RequestSetting
+    doRequestPath(restfulOperation: RestfulOperation, chain: RequestPathPluginChain): string {
+        const setting = this.getRequestSetting()
+        let requestPath = chain.next()
+        if (setting.basePath) {
+            const basePath = restfulOperation.getBasePath()
+            requestPath = requestPath.replace(basePath, setting.basePath)
+        }
+        if (setting.additionalQueryParameter) {
+            if (requestPath.includes("?")) {
+                requestPath += "&" + setting.additionalQueryParameter
+            } else {
+                requestPath += "?" + setting.additionalQueryParameter
+            }
+        }
+        return requestPath
+    }
+
+    doExecute(_restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+        const setting = this.getRequestSetting()
+        const nextInit = init ?? {}
+        if (setting.headers) {
+            const additionalHeaders: any = {}
+            for (const header of setting.headers) {
+                additionalHeaders[header.name] = header.value
+            }
+            nextInit.headers = { ...nextInit.headers, ...additionalHeaders }
+        }
+        return chain.next(inputParameters, input, nextInit)
+    }
 }

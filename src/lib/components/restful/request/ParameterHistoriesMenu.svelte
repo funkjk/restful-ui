@@ -33,7 +33,7 @@
 </script>
 
 <span>
-  <Button on:click={() => (open = true)} disabled={histories.length == 0}
+  <Button onclick={() => (open = true)} disabled={histories.length == 0}
     ><Icon class="material-icons">history</Icon><Label>Histories</Label></Button
   >
 </span>
@@ -65,7 +65,7 @@
       </Head>
       <Body>
         {#each filteredHistories as history, historyIndex (historyIndex)}
-          <Row on:click={() => select(historyIndex)}>
+          <Row onclick={() => select(historyIndex)}>
             {#each pathParameters as param, index (index)}
               <Cell
                 >{history.additionalParameter

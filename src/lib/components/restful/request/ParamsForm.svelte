@@ -5,10 +5,11 @@
 	import Checkbox from "@smui/checkbox";
 	import FormField from "@smui/form-field";
 	import BodyEditor from "../../common/BodyEditor.svelte";
+	import FormBodyEditor from "../request/FormBodyEditor.svelte";
 	import ParameterHistoriesMenu from "./ParameterHistoriesMenu.svelte";
 	import Button, { Icon, Label } from "@smui/button";
 	import Select, { Option } from "@smui/select";
-	import type { RestfulOperation } from "$lib/restful/RestfulOperation";
+	import { RequestBodyType, type RestfulOperation } from "$lib/restful/RestfulOperation";
 	import type { CacheBodyParameter } from "$lib/restful/BuiltInPlugins";
 	import { notifyMessage } from "$lib/stores/ui";
 
@@ -21,6 +22,9 @@
 
 	let params = operation.parameters as any[];
 
+	const requestBodyTypes = currentOperation.getBodyTypes()
+	export let requestBodyType: RequestBodyType = requestBodyTypes[0]
+	$: bodyDefinition = currentOperation.getBodyDefinition(requestBodyType)
 	function selectHistory(event: CustomEvent) {
 		value[bodyParamName!] = event.detail;
 	}
@@ -41,6 +45,7 @@
 </script>
 
 <h3>parameters</h3>
+
 <div>
 	<LayoutGrid>
 		{#if params}
@@ -93,8 +98,17 @@
 	</LayoutGrid>
 	{#if bodyParamName}
 		<div class="body-param-header">
+			{#if requestBodyTypes.length === 1}
+				{requestBodyTypes[0]}
+			{:else}
+				<Select bind:value={requestBodyType}>
+					{#each requestBodyTypes as type}
+						<Option value={type}>{type}</Option>
+					{/each}
+				</Select>
+			{/if}
 			{#if canCallGet}
-				<Button on:click={callGet}
+				<Button onclick={callGet} class="call-get-button"
 					><Icon class="material-icons">arrow_circle_down</Icon><Label
 						>call get</Label
 					></Button
@@ -108,7 +122,11 @@
 			></ParameterHistoriesMenu>
 		</div>
 		<!-- render body outside grid -->
-		<BodyEditor bind:value={value[bodyParamName]} />
+		{#if requestBodyType === RequestBodyType.JSON}
+			<BodyEditor bind:value={value[bodyParamName]} />
+		{:else if requestBodyType === RequestBodyType.FORM_DATA && bodyDefinition}
+			<FormBodyEditor definition={bodyDefinition} bind:value={value[bodyParamName]}/>
+		{/if}
 	{/if}
 </div>
 

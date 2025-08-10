@@ -4,11 +4,11 @@
 	import CircularProgress from "@smui/circular-progress";
 	import { loading, logMessages, notifyMessage } from "$lib/stores/ui";
 	import Snackbar, { Label } from "@smui/snackbar";
-	import LogPanel from "$lib/components/restful/LogPanel.svelte";
+	import LogPanel from "$lib/components/restful/base/LogPanel.svelte";
 	import { persisted } from "svelte-persisted-store";
 	let snackbar: Snackbar;
 	let open = persisted("ui.open-log-panel", true);
-	notifyMessage.subscribe((message) => {
+	notifyMessage.subscribe((message: string) => {
 		if (snackbar && message) {
 			snackbar.open();
 		}
@@ -18,7 +18,7 @@
 <div class="app">
 	<Header />
 
-	<main>
+	<main style={$open ? "padding-bottom: 200px;" : "padding-bottom: 15px;"}>
 		<slot />
 	</main>
 

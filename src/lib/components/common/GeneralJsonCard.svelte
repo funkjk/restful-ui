@@ -1,12 +1,5 @@
-<script lang="ts" context="module">
-  export enum CardType {
-    NORMAL = "NORMAL",
-    ERROR = "ERROR",
-    WARNING = "WARNING",
-  }
-</script>
-
 <script lang="ts">
+  import { CardType } from "$lib/utils/utils";
   import ExpansionPanel from "./ExpansionPanel.svelte";
   import IconButton from "@smui/icon-button";
 
@@ -33,15 +26,17 @@
     <ExpansionPanel {title} {open} {titleClass}>
       <div style="position:absolute;width:100%;left:-30px;top:100px;">
         <div style="display:flex; justify-content: flex-end;">
-          <IconButton class="material-icons" on:click={copy}
+          <IconButton class="material-icons" onclick={copy}
             >content_copy</IconButton
           >
         </div>
       </div>
 
-      <pre>
-    {JSON.stringify(data, null, "\t")}
-</pre>
+      <pre style="white-space: pre-wrap;">{JSON.stringify(
+          data,
+          null,
+          " ",
+        )}</pre>
     </ExpansionPanel>
   </div>
 {/if}
