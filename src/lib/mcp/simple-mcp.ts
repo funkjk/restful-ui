@@ -13,7 +13,10 @@ import {
 
 const logger = createLogger("simple-mcp")
 // const logger = console
-logger.info("cwd:"+process.cwd())
+// Only use process.cwd() in Node.js environment
+if (typeof process !== 'undefined' && process.cwd) {
+  logger.info("cwd:"+process.cwd())
+}
 
 async function main() {
 
@@ -92,6 +95,8 @@ async function main() {
                 ]
             };
         }
+        // Default case - return error
+        throw new Error(`Unknown tool: ${request.params.name}`);
     });
 
     const transport = new StdioServerTransport();
@@ -106,7 +111,10 @@ async function main() {
 
 
 
-main().catch((error) => {
-    console.error("Fatal error in main():", error);
-    process.exit(1);
-});
+// Only run main() in Node.js environment
+if (typeof process !== 'undefined' && process.exit) {
+  main().catch((error) => {
+      console.error("Fatal error in main():", error);
+      process.exit(1);
+  });
+}

@@ -4,6 +4,9 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig({
 	plugins: [sveltekit(), nodePolyfills()],
+	ssr: {
+		noExternal: ['@modelcontextprotocol/sdk']
+	},
 	build: {
 		rollupOptions: {
 			external: [
@@ -14,5 +17,8 @@ export default defineConfig({
 				'child_process'
 			]
 		}
+	},
+	optimizeDeps: {
+		exclude: ['@modelcontextprotocol/sdk']
 	}
 });

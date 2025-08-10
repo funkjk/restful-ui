@@ -1,6 +1,5 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { createOpenApiMcpServer } from '$lib/mcp/openapi-mcp-server';
 import { createConfig } from '$lib/mcp/config';
 import { setMcpServer, getMcpServer, getServerConfig, clearMcpServer, isServerInitialized } from '$lib/mcp/server-state';
 import type { McpServerState, McpServerInitRequest } from '$lib/types/api-config';
@@ -60,6 +59,7 @@ export const POST = async ({ request }: RequestEvent) => {
 
     try {
       // create MCP server and initialize
+      const { createOpenApiMcpServer } = await import('$lib/mcp/openapi-mcp-server');
       const mcpServer = await createOpenApiMcpServer(config);
       setMcpServer("default", mcpServer, config);
 
