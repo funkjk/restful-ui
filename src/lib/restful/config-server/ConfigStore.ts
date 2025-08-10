@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { ServerConfig, ServerConfigResponse } from './ServerSupport';
-import { FsConfigStore } from './FsConfigStore';
+// import { FsConfigStore } from './FsConfigStore';
+import { InMemoryConfigStore } from './InMemoryConfigStore';
 
 
 
@@ -10,7 +11,8 @@ export interface ConfigStore {
     listConfigs(): Promise<ServerConfigResponse[]>
     deleteConfig(configurationId: string): Promise<void>
 }
-const configStore: ConfigStore = FsConfigStore;
+
+const configStore: ConfigStore = InMemoryConfigStore;
 
 
 export async function saveConfig(
