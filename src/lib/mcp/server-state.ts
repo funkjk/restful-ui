@@ -46,16 +46,16 @@ export async function startInitializeMcpServer(cid:string) {
   
   const serverConfig = await loadConfig(cid);
   if (serverConfig) {
-    try {
-      // Dynamic import to avoid browser bundling
-      const { createOpenApiMcpServer } = await import('./openapi-mcp-server');
-      const mcpServer = await createOpenApiMcpServer(serverConfig.config);
-      setMcpServer(cid, mcpServer, serverConfig.config);
-      return true;
-    } catch (error) {
-      console.error('Failed to initialize MCP server:', error);
-      return false;
-    }
+          try {
+        // Dynamic import to avoid browser bundling
+        const { createOpenApiMcpServer } = await import('./server-only/openapi-mcp-server');
+        const mcpServer = await createOpenApiMcpServer(serverConfig.config);
+        setMcpServer(cid, mcpServer, serverConfig.config);
+        return true;
+      } catch (error) {
+        console.error('Failed to initialize MCP server:', error);
+        return false;
+      }
   } else {
     return false;
   }
