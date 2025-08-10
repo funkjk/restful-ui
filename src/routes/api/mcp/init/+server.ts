@@ -59,8 +59,8 @@ export const POST = async ({ request }: RequestEvent) => {
 
     try {
       // create MCP server and initialize
-      const { createOpenApiMcpServer } = await import('$lib/mcp/server-only/openapi-mcp-server');
-      const mcpServer = await createOpenApiMcpServer(config);
+      const { createMcpServer } = await import('$lib/mcp/server-only');
+      const mcpServer = await createMcpServer(config);
       setMcpServer("default", mcpServer, config);
 
       // in HTTP mode, actual startup is not required

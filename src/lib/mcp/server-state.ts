@@ -48,8 +48,8 @@ export async function startInitializeMcpServer(cid:string) {
   if (serverConfig) {
           try {
         // Dynamic import to avoid browser bundling
-        const { createOpenApiMcpServer } = await import('./server-only/openapi-mcp-server');
-        const mcpServer = await createOpenApiMcpServer(serverConfig.config);
+        const { createMcpServer } = await import('./server-only');
+        const mcpServer = await createMcpServer(serverConfig.config);
         setMcpServer(cid, mcpServer, serverConfig.config);
         return true;
       } catch (error) {
