@@ -1,7 +1,7 @@
 import { OpenAPIV3, type OpenAPIV2, type OpenAPI } from "openapi-types";
 import { ExecutePluginChain, FetchPluginChain, InitializeParameterPluginChain, RequestPathPluginChain, type RestfulPlugin } from "./RestfulPlugin";
 import { parseToApiResponse, type RestApiResponse } from "./apiFetch";
-// import "setimmediate";
+import "setimmediate";
 import { defaultLogger } from "$lib/utils/logger";
 
 
