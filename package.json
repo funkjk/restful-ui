@@ -97,7 +97,6 @@
     "@material/textfield": "^14.0.0",
     "@material/tooltip": "^14.0.0",
     "@material/top-app-bar": "^14.0.0",
-    "@modelcontextprotocol/sdk": "^1.13.3",
     "@smui/button": "8.0.0-beta.3",
     "@smui/card": "8.0.0-beta.3",
     "@smui/circular-progress": "8.0.0-beta.3",
