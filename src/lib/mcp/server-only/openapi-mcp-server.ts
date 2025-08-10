@@ -24,7 +24,7 @@ for (const moduleName of requiredModules) {
 }
 
 // Only import Node.js specific modules on server-side
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+// import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -34,7 +34,6 @@ import {
   ErrorCode,
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import type { OpenAPI } from 'openapi-types';
 import { ConsoleMessageLogger, LoggingRestfulPlugin } from '$lib/restful/BuiltInPlugins';
@@ -65,7 +64,8 @@ export interface SseEventSender {
 }
 
 export class OpenApiMcpServer {
-  private server: Server;
+  // private server: Server;
+  private server: any;
   private openApiDoc: OpenAPI.Document | null = null;
   private config: OpenApiMcpServerConfig;
   private plugins: RestfulPlugin[] = [];
@@ -86,18 +86,18 @@ export class OpenApiMcpServer {
       new McpRequestSettingsPlugin(requestSettings),
     ];
 
-    this.server = new Server(
-      {
-        name: config.serverName,
-        version: config.serverVersion,
-      },
-      {
-        capabilities: {
-          tools: {},
-          resources: {},
-        },
-      }
-    );
+    // this.server = new Server(
+    //   {
+    //     name: config.serverName,
+    //     version: config.serverVersion,
+    //   },
+    //   {
+    //     capabilities: {
+    //       tools: {},
+    //       resources: {},
+    //     },
+    //   }
+    // );
 
     this.setupHandlers();
   }
@@ -133,7 +133,7 @@ export class OpenApiMcpServer {
     });
 
     // Read resource content
-    this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+    this.server.setRequestHandler(ReadResourceRequestSchema, async (request: any) => {
       try {
         const resource = await readResource(this.openApiDoc!, this.config.serverName, request.params.uri, this.plugins);
         return { resource };
@@ -161,7 +161,7 @@ export class OpenApiMcpServer {
     });
 
     // Execute tool calls
-    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    this.server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
       const { name, arguments: args, } = request.params;
       try {
         const result = await executeTool(this.openApiDoc!, this.plugins, name, args);
@@ -191,8 +191,8 @@ export class OpenApiMcpServer {
       await this.loadOpenApiSpec(this.config.openApiUrl);
     }
 
-    const transport = new StdioServerTransport();
-    await this.server.connect(transport);
+    // const transport = new StdioServerTransport();
+    // await this.server.connect(transport);
   }
 
   getOpenApiDoc(): OpenAPI.Document | null {

@@ -1,4 +1,4 @@
-import { createRestfulOperation, OperationParameter, RequestBodyType } from "$lib/restful/RestfulOperation";
+import { createRestfulOperation } from "$lib/restful/RestfulOperation";
 import type { RestfulPlugin } from "$lib/restful/RestfulPlugin";
 import type { ResourceInfo, ResourceTemplateInfo } from "$lib/types/api-config";
 import { defaultLogger } from "$lib/utils/logger";
