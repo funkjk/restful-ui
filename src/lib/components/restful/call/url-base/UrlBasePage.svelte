@@ -20,7 +20,7 @@
 
     let url = persisted("base-url", "", { storage: "session" });
     let editingUrl: string = $state("http://localhost:4210/oas/restful-api-sample_mcp-config.yaml");
-    let useProxy: boolean = false;
+    let useProxy: boolean = $state(false);
 
     let config: RestfulComponentConfig | null = $state(null);
     $effect(() => {
