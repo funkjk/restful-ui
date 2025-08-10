@@ -1,4 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
+
 export async function GET(parameters: RequestEvent) {
 	const path = parameters.params.path!;
 	const paths = path.split("/")
@@ -8,7 +9,7 @@ export async function GET(parameters: RequestEvent) {
 	const url = `${paths[0]}//${paths[1]}/${paths.slice(2).join("/")}`;
 	// TODO any way to set headers to get oas file
 	const headers = {}
-	return doReuqest({ url, method: "GET", headers }, async (rawProxyResponse: Response) => {
+	return doRequest({ url, method: "GET", headers }, async (rawProxyResponse: Response) => {
 		const newHeaders = new Headers();
 		addCorsHeaders(newHeaders);
 		return new Response(rawProxyResponse.body, {
@@ -17,9 +18,10 @@ export async function GET(parameters: RequestEvent) {
 		});
 	});
 }
+
 export async function POST(requestEvent: RequestEvent) {
 	const { url, method, headers, body } = await parseRequest(requestEvent);
-	return doReuqest({ url, method, headers, body }, async (rawProxyResponse: Response) => {
+	return doRequest({ url, method, headers, body }, async (rawProxyResponse: Response) => {
 		const newHeaders = new Headers();
 		addCorsHeaders(newHeaders);
 		newHeaders.append('Content-Type', 'application/json');
@@ -34,6 +36,7 @@ export async function POST(requestEvent: RequestEvent) {
 		});
 	});
 }
+
 export async function OPTIONS() {
 	const newHeaders = new Headers();
 	addCorsHeaders(newHeaders);
@@ -41,7 +44,7 @@ export async function OPTIONS() {
 	return new Response("", { headers: newHeaders });
 }
 
-async function doReuqest(params: { url: string, method: string, headers: Record<string, string>, body?: string },
+async function doRequest(params: { url: string, method: string, headers: Record<string, string>, body?: string },
 	toResponse: (rawProxyResponse: Response) => Promise<Response>) {
 	const { url, method, headers, body } = params;
 	if (!url || !method) {

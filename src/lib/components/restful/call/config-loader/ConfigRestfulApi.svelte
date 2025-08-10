@@ -19,7 +19,25 @@
     import { writable } from "svelte/store";
     import Card, { Content } from "@smui/card";
     import { createProxyUrl } from "$lib/utils/proxy";
-    import type { ServerConfig } from "$lib/restful/serverSupport";
+    import type { ServerConfig } from "$lib/restful/config-server/ServerSupport";
+
+    class PathParameterLinkSupport extends DefaultLinkSupport {
+        private configId: string;
+        
+        constructor(configId: string) {
+            super("/");
+            this.configId = configId;
+        }
+        
+        createBasePath(_parameter: LinkParameter): string {
+            if (_parameter.basePath) {
+                return _parameter.basePath + "#";
+            } else {
+                return "/cid/" + this.configId + "/#";
+            }
+        }
+    }
+
     let {
         serverConfig,
         configurationId,
@@ -57,7 +75,7 @@
             new SvelteRestfulProxy(requestSetting),
         ];
         localConfig.storage.requestSetting = requestSetting;
-        localConfig.storage.requestSetting.subscribe((value) => {
+        localConfig.storage.requestSetting.subscribe((value: any) => {
             fetch("/api/configs/" + configurationId, {
                 method: "PUT",
                 body: JSON.stringify({
@@ -66,16 +84,7 @@
                 }),
             });
         });
-        class PathParameterLinkSupport extends DefaultLinkSupport {
-            createBasePath(_parameter: LinkParameter): string {
-                if (_parameter.basePath) {
-                    return _parameter.basePath + "#";
-                } else {
-                    return "/cid/" + configurationId + "/#";
-                }
-            }
-        }
-        localConfig.linkSupport = new PathParameterLinkSupport("/");
+        localConfig.linkSupport = new PathParameterLinkSupport(configurationId);
         return localConfig;
     }
 </script>

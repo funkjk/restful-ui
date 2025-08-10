@@ -19,8 +19,9 @@
     import ConfigList from "$lib/components/restful/call/config-loader/ConfigList.svelte";
 
     let url = persisted("base-url", "", { storage: "session" });
-    let editingUrl: string = $state("http://localhost:4210/oas/restful-api-sample_mcp-config.yaml");
-    let useProxy: boolean = false;
+    const basePath = window.location.origin
+    let editingUrl: string = $state(`${basePath}/oas/restful-api-sample_mcp-config.yaml`);
+    let useProxy: boolean = $state(false);
 
     let config: RestfulComponentConfig | null = $state(null);
     $effect(() => {

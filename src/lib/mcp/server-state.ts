@@ -1,10 +1,6 @@
 import { loadConfig } from '$lib/restful/config-server/ConfigStore';
 import type { ServerConfig } from '$lib/restful/config-server/ServerSupport';
-import { browser } from '$app/environment';
-
-// Type definitions for MCP server
-type OpenApiMcpServer = any;
-type CreateOpenApiMcpServerFunction = any;
+import { createOpenApiMcpServer, type OpenApiMcpServer } from './openapi-mcp-server';
 
 
 type ServerState = {
@@ -38,25 +34,12 @@ export async function startInitializeMcpServer(cid:string) {
   if (isServerInitialized(cid)) {
     return true;
   }
-  
-  // Only run on server-side
-  if (browser) {
-    return false;
-  }
-  
   const serverConfig = await loadConfig(cid);
   if (serverConfig) {
-          try {
-        // Dynamic import to avoid browser bundling
-        const { createMcpServer } = await import('./server-only');
-        const mcpServer = await createMcpServer(serverConfig.config);
-        setMcpServer(cid, mcpServer, serverConfig.config);
-        return true;
-      } catch (error) {
-        console.error('Failed to initialize MCP server:', error);
-        return false;
-      }
+    const mcpServer = await createOpenApiMcpServer(serverConfig.config);
+    setMcpServer(cid, mcpServer, serverConfig.config);
+    return true
   } else {
-    return false;
+    return false
   }
 }

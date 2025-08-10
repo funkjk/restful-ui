@@ -1,5 +1,4 @@
 
-import { readFile } from 'fs/promises';
 import type { ServerConfig, ServerConfigResponse } from '$lib/restful/config-server/ServerSupport';
 
 export type McpServerCliConfig = Partial<ServerConfig> & {
@@ -16,9 +15,8 @@ export const defaultConfig: McpServerCliConfig = {
 export async function createConfig(overrides: McpServerCliConfig): Promise<ServerConfig> {
   let config: McpServerCliConfig = overrides
   if (config.file) {
-    const fileContent = await readFile(config.file, 'utf8');
-    const fileConfig = JSON.parse(fileContent) as ServerConfigResponse;
-    config = fileConfig.config
+    // File loading is disabled in browser environment
+    throw new Error('File loading is not supported in this environment');
   }
 
   return {
