@@ -1,89 +1,84 @@
 
 # My CloudHub Portal
 
-SvelteKitベースのRESTful UIポータルアプリケーションです。OpenAPI仕様書を読み込んでインタラクティブなAPI探索とテストを提供します。
+A SvelteKit-based RESTful UI portal application that loads OpenAPI specifications and provides interactive API exploration and testing.
 
-## 特徴
+🌐 **Live Demo**: [https://restful-ui.vercel.app/](https://restful-ui.vercel.app/)
 
-- 📋 OpenAPI v2/v3仕様書の自動解析
-- 🔧 インタラクティブなAPI呼び出しテスト
-- 📊 データテーブルでのレスポンス表示
-- 🎨 Material UIベースのモダンなデザイン
-- 🤖 **MCPサーバ機能（新機能）**
+## Features
+
+- 📋 Automatic parsing of OpenAPI v2/v3 specifications
+- 🔧 Interactive API call testing
+- 📊 Response display in data tables
+- 🎨 Modern Material UI-based design
+- 🤖 **MCP Server functionality (New feature)**
 
 ## MCP Server Integration
 
-このプロジェクトには、OpenAPI仕様書からMCP（Model Context Protocol）サーバを作成する機能が統合されています。
+This project integrates functionality to create MCP (Model Context Protocol) servers from OpenAPI specifications.
 
-### MCPサーバの使用方法
-
-```bash
-# 依存関係のインストール
-pnpm install
-
-# MCPサーバのテスト
-pnpm run mcp:test
-
-# PetStore APIでMCPサーバを起動
-pnpm run mcp:example
-
-# カスタムAPIでMCPサーバを起動
-pnpm run mcp:start -- --url https://your-api.com/openapi.json
-```
-
-詳細な使用方法は [src/lib/mcp/README.md](src/lib/mcp/README.md) を参照してください。
-
-## 開発環境のセットアップ
+### How to use MCP Server
 
 ```bash
-# 依存関係のインストール
+# Install dependencies
 pnpm install
 
-# 開発サーバの起動
 pnpm run dev
 ```
 
-## 利用可能なスクリプト
+For detailed usage instructions, please refer to [src/lib/mcp/README.md](src/lib/mcp/README.md).
 
-### 開発・ビルド
-- `pnpm run dev` - 開発サーバの起動（ポート4210）
-- `pnpm run build` - プロダクションビルド
-- `pnpm run preview` - ビルド結果のプレビュー
+## Development Environment Setup
 
-### テスト・品質チェック
-- `pnpm run test` - Vitestでのユニットテスト
-- `pnpm run e2e` - Playwrightでのe2eテスト
-- `pnpm run lint` - ESLintでのコード品質チェック
-- `pnpm run check` - TypeScriptとSvelteの型チェック
+```bash
+# Install dependencies
+pnpm install
 
-### MCPサーバ
-- `pnpm run mcp:test` - MCPサーバのテスト
-- `pnpm run mcp:start` - MCPサーバの起動
-- `pnpm run mcp:example` - PetStore APIでのMCPサーバ起動例
+# Start development server
+pnpm run dev
+```
+
+## Available Scripts
+
+### Development & Build
+- `pnpm run dev` - Start development server (port 4210)
+- `pnpm run build` - Production build
+- `pnpm run preview` - Preview build results
+
+### Testing & Quality Check
+- `pnpm run test` - Unit tests with Vitest
+- `pnpm run e2e` - E2E tests with Playwright
+- `pnpm run lint` - Code quality check with ESLint
+- `pnpm run check` - TypeScript and Svelte type checking
+
+### MCP Server
+- `pnpm run mcp:test` - MCP server testing
+- `pnpm run mcp:start` - Start MCP server
+- `pnpm run mcp:example` - MCP server startup example with PetStore API
 
 ### Storybook
-- `pnpm run storybook` - Storybookの起動
-- `pnpm run build-storybook` - Storybookのビルド
+- `pnpm run storybook` - Start Storybook
+- `pnpm run build-storybook` - Build Storybook
 
-## プロジェクト構成
+## Project Structure
 
 ```
 src/
 ├── lib/
-│   ├── components/     # UIコンポーネント
-│   ├── restful/        # REST API操作ロジック
-│   ├── mcp/           # MCPサーバ実装 (NEW!)
-│   ├── stores/        # Svelteストア
-│   └── utils/         # ユーティリティ関数
-├── routes/            # SvelteKitルート
-└── theme/             # Material UIテーマ
+│   ├── components/     # UI components
+│   ├── restful/        # REST API operation logic
+│   ├── mcp/           # MCP server implementation (NEW!)
+│   ├── stores/        # Svelte stores
+│   └── utils/         # Utility functions
+├── routes/            # SvelteKit routes
+└── theme/             # Material UI theme
 ```
 
-## 技術スタック
+## Technology Stack
 
-- **フロントエンド**: SvelteKit + TypeScript
+- **Frontend**: SvelteKit + TypeScript
 - **UI**: Svelte Material UI (SMUI)
-- **API**: OpenAPI/Swagger 解析
-- **テスト**: Vitest + Playwright
+- **API**: OpenAPI/Swagger parsing
+- **Testing**: Vitest + Playwright
 - **MCP**: Model Context Protocol Server
-- **ビルド**: Vite
+- **Build**: Vite
