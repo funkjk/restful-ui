@@ -20,14 +20,11 @@ jobs:
       - name: Install dependencies
         run: npm install -g pnpm && pnpm install
       
-      # ビルド実行、静的リソースを作る
       - name: build static resources
         run: npx cross-env BUILD_BASE_PATH=/restful-ui pnpm run build 
           
-      # GitHub Pagesにデプロイする
       - name: deploy to github pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GH_API_TOKEN }}
-          # アプリ直下のbuildディレクトリに生成されるため、指定
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: build
