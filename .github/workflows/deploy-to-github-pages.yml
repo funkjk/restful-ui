@@ -17,9 +17,8 @@ jobs:
       - name: setup node.js
         uses: actions/setup-node@v3.6.0
       
-      # package.jsonの内容でパッケージインストール
-      - name: setup app env
-        run: pnpm i
+      - name: Install dependencies
+        run: npm install -g pnpm && pnpm install
       
       # ビルド実行、静的リソースを作る
       - name: build static resources
