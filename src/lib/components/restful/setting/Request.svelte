@@ -10,7 +10,7 @@
     let headers: any[] = $state([]);
     let additionalQueryParameter = $state("");
     let basePath  = $state("");
-    let useProxy: boolean = $state(false);
+    let useProxy: boolean = $state(import.meta.env.BUILD_STATIC === 'true' ? false : false);
     function addHeader() {
         headers = [...headers, { name: "", value: "" }];
     }
@@ -34,7 +34,7 @@
             headers: storageHeaders,
             additionalQueryParameter,
             basePath,
-            useProxy,
+            useProxy: import.meta.env.BUILD_STATIC === 'true' ? false : useProxy,
         });
         notifyMessage.notify("Save");
     }
@@ -50,8 +50,10 @@
 
 <Textfield bind:value={basePath} class="base-path" label="basePath" style="width:100%;" placeholder="https://www.example.com/api"></Textfield>
 
+{#if import.meta.env.BUILD_STATIC !== 'true'}
 <h3>Use Proxy</h3>
 <Checkbox bind:checked={useProxy} label="Use Restful-UI Proxy to call API"></Checkbox>
+{/if}
 
 <h3>Request Headers</h3>
 {#each headers as header, index (index)}

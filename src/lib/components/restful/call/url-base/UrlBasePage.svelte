@@ -2,6 +2,7 @@
     import Textfield from "@smui/textfield";
     import Card, { Content, Actions } from "@smui/card";
     import Button, { Label } from "@smui/button";
+    import Select, { Option } from "@smui/select";
     import { persisted } from "svelte-persisted-store";
     import { createProxyUrl } from "$lib/utils/proxy";
     import Checkbox from "$lib/components/common/Checkbox.svelte";
@@ -23,9 +24,45 @@
     let editingUrl: string = $state(`${basePath}/oas/restful-api-sample_mcp-config.yaml`);
     let useProxy: boolean = $state(false);
 
+    // サンプルOASファイルのリスト
+    const sampleOasFiles = [
+        {
+            name: "Restful API Sample (MCP Config)",
+            url: `${basePath}/oas/restful-api-sample_mcp-config.yaml`,
+            description: "RESTful API Sample"
+        },
+        {
+            name: "GitHub API",
+            url: "https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.json",
+            description: "GitHub REST API v3"
+        },
+        {
+            name: "Quip API",
+            url: "https://quip.com/dev/automation/documentation/current/openapi-specs",
+            description: "Quip REST API"
+        },
+        {
+            name: "CloudHub API",
+            url: `${basePath}/oas/cloudhub-api-1.0.33-fat-oas.json`,
+            description: "CloudHub API"
+        },
+        {
+            name: "Backlog API",
+            url: `${basePath}/oas/backlog_oas.yml`,
+            description: "Backlog API"
+        }
+    ];
+
+    let selectedSampleIndex: number = $state(0);
+
     let config: RestfulComponentConfig | null = $state(null);
     $effect(() => {
         config = createConfig();
+    });
+
+    // selectedSampleIndexが変更されたときにselectSampleFileを呼び出す
+    $effect(() => {
+        selectSampleFile(selectedSampleIndex);
     });
 
     function createConfig() {
@@ -46,6 +83,11 @@
             ...config.additionalPlugins,
         ];
         return config;
+    }
+
+    function selectSampleFile(index: number) {
+        selectedSampleIndex = index;
+        editingUrl = sampleOasFiles[index].url;
     }
 </script>
 
@@ -70,20 +112,36 @@
     <div style="width: 70%;">
         <Card>
             <Content>
+            <div style="margin-bottom: 16px;">
+                <Select
+                    bind:value={selectedSampleIndex}
+                    label="Select Sample OAS File"
+                    style="width: 100%;"
+                >
+                    {#each sampleOasFiles as file, index}
+                        <Option value={index}>
+                            {file.name}
+                        </Option>
+                    {/each}
+                </Select>
+            </div>
+            
             <Textfield
                 bind:value={editingUrl}
                 style="width: 100%;"
                 label="Open API URL"
             />
+            {#if import.meta.env.BUILD_STATIC !== 'true'}
             <Checkbox
                 bind:checked={useProxy}
                 label="Use Restful-UI Proxy to get OAS file"
             ></Checkbox>
+            {/if}
         </Content>
         <Actions>
             <Button
                 onclick={() =>
-                    url.set(useProxy ? createProxyUrl(editingUrl) : editingUrl)}
+                    url.set((import.meta.env.BUILD_STATIC === 'true' || !useProxy) ? editingUrl : createProxyUrl(editingUrl))}
             >
                 <Label>set</Label>
             </Button>
@@ -91,9 +149,11 @@
     </Card>
     </div>
 
-    <div style="margin-left: 10px;">
-        <ConfigList></ConfigList>
-    </div>
+    {#if import.meta.env.BUILD_STATIC !== 'true'}
+        <div style="margin-left: 10px;">
+            <ConfigList></ConfigList>
+        </div>
+    {/if}
 </div>
 
 {/if}

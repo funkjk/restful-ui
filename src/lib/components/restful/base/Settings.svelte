@@ -10,8 +10,11 @@
     let options = [
         { name: "Request", value: Request },
         { name: "Storage", value: Storage },
-        { name: "Persist", value: Persist },
     ];
+    if ( import.meta.env.BUILD_STATIC !== 'true') {
+        options.push(
+            { name: "Persist", value: Persist })
+    }
     let selected = options[0];
 </script>
 

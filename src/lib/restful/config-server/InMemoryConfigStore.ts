@@ -32,5 +32,8 @@ async function listConfigs(): Promise<ServerConfigResponse[]> {
 
 
   async function deleteConfig(configurationId: string): Promise<void> {
+    if (configs.findIndex(config => config.configurationId === configurationId) < 0) {
+      throw new Error(`configurationId ${configurationId} not found`)
+    }
     configs = configs.filter(config => config.configurationId !== configurationId);
   }

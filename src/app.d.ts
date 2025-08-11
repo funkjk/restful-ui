@@ -10,4 +10,28 @@ declare global {
 	}
 }
 
+// 環境変数の型定義
+declare global {
+	namespace App {
+		interface Locals {}
+		interface PageData {}
+		interface Error {}
+		interface Platform {}
+	}
+}
+
+// 環境変数の型定義
+declare module '$env/static/public' {
+	export const BUILD_STATIC: string;
+}
+
+// import.meta.envの型定義
+interface ImportMetaEnv {
+	readonly BUILD_STATIC: string;
+}
+
+interface ImportMeta {
+	readonly env: ImportMetaEnv;
+}
+
 export {};
