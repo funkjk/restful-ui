@@ -22,7 +22,7 @@ jobs:
       
       # ビルド実行、静的リソースを作る
       - name: build static resources
-        run: cross-env BUILD_BASE_PATH=/restful-ui pnpm run build 
+        run: npx cross-env BUILD_BASE_PATH=/restful-ui pnpm run build 
           
       # GitHub Pagesにデプロイする
       - name: deploy to github pages
