@@ -20,7 +20,7 @@
     import ConfigList from "$lib/components/restful/call/config-loader/ConfigList.svelte";
 
     let url = persisted("base-url", "", { storage: "session" });
-    const basePath = window.location.origin
+    const basePath = window.location.origin + import.meta.env.BUILD_BASE_PATH
     let editingUrl: string = $state(`${basePath}/oas/restful-api-sample_mcp-config.yaml`);
     let useProxy: boolean = $state(false);
 

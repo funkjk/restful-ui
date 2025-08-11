@@ -110,9 +110,6 @@ importers:
       '@smui/tooltip':
         specifier: 8.0.0-beta.3
         version: 8.0.0-beta.3
-      '@sveltejs/adapter-static':
-        specifier: ^3.0.8
-        version: 3.0.8(@sveltejs/kit@2.22.2(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.34.9)(vite@7.0.0(@types/node@24.0.10)(sass@1.89.2)(tsx@4.20.3)))(svelte@5.34.9)(vite@7.0.0(@types/node@24.0.10)(sass@1.89.2)(tsx@4.20.3)))
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.4
@@ -276,6 +273,9 @@ importers:
       '@sveltejs/adapter-auto':
         specifier: ^6.0.1
         version: 6.0.1(@sveltejs/kit@2.22.2(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.34.9)(vite@7.0.0(@types/node@24.0.10)(sass@1.89.2)(tsx@4.20.3)))(svelte@5.34.9)(vite@7.0.0(@types/node@24.0.10)(sass@1.89.2)(tsx@4.20.3)))
+      '@sveltejs/adapter-static':
+        specifier: ^3.0.8
+        version: 3.0.8(@sveltejs/kit@2.22.2(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.34.9)(vite@7.0.0(@types/node@24.0.10)(sass@1.89.2)(tsx@4.20.3)))(svelte@5.34.9)(vite@7.0.0(@types/node@24.0.10)(sass@1.89.2)(tsx@4.20.3)))
       '@sveltejs/kit':
         specifier: ^2.22.2
         version: 2.22.2(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.34.9)(vite@7.0.0(@types/node@24.0.10)(sass@1.89.2)(tsx@4.20.3)))(svelte@5.34.9)(vite@7.0.0(@types/node@24.0.10)(sass@1.89.2)(tsx@4.20.3))
