@@ -2,11 +2,13 @@ import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { deleteConfig, loadConfig, updateConfig } from '$lib/restful/config-server/ConfigStore';
 import type { ServerConfig } from '$lib/restful/config-server/ServerSupport';
+import { requireAuth, getUserId } from '$lib/auth/middleware';
+import { defaultLogger as logger } from '$lib/utils/logger';
 
 // 特定の設定を読み込み
-export const GET = async ({ params }: RequestEvent) => {
+export const GET = async (event: RequestEvent) => {
   try {
-    const { id } = params;
+    const { id } = event.params;
     if (!id) {
       return json({
         success: false,
@@ -14,7 +16,11 @@ export const GET = async ({ params }: RequestEvent) => {
       }, { status: 400 });
     }
 
-    const config = await loadConfig(id);
+    // Get userId if authenticated for data isolation (FR-008)
+    // event.locals.auth is set by withClerkHandler in hooks.server.ts
+    const userId = getUserId(event);
+    const config = await loadConfig(id, userId ?? undefined);
+    
     if (!config) {
       return json({
         success: false,
@@ -32,14 +38,29 @@ export const GET = async ({ params }: RequestEvent) => {
   }
 }; 
 
-export const DELETE = async ({ params }: RequestEvent) => {
+export const DELETE = async (event: RequestEvent) => {
   try {
-    const { id } = params;
-    await deleteConfig(id!);
+    // Require authentication for DELETE (FR-001, FR-005)
+    // event.locals.auth is set by withClerkHandler in hooks.server.ts
+    const userId = requireAuth(event);
+    
+    const { id } = event.params;
+    await deleteConfig(id!, userId);
+    
+    logger.info('Configuration deleted', { configurationId: id, userId });
+    
     return json({
       success: true,
     });
   } catch (error) {
+    // Handle authentication errors
+    if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
+      return json({
+        success: false,
+        error: 'Unauthorized: Authentication required',
+      }, { status: 401 });
+    }
+    
     console.error('Failed to delete config:', error);
     return json({
       success: false,
@@ -48,15 +69,30 @@ export const DELETE = async ({ params }: RequestEvent) => {
   }
 }
 
-export const PUT = async ({ params, request }: RequestEvent) => {
+export const PUT = async (event: RequestEvent) => {
   try {
-    const { id } = params;
-    const config = await request.json() as ServerConfig;
-    await updateConfig(id!, config);
+    // Require authentication for PUT (FR-001, FR-005)
+    // event.locals.auth is set by withClerkHandler in hooks.server.ts
+    const userId = requireAuth(event);
+    
+    const { id } = event.params;
+    const config = await event.request.json() as ServerConfig;
+    await updateConfig(id!, config, userId);
+    
+    logger.info('Configuration updated', { configurationId: id, userId, serverName: config.serverName });
+    
     return json({
       success: true,
     });
   } catch (error) {
+    // Handle authentication errors
+    if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
+      return json({
+        success: false,
+        error: 'Unauthorized: Authentication required',
+      }, { status: 401 });
+    }
+    
     console.error('Failed to update config:', error);
     return json({
       success: false,

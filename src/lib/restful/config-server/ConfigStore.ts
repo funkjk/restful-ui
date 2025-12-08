@@ -2,56 +2,64 @@ import { v4 as uuidv4 } from 'uuid';
 import type { ServerConfig, ServerConfigResponse } from './ServerSupport';
 // import { FsConfigStore } from './FsConfigStore';
 import { InMemoryConfigStore } from './InMemoryConfigStore';
+import { CockroachDBConfigStore } from './CockroachDBConfigStore';
+import { env } from '$env/dynamic/private';
 
 
 
 export interface ConfigStore {
-    writeConfig(configurationId: string, config: Partial<ServerConfigResponse>): Promise<ServerConfigResponse>
-    readConfig(configurationId: string): Promise<ServerConfigResponse | null>
-    listConfigs(): Promise<ServerConfigResponse[]>
-    deleteConfig(configurationId: string): Promise<void>
+    writeConfig(configurationId: string, config: Partial<ServerConfigResponse> & { userId?: string }): Promise<ServerConfigResponse>
+    readConfig(configurationId: string, userId?: string): Promise<ServerConfigResponse | null>
+    listConfigs(userId?: string): Promise<ServerConfigResponse[]>
+    deleteConfig(configurationId: string, userId?: string): Promise<void>
 }
 
-const configStore: ConfigStore = InMemoryConfigStore;
+// Select ConfigStore implementation based on environment variable
+// Default to CockroachDB if DATABASE_URL is set, otherwise use InMemoryConfigStore
+const configStore: ConfigStore = env.DATABASE_URL ? CockroachDBConfigStore : InMemoryConfigStore;
 
 
 export async function saveConfig(
     config: ServerConfig,
     configurationId?: string,
+    userId?: string,
 ): Promise<string> {
     validateConfig(config);
     configurationId = configurationId ?? uuidv4();
 
     await configStore.writeConfig(configurationId, {
         config,
+        userId,
     });
     return configurationId;
 }
 
-export async function loadConfig(id: string): Promise<ServerConfigResponse | null> {
-    return configStore.readConfig(id);
+export async function loadConfig(id: string, userId?: string): Promise<ServerConfigResponse | null> {
+    return configStore.readConfig(id, userId);
 }
 
 
-export async function deleteConfig(id: string): Promise<void> {
-    await configStore.deleteConfig(id);
+export async function deleteConfig(id: string, userId?: string): Promise<void> {
+    await configStore.deleteConfig(id, userId);
 }
 
 
-// 設定を削除
-export async function updateConfig(id: string, config: ServerConfig): Promise<void> {
+// 設定を更新
+export async function updateConfig(id: string, config: ServerConfig, userId?: string): Promise<void> {
     validateConfig(config);
-    const existing = await loadConfig(id);
+    const existing = await loadConfig(id, userId);
     if (!existing) {
         throw new Error(`Config ${id} not found`);
     }
     await configStore.writeConfig(id, {
         config,
+        userId,
     });
 }
 
-export async function listConfigs(): Promise<ServerConfigResponse[]> {
-    const configs = await configStore.listConfigs();
+export async function listConfigs(userId?: string): Promise<ServerConfigResponse[]> {
+    console.log("configStore", configStore);
+    const configs = await configStore.listConfigs(userId);
     return configs;
 }
 

@@ -11,7 +11,7 @@ export const InMemoryConfigStore: ConfigStore = {
     deleteConfig: deleteConfig,
 }
 
-async function writeConfig(configurationId:string, config: Partial<ServerConfigResponse>): Promise<ServerConfigResponse> {
+async function writeConfig(configurationId:string, config: Partial<ServerConfigResponse> & { userId?: string }): Promise<ServerConfigResponse> {
     const existingIndex = configs.findIndex(c => c.configurationId === configurationId);
     const existing = existingIndex >= 0 ? configs[existingIndex] : null;
     const newConfig: ServerConfigResponse = {
@@ -31,17 +31,20 @@ async function writeConfig(configurationId:string, config: Partial<ServerConfigR
     return newConfig;
   }
 
-  async function readConfig(configurationId: string): Promise<ServerConfigResponse | null> {
+  async function readConfig(configurationId: string, userId?: string): Promise<ServerConfigResponse | null> {
+    // InMemoryConfigStore ignores userId for backward compatibility
     return configs.find(config => config.configurationId === configurationId) ?? null;
   }
 
 
-async function listConfigs(): Promise<ServerConfigResponse[]> {
+async function listConfigs(userId?: string): Promise<ServerConfigResponse[]> {
+    // InMemoryConfigStore ignores userId for backward compatibility
     return configs.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
   }
 
 
-  async function deleteConfig(configurationId: string): Promise<void> {
+  async function deleteConfig(configurationId: string, userId?: string): Promise<void> {
+    // InMemoryConfigStore ignores userId for backward compatibility
     if (configs.findIndex(config => config.configurationId === configurationId) < 0) {
       throw new Error(`configurationId ${configurationId} not found`)
     }

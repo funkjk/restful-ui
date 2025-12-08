@@ -1,14 +1,38 @@
 <script>
   import { page } from '$app/stores';
+  import { UserButton, SignedIn, SignedOut, SignInButton } from 'svelte-clerk';
 </script>
 
 <header>
+  <nav>
+    <ul>
+      <li>
+        <a href="/">Home</a>
+      </li>
+    </ul>
+  </nav>
+  <div class="auth-section">
+    <SignedIn>
+      <UserButton />
+    </SignedIn>
+    <SignedOut>
+      <SignInButton mode="modal" />
+    </SignedOut>
+  </div>
 </header>
 
 <style>
 	header {
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
+		padding: 0 1rem;
+	}
+
+	.auth-section {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 	}
 
 	nav {

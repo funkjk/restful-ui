@@ -6,6 +6,8 @@
 	import Snackbar, { Label } from "@smui/snackbar";
 	import LogPanel from "$lib/components/restful/base/LogPanel.svelte";
 	import { persisted } from "svelte-persisted-store";
+	import { ClerkProvider } from "svelte-clerk";
+	
 	let snackbar = $state<Snackbar | null>(null);
 	let open = persisted("ui.open-log-panel", true);
 	$effect(() => {
@@ -18,32 +20,34 @@
 	});
 </script>
 
-<div class="app">
-	<Header />
+<ClerkProvider>
+	<div class="app">
+		<Header />
 
-	<main style={$open ? "padding-bottom: 200px;" : "padding-bottom: 15px;"}>
-		<slot />
-	</main>
+		<main style={$open ? "padding-bottom: 200px;" : "padding-bottom: 15px;"}>
+			<slot />
+		</main>
 
-	<footer>
-		<LogPanel logs={logMessages} bind:open={$open}></LogPanel>
-	</footer>
-</div>
-
-<Snackbar leading bind:this={snackbar}>
-	<Label>{$notifyMessage}</Label>
-</Snackbar>
-
-{#if $loading}
-	<div id="loading">
-		<div class="progress">
-			<CircularProgress
-				style="height: 100px; width: 100px;"
-				indeterminate
-			/>
-		</div>
+		<footer>
+			<LogPanel logs={logMessages} bind:open={$open}></LogPanel>
+		</footer>
 	</div>
-{/if}
+
+	<Snackbar leading bind:this={snackbar}>
+		<Label>{$notifyMessage}</Label>
+	</Snackbar>
+
+	{#if $loading}
+		<div id="loading">
+			<div class="progress">
+				<CircularProgress
+					style="height: 100px; width: 100px;"
+					indeterminate
+				/>
+			</div>
+		</div>
+	{/if}
+</ClerkProvider>
 
 <style>
 	#loading {
