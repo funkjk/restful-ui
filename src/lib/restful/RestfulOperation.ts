@@ -308,7 +308,18 @@ export class RestfulOperationOasV3 extends RestfulOperation {
     getBasePath(): string {
         const doc = this.getDocument()
         if (doc.servers) {
-            return `${doc.servers[0].url}`
+            let serverUrl = doc.servers[0].url;
+            const server = doc.servers[0];
+            
+            // Expand server variables (e.g., {protocol}, {hostname})
+            if (server.variables) {
+                for (const [key, variable] of Object.entries(server.variables)) {
+                    const value = variable.default || '';
+                    serverUrl = serverUrl.replace(`{${key}}`, value);
+                }
+            }
+            
+            return serverUrl;
         } else {
             return ""
         }

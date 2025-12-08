@@ -12,13 +12,23 @@ export const InMemoryConfigStore: ConfigStore = {
 }
 
 async function writeConfig(configurationId:string, config: Partial<ServerConfigResponse>): Promise<ServerConfigResponse> {
-    configs.push({
+    const existingIndex = configs.findIndex(c => c.configurationId === configurationId);
+    const existing = existingIndex >= 0 ? configs[existingIndex] : null;
+    const newConfig: ServerConfigResponse = {
         ...config,
         configurationId: configurationId,
-        createdAt: config.createdAt ?? new Date(),
+        createdAt: existing?.createdAt ?? config.createdAt ?? new Date(),
         updatedAt: new Date(),
-    } as ServerConfigResponse);
-    return configs[configs.length - 1];
+    } as ServerConfigResponse;
+    
+    if (existingIndex >= 0) {
+        // Update existing config
+        configs[existingIndex] = newConfig;
+    } else {
+        // Add new config
+        configs.push(newConfig);
+    }
+    return newConfig;
   }
 
   async function readConfig(configurationId: string): Promise<ServerConfigResponse | null> {
