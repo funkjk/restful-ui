@@ -2,15 +2,23 @@
     import type { RestfulOperation } from "$lib/restful/RestfulOperation";
     import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 
-    export let config: RestfulComponentConfig;
-    export let value: string = "";
-    export let column: string = "";
-    export let item: object = {};
-    export let currentOperation: RestfulOperation;
+    let {
+		config,
+		value = "",
+		column = "",
+		item = {},
+		currentOperation
+	}: {
+		config: RestfulComponentConfig;
+		value?: string;
+		column?: string;
+		item?: object;
+		currentOperation: RestfulOperation;
+	} = $props();
 
-    $: operationList = currentOperation.getUnderOperations(column);
+    let operationList = $derived(currentOperation.getUnderOperations(column));
 
-    $: additionalParamter = currentOperation.getAdditionalParameters();
+    let additionalParamter = $derived(currentOperation.getAdditionalParameters());
 </script>
 
 {#each operationList as operation (operation)}

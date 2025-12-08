@@ -1,21 +1,30 @@
 <script lang="ts">
     import Tooltip, { Wrapper } from "@smui/tooltip";
-    export let value: any;
-    export let length: number = 80;
-    let text: string;
-    let type: string;
-    $: {
+    let {
+		value,
+		length = 80
+	}: {
+		value: any;
+		length?: number;
+	} = $props();
+    let text = $derived.by(() => {
         if (Array.isArray(value)) {
-            type = "array";
-            text = JSON.stringify(value);
+            return JSON.stringify(value);
         } else if (typeof value === "object" && value !== null) {
-            type = "object";
-            text = JSON.stringify(value);
+            return JSON.stringify(value);
         } else {
-            type = "string";
-            text = String(value ?? "");
+            return String(value ?? "");
         }
-    }
+    });
+    let type = $derived.by(() => {
+        if (Array.isArray(value)) {
+            return "array";
+        } else if (typeof value === "object" && value !== null) {
+            return "object";
+        } else {
+            return "string";
+        }
+    });
 </script>
 
 {#if type == "object" || type == "array"}

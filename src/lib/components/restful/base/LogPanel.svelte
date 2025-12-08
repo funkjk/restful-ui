@@ -5,19 +5,26 @@
     import { type Writable } from "svelte/store";
     import { slide } from "svelte/transition";
     import DragMovable from "../../common/DragMovable.svelte";
-    let consoleElement: HTMLElement;
+    let consoleElement = $state<HTMLElement | null>(null);
 
-    export let logs: Writable<LogMessage[]>;
-    export let open = true;
-    let logHeight = 150;
-    let keep = false;
+    let {
+		logs,
+		open = $bindable(true)
+	}: {
+		logs: Writable<LogMessage[]>;
+		open?: boolean;
+	} = $props();
+    let logHeight = $state(150);
+    let keep = $state(false);
 
-    $: if (consoleElement && $logs && !keep) {
-        consoleElement.scroll({
-            top: consoleElement.scrollHeight,
-            behavior: "smooth",
-        });
-    }
+    $effect(() => {
+		if (consoleElement && $logs && !keep) {
+			consoleElement.scroll({
+				top: consoleElement.scrollHeight,
+				behavior: "smooth",
+			});
+		}
+	});
     function save() {
         let downloadText = "";
         for (let log of $logs) {
@@ -37,7 +44,7 @@
         link.href = "data:," + encodeURIComponent(downloadText);
         link.click();
     }
-    let selectedIndex = -1;
+    let selectedIndex = $state(-1);
     function copy() {
         let text = $logs[selectedIndex].messages.join("\n");
         navigator.clipboard.writeText(text);
@@ -47,10 +54,10 @@
 <div class="log-panel">
     <DragMovable
         disabled={!open}
-        on:dragging={(e) => (logHeight -= e.detail.movementY)}
+        ondragging={(e) => (logHeight -= e.detail.movementY)}
     >
         <div class="log-panel-title">
-            <span on:click={() => (open = !open)}>
+            <span onclick={() => (open = !open)}>
                 <button class="expand-button">
                     <Icon class="material-icons expand-icon"
                         >{open ? "expand_more" : "expand_less"}</Icon
@@ -66,17 +73,17 @@
             transition:slide={{ duration: 150 }}
         >
             <div class="log-panel-control">
-                <button class="control-button" on:click={() => logs.set([])}>
+                <button class="control-button" onclick={() => logs.set([])}>
                     <Icon class="material-icons">delete</Icon>
                 </button>
-                <button class="control-button" on:click={() => (keep = !keep)}>
+                <button class="control-button" onclick={() => (keep = !keep)}>
                     <Icon class="material-icons"
                         >{keep ? "lock" : "lock_open"}</Icon
                     >
                 </button>
                 <button
                     class="control-button"
-                    on:click={save}
+                    onclick={save}
                     disabled={$logs.length == 0}
                 >
                     <Icon class="material-icons">save</Icon>
@@ -84,7 +91,7 @@
                 <button
                     class="control-button"
                     disabled={selectedIndex === -1}
-                    on:click={copy}
+                    onclick={copy}
                 >
                     <Icon class="material-icons">content_copy</Icon>
                 </button>
@@ -100,7 +107,7 @@
                                 class={logIndex == selectedIndex
                                     ? "selected-row"
                                     : ""}
-                                on:click={() => (selectedIndex = logIndex)}
+                                onclick={() => (selectedIndex = logIndex)}
                             >
                                 {#if index == 0}
                                     <td

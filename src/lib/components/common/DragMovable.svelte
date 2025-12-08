@@ -1,11 +1,20 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
+    let {
+		open = true,
+		disabled = false,
+		tooltip = true,
+		ondragging,
+		children
+	}: {
+		open?: boolean;
+		disabled?: boolean;
+		tooltip?: boolean;
+		ondragging?: (e: CustomEvent<MouseEvent>) => void;
+		children?: import("svelte").Snippet;
+	} = $props();
+	let openState = $state(open);
 
-    export let open = true;
-    export let disabled = false;
-    export let tooltip = true;
-
-    let moving = false;
+    let moving = $state(false);
     function onMouseDown() {
         if (!disabled) {
             moving = true;
@@ -14,20 +23,21 @@
     function onMouseUp() {
         moving = false;
     }
-    const dispatch = createEventDispatcher<any>();
     function onMouseMove(e: MouseEvent) {
         if (moving) {
-            dispatch("dragging", e);
+            ondragging?.(new CustomEvent("dragging", { detail: e }));
         }
     }
 </script>
 
-<div
-    on:mousedown={onMouseDown}
-    class={disabled ? "" : moving ? "drag-target-moving" : "drag-target"}
->
-    <slot></slot>
-</div>
+    <div
+        on:mousedown={onMouseDown}
+        class={disabled ? "" : moving ? "drag-target-moving" : "drag-target"}
+    >
+        {#if children}
+            {@render children()}
+        {/if}
+    </div>
 
 <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} />
 

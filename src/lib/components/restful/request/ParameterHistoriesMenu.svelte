@@ -1,20 +1,26 @@
 <script lang="ts">
   import Button, { Icon, Label } from "@smui/button";
-  import { createEventDispatcher } from "svelte";
   import type { CacheBodyParameter } from "$lib/restful/BuiltInPlugins";
   import Checkbox from "@smui/checkbox";
   import Dialog, { Actions, Content, Title } from "@smui/dialog";
   import DataTable, { Body, Cell, Head, Row } from "@smui/data-table";
   import type { RestfulOperation } from "$lib/restful/RestfulOperation";
   import FormField from "@smui/form-field";
-  export let histories: CacheBodyParameter[] = [];
-  export let currentOperation: RestfulOperation;
-  export let value: any;
-  const dispatch = createEventDispatcher<any>();
-  let open = false;
-  let onlySamePathFilter = false;
-  $: pathParameters = currentOperation.getPathParameters();
-  $: filteredHistories = histories.filter((history) => {
+  let {
+		histories = [],
+		currentOperation,
+		value,
+		onselect
+	}: {
+		histories?: CacheBodyParameter[];
+		currentOperation: RestfulOperation;
+		value: any;
+		onselect?: (bodyParameter: any) => void;
+	} = $props();
+  let open = $state(false);
+  let onlySamePathFilter = $state(false);
+  let pathParameters = $derived(currentOperation.getPathParameters());
+  let filteredHistories = $derived(histories.filter((history) => {
     return (
       !onlySamePathFilter ||
       pathParameters.every(
@@ -23,11 +29,11 @@
           history.additionalParameter[param] == value[param],
       )
     );
-  });
-  $: pathParameterValue = pathParameters.map(param => value[param]).filter(e => e)
+  }));
+  let pathParameterValue = $derived(pathParameters.map(param => value[param]).filter(e => e));
 
   function select(selectedIndex: number) {
-    dispatch("select", histories[selectedIndex].bodyParameter);
+    onselect?.(histories[selectedIndex].bodyParameter);
     open = false;
   }
 </script>
@@ -81,7 +87,7 @@
   </Content>
 
   <Actions>
-    <Button on:click={() => (open = false)}>
+    <Button onclick={() => (open = false)}>
       <Label>close</Label>
     </Button>
   </Actions>

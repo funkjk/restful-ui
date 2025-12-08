@@ -13,20 +13,33 @@
 	import type { CacheBodyParameter } from "$lib/restful/BuiltInPlugins";
 	import { notifyMessage } from "$lib/stores/ui";
 
-	export let currentOperation: RestfulOperation;
-	export let value = {} as any;
-	export let histories: CacheBodyParameter[] = [];
+	let {
+		currentOperation,
+		value = $bindable({} as any),
+		histories = [],
+		requestBodyType = $bindable<RequestBodyType | undefined>(undefined)
+	}: {
+		currentOperation: RestfulOperation;
+		value?: any;
+		histories?: CacheBodyParameter[];
+		requestBodyType?: RequestBodyType;
+	} = $props();
 
-	let bodyParamName = currentOperation.getBodyValueName();
-	let operation = currentOperation.getOperation();
+	let bodyParamName = $derived(currentOperation.getBodyValueName());
+	let operation = $derived(currentOperation.getOperation());
 
-	let params = operation.parameters as any[];
+	let params = $derived((operation.parameters as any[]) || []);
 
-	const requestBodyTypes = currentOperation.getBodyTypes()
-	export let requestBodyType: RequestBodyType = requestBodyTypes[0]
-	$: bodyDefinition = currentOperation.getBodyDefinition(requestBodyType)
-	function selectHistory(event: CustomEvent) {
-		value[bodyParamName!] = event.detail;
+	const requestBodyTypes = $derived(currentOperation.getBodyTypes());
+	let requestBodyTypeInitialized = $derived(requestBodyType ?? requestBodyTypes[0]);
+	$effect(() => {
+		if (requestBodyType === undefined) {
+			requestBodyType = requestBodyTypes[0];
+		}
+	});
+	let bodyDefinition = $derived(currentOperation.getBodyDefinition(requestBodyTypeInitialized));
+	function selectHistory(bodyParameter: any) {
+		value[bodyParamName!] = bodyParameter;
 	}
 
 	let canCallGet =
@@ -116,15 +129,15 @@
 			{/if}
 			<ParameterHistoriesMenu
 				{histories}
-				on:select={selectHistory}
+				onselect={selectHistory}
 				{currentOperation}
 				{value}
 			></ParameterHistoriesMenu>
 		</div>
 		<!-- render body outside grid -->
-		{#if requestBodyType === RequestBodyType.JSON}
+		{#if requestBodyTypeInitialized === RequestBodyType.JSON}
 			<BodyEditor bind:value={value[bodyParamName]} />
-		{:else if requestBodyType === RequestBodyType.FORM_DATA && bodyDefinition}
+		{:else if requestBodyTypeInitialized === RequestBodyType.FORM_DATA && bodyDefinition}
 			<FormBodyEditor definition={bodyDefinition} bind:value={value[bodyParamName]}/>
 		{/if}
 	{/if}

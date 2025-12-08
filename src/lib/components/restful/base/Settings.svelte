@@ -5,17 +5,17 @@
     import FormField from "@smui/form-field";
     import Request from "../setting/Request.svelte";
     import Persist from "../setting/Persist.svelte";
-    export let config: RestfulComponentConfig;
+    let { config }: { config: RestfulComponentConfig } = $props();
 
-    let options = [
+    let options = $state([
         { name: "Request", value: Request },
         { name: "Storage", value: Storage },
-    ];
+    ]);
     if ( import.meta.env.BUILD_STATIC !== 'true') {
         options.push(
             { name: "Persist", value: Persist })
     }
-    let selected = options[0];
+    let selected = $state(options[0]);
 </script>
 
 {#each options as option (option)}
@@ -27,4 +27,7 @@
     </FormField>
 {/each}
 
-<svelte:component this={selected.value} {config} />
+{#if selected.value}
+    {@const Component = selected.value}
+    <Component {config} />
+{/if}

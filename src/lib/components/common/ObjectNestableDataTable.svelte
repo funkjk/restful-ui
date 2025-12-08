@@ -21,35 +21,47 @@
     import IconButton from "@smui/icon-button";
     import Short from "./Short.svelte";
     import ActionMenu from "./ActionMenu.svelte";
+    import type { Snippet } from "svelte";
     type Component = $$Generic<typeof SvelteComponent>;
     // TODO key must string array like path?
-    export let columnView: { [key: string]: Component } = {};
-    export let items: Record<string, any>[];
-    export let displayTypes: DisplayTypes = {};
-    export let selectedColumns: SelectedRoot = { selected: [] };
-    let objectArray: ObjectArray = new ObjectArray(items);
-    let selectedColumnDefinition: ColumnDefinition[];
-    let headers: DataTableHeaderColumn[][];
-    let hidedColumns: ColumnDefinition[] = [];
-    $: {
+    let {
+        columnView = $bindable({} as { [key: string]: Component }),
+        items,
+        displayTypes = $bindable({} as DisplayTypes),
+        selectedColumns = $bindable({ selected: [] } as SelectedRoot),
+        tableOperation,
+        paginate
+    }: {
+        columnView?: { [key: string]: Component };
+        items: Record<string, any>[];
+        displayTypes?: DisplayTypes;
+        selectedColumns?: SelectedRoot;
+        tableOperation?: Snippet;
+        paginate?: Snippet;
+    } = $props();
+    let objectArray = $derived(new ObjectArray(items));
+    $effect(() => {
         if (
             !selectedColumns.selected ||
             selectedColumns.selected.length === 0
         ) {
             selectedColumns = objectArray.initialSelectedColumns;
         }
-        selectedColumnDefinition =
-            objectArray.getSelectedColumnDefinition(selectedColumns);
-        headers = convertToDataTableHeaders(objectArray, selectedColumns);
-        hidedColumns = objectArray
+    });
+    let selectedColumnDefinition = $derived(
+        objectArray.getSelectedColumnDefinition(selectedColumns)
+    );
+    let headers = $derived(convertToDataTableHeaders(objectArray, selectedColumns));
+    let hidedColumns = $derived(
+        objectArray
             .getFlattenDefinitons()
             .filter((e) => !e.isShowed(selectedColumns))
             .filter(
                 (e) =>
                     !e.parentColumn ||
                     e.parentColumn?.isShowed(selectedColumns),
-            );
-    }
+            )
+    );
     function getCellDisplayType(column: ColumnDefinition): DisplayType {
         const propertyName = column.getKey().join(".");
         return displayTypes[propertyName] ?? DisplayType.DEFAULT;
@@ -116,17 +128,19 @@
         }
     }
 
-    export function selectHidedItem(column: ColumnDefinition) {
+    function selectHidedItem(column: ColumnDefinition) {
         selectedColumns = objectArray.select(selectedColumns, column.getKey());
     }
-    let menu: Menu;
+    let menu = $state<Menu | null>(null);
 </script>
 
 <div style="display:flex;justify-content: space-between; ">
-    <slot name="tableOperation"></slot>
+    {#if tableOperation}
+        {@render tableOperation()}
+    {/if}
     {#if hidedColumns.length > 0}
         <span style="min-width:180px">
-            <Button onclick={() => menu.setOpen(true)}>
+            <Button onclick={() => menu?.setOpen(true)}>
                 <Label>Show hided column</Label>
             </Button>
             <Menu bind:this={menu}>
@@ -219,12 +233,12 @@
                             column.columnType.toLocaleLowerCase()}
                     >
                         {#if columnView[column.name]}
-                            <svelte:component
-                                this={columnView[column.name]}
+                            {@const Component = columnView[column.name]}
+                            <Component
                                 value={getCellValue(item, column)}
                                 {item}
                                 column={column.name}
-                            ></svelte:component>
+                            />
                         {:else if getCellDisplayType(column) == DisplayType.LONG_STING}
                             <Short
                                 value={getCellValue(item, column)}
@@ -238,10 +252,10 @@
             </Row>
         {/each}
     </Body>
-    <span slot="paginate">
-        <slot name="paginate"></slot>
-    </span>
 </DataTable>
+{#if paginate}
+    {@render paginate()}
+{/if}
 
 <style>
     :global(.datacell-long_sting) {

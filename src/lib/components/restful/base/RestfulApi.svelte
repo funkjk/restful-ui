@@ -7,24 +7,17 @@
 	import { RuningMode, type RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 	import { createRawStringSwaggerParserResolver } from "$lib/utils/utils";
     import Persist from "../setting/Persist.svelte";
-	export let config: RestfulComponentConfig;
+	let { config }: { config: RestfulComponentConfig } = $props();
 	const InitializeStatusDone = "DONE";
 	const InitializeStatusInitializing = "initializing";
 
-	let document: OpenAPI.Document;
-	let initializeMessage: string = InitializeStatusInitializing;
-	let searchParams = new URLSearchParams();
-	$: {
+	let document = $state<OpenAPI.Document | null>(null);
+	let initializeMessage = $state<string>(InitializeStatusInitializing);
+	let searchParams = $derived.by(() => {
 		const href = $page.url.href;
 		const searchString = href.substring(href.search("#") + 1, href.length);
-		searchParams = new URLSearchParams(searchString);
-		// TODO
-		// history.replaceState(
-		// 	window.history.state,
-		// 	"",
-		// 	location.href.replaceAll("/index.html/", "/index.html"),
-		// );
-	}
+		return new URLSearchParams(searchString);
+	});
 
 	async function initialize() {
 		let parser = new SwaggerParser.default();
@@ -59,5 +52,7 @@
 		<Persist {config}></Persist>
 	{/if}
 {:else}
-	<RestfulApiContent {document} {config} {searchParams}></RestfulApiContent>
+	{#if document}
+		<RestfulApiContent {document} {config} {searchParams}></RestfulApiContent>
+	{/if}
 {/if}

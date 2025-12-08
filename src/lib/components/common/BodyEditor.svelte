@@ -1,7 +1,11 @@
 <script lang="ts">
     import { JSONEditor, Mode } from "svelte-jsoneditor";
 
-    export let value: string;
+    let {
+		value = $bindable("")
+	}: {
+		value?: string;
+	} = $props();
 
     function handleChange(updatedContent: any) {
         if (updatedContent.text || updatedContent.text === "") {
@@ -11,16 +15,16 @@
         }
         content = updatedContent;
     }
-    let content = { text: value, json: undefined as any };
-    $: {
+    let content = $state({ text: value, json: undefined as any });
+    $effect(() => {
         if (content.text !== value) {
             content = { text: value, json: undefined };
             if (editor) {
                 editor.update(content);
             }
         }
-    }
-    let editor: JSONEditor;
+    });
+    let editor = $state<JSONEditor | null>(null);
 </script>
 
 {#if value || value === ""}

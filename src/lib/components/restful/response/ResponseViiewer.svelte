@@ -13,11 +13,25 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
     import { syncObject } from "$lib/utils/ObjectStore";
     import type { SelectedRoot } from "$lib/utils/object-array";
     import { CardType, type DisplayTypes } from "$lib/utils/utils";
-    export let config: RestfulComponentConfig;
-    export let currentOperation: RestfulOperation;
-    export let cacheStore: SvelteCacheStore;
-    export let response: any = null;
-    export let isErrorResponse = false
+    let {
+		config,
+		currentOperation,
+		cacheStore,
+		response: responseProp,
+		isErrorResponse: isErrorResponseProp
+	}: {
+		config: RestfulComponentConfig;
+		currentOperation: RestfulOperation;
+		cacheStore: SvelteCacheStore;
+		response?: any;
+		isErrorResponse?: boolean;
+	} = $props();
+	let response = $state<any>(responseProp ?? null);
+	let isErrorResponse = $state(isErrorResponseProp ?? false);
+	$effect(() => {
+		response = responseProp ?? null;
+		isErrorResponse = isErrorResponseProp ?? false;
+	});
     const dataTableFilters = config.storage.dataTableFilters;
     const selectedTableKeys = config.storage.selectedTableKeys;
     const dataTableSelectedColumn = config.storage.dataTableSelectedColumn;
@@ -34,38 +48,42 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
     columnView = pathColumnView;
     // this store use for PathLinkColumn
     const operationStore = writable(currentOperation);
-    $: {
+    $effect(() => {
         operationStore.set(currentOperation);
-    }
+    });
     setContext("operationStore", operationStore);
     setContext("config", config);
-    let key = `${currentOperation.method}:${currentOperation.path}`;
-    let arrayResponseItems: any[] | null = null;
-    $: {
-        let obj: any = response;
-        tableKey
-            .split(".")
-            .filter((key: string) => key)
-            .forEach((e: string) => (obj = obj ? obj[e] : null));
-        if (Array.isArray(obj)) {
-            arrayResponseItems = obj;
-        } else {
-            arrayResponseItems = null;
+    let key = $derived(`${currentOperation.method}:${currentOperation.path}`);
+    let tableKey = $state("");
+    let arrayResponseItems = $derived.by(() => {
+        if (!response) {
+            return null;
         }
-    }
+        let obj: any = response;
+        if (tableKey) {
+            tableKey
+                .split(".")
+                .filter((key: string) => key)
+                .forEach((e: string) => (obj = obj ? obj[e] : null));
+        }
+        if (Array.isArray(obj) && obj.length > 0) {
+            return obj;
+        } else {
+            return null;
+        }
+    });
 
-    let filter: string;
-    let tableKey: string;
-    let selectedColumns: SelectedRoot;
-    let displayTypes: DisplayTypes;
-    $: {
+    let filter = $state("");
+    let selectedColumns = $state<SelectedRoot>({selected:[]});
+    let displayTypes = $state<DisplayTypes>({});
+    $effect(() => {
         filter = syncObject(filter, dataTableFilters, key, "");
         tableKey = syncObject(tableKey, selectedTableKeys, key, "");
         selectedColumns = syncObject(selectedColumns,dataTableSelectedColumn , key, {selected:[]});
         displayTypes = syncObject(displayTypes,dataTableDisplayTypes , key, {});
-    }
+    });
     // reset filter when tableKey is set
-    function selectTableKey() {
+    function selectTableKey(key: string) {
         filter = "";
     }
 </script>

@@ -1,7 +1,12 @@
 <script lang="ts">
     import Checkbox from "@smui/checkbox";
-    export let checked: boolean;
-    export let label: string;
+    let {
+		checked = $bindable(false),
+		label = ""
+	}: {
+		checked?: boolean;
+		label?: string;
+	} = $props();
 </script>
 <div style="display:flex;">
     <Checkbox bind:checked></Checkbox>

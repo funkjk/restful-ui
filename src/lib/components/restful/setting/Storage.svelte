@@ -5,7 +5,7 @@
     import { onMount } from "svelte";
     import { JSONEditor, Mode } from "svelte-jsoneditor";
     import { get, type Readable, type Writable } from "svelte/store";
-    export let config: RestfulComponentConfig;
+    let { config }: { config: RestfulComponentConfig } = $props();
     const keys = [
         "dataTableFilters",
         "dataTableSelectedColumn",

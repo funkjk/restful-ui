@@ -2,15 +2,23 @@
     import { Icon } from "@smui/common";
     import { slide } from "svelte/transition";
 
-    export let title: string = "";
-    export let open = false;
-    export let titleClass = "";
+    let {
+		title = "",
+		open = $bindable(false),
+		titleClass = "",
+		children
+	}: {
+		title?: string;
+		open?: boolean;
+		titleClass?: string;
+		children?: import("svelte").Snippet;
+	} = $props();
 </script>
 
 <div class="expansion-panel">
     <button
         class={"expansion-panel-title " + titleClass}
-        on:click={() => (open = !open)}
+        onclick={() => (open = !open)}
     >
         <span style="margin:auto 0px;">
             {title}
@@ -23,7 +31,9 @@
     </button>
     {#if open}
         <div class="expansion-panel-inner" transition:slide={{ duration: 150 }}>
-            <slot></slot>
+            {#if children}
+                {@render children()}
+            {/if}
         </div>
     {/if}
 </div>

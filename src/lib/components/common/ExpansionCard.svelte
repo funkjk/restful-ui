@@ -1,18 +1,29 @@
 <script lang="ts">
     import ExpansionPanel from "./ExpansionPanel.svelte";
 
-    export let data: any = null;
-    export let title: string = "";
-    export let open = false;
+    let {
+		data = null,
+		title = "",
+		open = false,
+		children
+	}: {
+		data?: any;
+		title?: string;
+		open?: boolean;
+		children?: import("svelte").Snippet;
+	} = $props();
+	let openState = $state(open);
 
 
 </script>
 
     <div class="expansion-panel">
-        <ExpansionPanel {title} {open}>
+        <ExpansionPanel {title} bind:open={openState}>
 
             <div>
-                <slot></slot>
+                {#if children}
+                    {@render children()}
+                {/if}
             </div>
         </ExpansionPanel>
     </div>

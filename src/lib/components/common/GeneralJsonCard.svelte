@@ -3,17 +3,25 @@
   import ExpansionPanel from "./ExpansionPanel.svelte";
   import IconButton from "@smui/icon-button";
 
-  export let data: any = null;
-  export let title: string = "";
-  export let open = false;
-  export let type: CardType = CardType.NORMAL;
+  let {
+		data = null,
+		title = "",
+		open = false,
+		type = CardType.NORMAL
+	}: {
+		data?: any;
+		title?: string;
+		open?: boolean;
+		type?: CardType;
+	} = $props();
+	let openState = $state(open);
 
   const titleClassMap: Record<CardType, string> = {
     [CardType.NORMAL]: "",
     [CardType.WARNING]: "warning-title",
     [CardType.ERROR]: "error-title",
   };
-  $: titleClass = titleClassMap[type];
+  let titleClass = $derived(titleClassMap[type]);
 
   function copy() {
     let text = JSON.stringify(data, null, "\t");
@@ -23,7 +31,7 @@
 
 {#if data}
   <div class="expansion-panel">
-    <ExpansionPanel {title} {open} {titleClass}>
+    <ExpansionPanel {title} bind:open={openState} {titleClass}>
       <div style="position:absolute;width:100%;left:-30px;top:100px;">
         <div style="display:flex; justify-content: flex-end;">
           <IconButton class="material-icons" onclick={copy}

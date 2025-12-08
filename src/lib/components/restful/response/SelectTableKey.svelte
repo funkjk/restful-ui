@@ -3,12 +3,12 @@
     import List, { Item, Separator, Text } from "@smui/list";
     import Button, { Label } from "@smui/button";
     import { getTargetNestKeys, isObjectArray } from "$lib/utils/utils";
-	let { onselect, tableKey, response } : { onselect: (key: string) => void, tableKey: string, response: any } = $props();
+	let { onselect, tableKey = $bindable(""), response } : { onselect: (key: string) => void, tableKey?: string, response: any } = $props();
     let tableKeyCandidates = $derived(response
         ? getTargetNestKeys(response, isObjectArray)
         : []);
 
-    let tableKeyMenu: Menu;
+    let tableKeyMenu = $state<Menu | null>(null);
     function selectTableKey(key: string) {
         tableKey = key
         onselect(key)
@@ -24,18 +24,18 @@
                 >"
             {/if}
             <span>
-                <Button onclick={() => tableKeyMenu.setOpen(true)}>
+                <Button onclick={() => tableKeyMenu?.setOpen(true)}>
                     <Label>Select Table Key</Label>
                 </Button>
                 <Menu bind:this={tableKeyMenu}>
                     <List>
-                        <Item onSMUIaction={() => selectTableKey("")}>
+                        <Item onSMUIAction={() => selectTableKey("")}>
                             <Text>None</Text>
                         </Item>
                         <Separator />
                         {#each tableKeyCandidates as candidate (candidate)}
                             <Item
-                                onSMUIaction={() => selectTableKey(candidate)}
+                                onSMUIAction={() => selectTableKey(candidate)}
                             >
                                 <Text>{candidate}</Text>
                             </Item>

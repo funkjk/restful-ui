@@ -6,12 +6,15 @@
 	import Snackbar, { Label } from "@smui/snackbar";
 	import LogPanel from "$lib/components/restful/base/LogPanel.svelte";
 	import { persisted } from "svelte-persisted-store";
-	let snackbar: Snackbar;
+	let snackbar = $state<Snackbar | null>(null);
 	let open = persisted("ui.open-log-panel", true);
-	notifyMessage.subscribe((message: string) => {
-		if (snackbar && message) {
-			snackbar.open();
-		}
+	$effect(() => {
+		const unsubscribe = notifyMessage.subscribe((message: string) => {
+			if (snackbar && message) {
+				snackbar.open();
+			}
+		});
+		return unsubscribe;
 	});
 </script>
 

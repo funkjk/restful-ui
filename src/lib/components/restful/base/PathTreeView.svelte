@@ -4,9 +4,15 @@
         type RestfulOperation,
     } from "$lib/restful/RestfulOperation";
     import TreeView from "../../common/TreeView.svelte";
-    export let rootTree: PathTreeObject;
-    export let currentOperation: RestfulOperation;
-    export let config: RestfulComponentConfig;
+    let {
+		rootTree,
+		currentOperation,
+		config
+	}: {
+		rootTree: PathTreeObject;
+		currentOperation: RestfulOperation;
+		config: RestfulComponentConfig;
+	} = $props();
     import type { PathTreeObject } from "$lib/restful/PathTree";
     import { PAGE } from "$lib/utils/utils";
     import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
@@ -15,29 +21,32 @@
 {#if rootTree}
     <TreeView
         tree={rootTree}
-        let:tree
         selectTree={(currentOperation.path ?? "/")
             .split("/")
             .map((e) => e + "/")}
     >
-        {#if tree && tree.targetApi}
-            {#each methods as method (method)}
-                {#if tree.targetApi.api[method]}
-                    <a
-                        href={config.linkSupport.createLink({
-                            page: PAGE.OPERATION,
-                            restPath: tree.targetApi.path,
-                            restMethod: method,
-                            additionalSearch:
-                                currentOperation.getAdditionalParameters(
-                                    tree.targetApi.path,
-                                ),
-                        })}
-                    >
-                        <span class="method">{method.toUpperCase()}</span></a
-                    >{/if}
-            {/each}
-        {/if}
+        {#snippet content({ tree })}
+            {@const pathTree = tree as PathTreeObject}
+            {#if pathTree?.targetApi}
+                {#each methods as method (method)}
+                    {#if pathTree.targetApi?.api?.[method]}
+                        <a
+                            href={config.linkSupport.createLink({
+                                page: PAGE.OPERATION,
+                                restPath: pathTree.targetApi.path,
+                                restMethod: method,
+                                additionalSearch:
+                                    currentOperation.getAdditionalParameters(
+                                        pathTree.targetApi.path,
+                                    ),
+                            })}
+                        >
+                            <span class="method">{method.toUpperCase()}</span>
+                        </a>
+                    {/if}
+                {/each}
+            {/if}
+        {/snippet}
     </TreeView>
 {/if}
 

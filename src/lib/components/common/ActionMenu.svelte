@@ -2,18 +2,24 @@
     import Menu from "@smui/menu";
     import Button, { Label } from "@smui/button";
   import type { Snippet } from "svelte"
-  let { content, title, children } : { content: Snippet; title: string; children: Snippet; } = $props()
+  let { content, title, children } : { 
+    content?: Snippet<[{ openMenu: () => void }]>;
+    title?: string;
+    children: Snippet;
+  } = $props()
 
     let menu: Menu;
     function openMenu() {
-        menu.setOpen(true);
-        const rect = menuStartElement.getBoundingClientRect();
-        menuTop = rect.top;
-        menuLeft = rect.left;
+        menu?.setOpen(true);
+        if (menuStartElement) {
+            const rect = menuStartElement.getBoundingClientRect();
+            menuTop = rect.top;
+            menuLeft = rect.left;
+        }
     }
-    let menuTop: number;
-    let menuLeft: number;
-    let menuStartElement: HTMLElement;
+    let menuTop = $state(0);
+    let menuLeft = $state(0);
+    let menuStartElement = $state<HTMLElement | null>(null);
 </script>
 
 {#if content}

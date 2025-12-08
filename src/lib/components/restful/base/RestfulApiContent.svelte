@@ -17,11 +17,20 @@ import { SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
 	import IconButton from "@smui/icon-button";
     import Settings from "./Settings.svelte";
     import { PAGE } from "$lib/utils/utils";
-	export let config: RestfulComponentConfig;
-	export let searchParams: URLSearchParams;
+	let {
+		config,
+		searchParams,
+		document,
+		drawerOpen = true
+	}: {
+		config: RestfulComponentConfig;
+		searchParams: URLSearchParams;
+		document: OpenAPI.Document;
+		drawerOpen?: boolean;
+	} = $props();
+	let drawerOpenState = $state(drawerOpen);
 
-	export let document: OpenAPI.Document;
-	$: restApiPage = searchParams.get("*page");
+	let restApiPage = $derived(searchParams.get("*page"));
 
 	const cacheStore = new SvelteCacheStore(
 		config.storage.responses,
@@ -32,11 +41,14 @@ import { SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
 		...config.additionalPlugins,
 	];
 
-	let currentOperation: RestfulOperation;
-	$: rootTree = new PathTree(currentOperation.document).pathTree;
+	let currentOperation = $state<RestfulOperation | null>(null);
+	let rootTree = $derived.by(() => {
+		if (!currentOperation) return null;
+		return new PathTree(currentOperation.document).pathTree;
+	});
 
-	let pageNavigating = false;
-	$: {
+	let pageNavigating = $state(false);
+	$effect(() => {
 		const opSearchParam = new URLSearchParams(searchParams.toString())
 		opSearchParam.delete("*page")
 		currentOperation = createRestfulOperation(
@@ -49,43 +61,42 @@ import { SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
 		setTimeout(() => {
 			pageNavigating = false;
 		}, 300); // to reload component, hide 300ms
-	}
-	export let drawerOpen = true;
+	});
 </script>
 
 <div class="restapi-main">
-	<Drawer class={drawerOpen ? "restapi-drawer-open" : "restapi-drawer-close"}>
+	<Drawer class={drawerOpenState ? "restapi-drawer-open" : "restapi-drawer-close"}>
 		<Content>
 			<div>
 				<div style="display:list-item;">
 					<div>
 						<IconButton
 							class="material-icons"
-							onclick={() => (drawerOpen = !drawerOpen)}
+							onclick={() => (drawerOpenState = !drawerOpenState)}
 						>
-							{drawerOpen ? "chevron_left" : "chevron_right"}
+							{drawerOpenState ? "chevron_left" : "chevron_right"}
 						</IconButton>
 					</div>
 					<div style="list-style: none;">
 						<li>
 							<a href={config.linkSupport.createLink({page:PAGE.TOP})}>
 								<IconButton class="material-icons">home</IconButton>
-								{#if drawerOpen}&nbsp;API TOP
-								{/if}</a
+							{#if drawerOpenState}&nbsp;API TOP
+							{/if}</a
 							>
 						</li>
 						<li>
 							<a href={config.linkSupport.createLink(
 								{page:PAGE.SETTING})}>
 								<IconButton class="material-icons">settings</IconButton>
-								{#if drawerOpen}&nbsp;Setting
+								{#if drawerOpenState}&nbsp;Setting
 								{/if}</a
 							>
 						</li>
 					</div>
 				</div>
 				<div></div>
-				{#if drawerOpen}
+				{#if drawerOpenState && currentOperation && rootTree}
 					<PathTreeView {currentOperation} {rootTree} {config}></PathTreeView>
 				{/if}
 			</div>

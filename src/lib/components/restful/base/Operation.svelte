@@ -15,23 +15,31 @@
 import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
 	import ResponseViiewer from "../response/ResponseViiewer.svelte";
     import { PAGE } from "$lib/utils/utils";
-	export let config: RestfulComponentConfig;
-	export let currentOperation: RestfulOperation;
-	export let cacheStore: SvelteCacheStore;
+	let {
+		config,
+		currentOperation,
+		cacheStore,
+		requestBodyType: requestBodyTypeProp
+	}: {
+		config: RestfulComponentConfig;
+		currentOperation: RestfulOperation;
+		cacheStore: SvelteCacheStore;
+		requestBodyType?: RequestBodyType;
+	} = $props();
 
 	const requestBodyTypes = currentOperation.getBodyTypes();
-	export let requestBodyType: RequestBodyType = requestBodyTypes[0];
+	let requestBodyType = $state<RequestBodyType>(requestBodyTypeProp ?? requestBodyTypes[0]);
 
-	let operation = currentOperation.getOperation();
-	let value: any = currentOperation.getInitialParameterValue();
-	let response: any = null;
-	let executionTime: string | null = null;
-	let isErrorResponse = false;
+	let operation = $derived(currentOperation.getOperation());
+	let value = $state(currentOperation.getInitialParameterValue());
+	let response = $state<any>(null);
+	let executionTime = $state<string | null>(null);
+	let isErrorResponse = $state(false);
 
 	const operationStore = writable(currentOperation);
-	$: {
+	$effect(() => {
 		operationStore.set(currentOperation);
-	}
+	});
 	onMount(async () => {
 		if (currentOperation.method == "get") {
 			const cacheKey = getCacheKey(
@@ -49,13 +57,14 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
 			}
 		}
 	});
-	$: requestPath = currentOperation.getRequestPath(value);
+	let requestPath = $derived(currentOperation.getRequestPath(value));
 
 	const parameterHistories = config.storage.parameterHistories;
-	$: histories =
+	let histories = $derived(
 		$parameterHistories[
 			getCacheKey(CACHE_TYPE.BODY_PARAMETER, currentOperation)
-		];
+		]
+	);
 
 	async function execute() {
 		const apiResponse = await currentOperation.execute(

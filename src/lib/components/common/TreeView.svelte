@@ -1,32 +1,39 @@
-<script context="module" lang="ts">
+<script module lang="ts">
     const _expansionState = {} as any;
     export interface TreeObject {
         label: string;
         children: TreeObject[];
+        [key: string]: any; // Allow additional properties like targetApi
     }
 </script>
 
 <script lang="ts">
-    export let tree: TreeObject;
-    export let selectTree : string[]
+    let {
+		tree,
+		selectTree,
+		treePath: treePathProp,
+		content
+	}: {
+		tree: TreeObject;
+		selectTree: string[];
+		treePath?: string[];
+		content?: import("svelte").Snippet<[{ tree: TreeObject }]>;
+	} = $props();
+	let treePath = $state(treePathProp ?? [tree.label]);
     const { label, children } = tree;
-    export let treePath: string[] = [label]
-    let isSelectedTree = treePath.every((e,idx) => selectTree[idx] == e)
-    $: {
-        isSelectedTree = treePath.every((e,idx) => selectTree[idx] == e)
-    }
+    let isSelectedTree = $derived(treePath.every((e,idx) => selectTree[idx] == e));
 
-    let expanded = _expansionState[label] || isSelectedTree;
+    let expanded = $state(_expansionState[label] || isSelectedTree);
     const toggleExpansion = () => {
         expanded = _expansionState[label] = !expanded;
     };
-    $: arrowDown = expanded;
+    let arrowDown = $derived(expanded);
 </script>
 <ul>
     <li>
         <span class={isSelectedTree? "selected": ""}>
             {#if children && children.length > 0}
-            <span on:click={toggleExpansion}>
+            <span onclick={toggleExpansion}>
                 <span class="arrow" class:arrowDown>&#x25b6</span>
                 {label}
             </span>
@@ -36,13 +43,13 @@
                 {label}
             </span>
         {/if}
+            {#if content}
+                {@render content({ tree })}
+            {/if}
         </span>
-        <slot {tree} />
         {#if expanded}
             {#each children as child (child.label)}
-                <svelte:self tree={child} let:tree={childTree} {selectTree} treePath={[...treePath, child.label]}>
-                    <slot tree={childTree} />
-                </svelte:self>
+                <svelte:self tree={child} {selectTree} treePath={[...treePath, child.label]} {content} />
             {/each}
         {/if}
     </li>

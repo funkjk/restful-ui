@@ -13,19 +13,27 @@
 	import Select, { Option } from "@smui/select";
 	import IconButton from "@smui/icon-button";
 	import { Label } from "@smui/common";
+	import type { Snippet } from "svelte";
 
-	export let items: Record<string, any>[] = [];
-	export let filterValue = "";
-	let rowsPerPage = 10;
-	let currentPage = 0;
+	let {
+		items = [],
+		filterValue = "",
+		columnView = {},
+		displayTypes = $bindable({} as DisplayTypes),
+		selectedColumns = $bindable({ selected: [] } as SelectedRoot)
+	}: {
+		items?: Record<string, any>[];
+		filterValue?: string;
+		columnView?: { [key: string]: $$Generic<typeof SvelteComponent> };
+		displayTypes?: DisplayTypes;
+		selectedColumns?: SelectedRoot;
+	} = $props();
+	let itemsState = $state(items);
+	let filterValueState = $state(filterValue);
+	let columnViewState = $state(columnView);
+	let rowsPerPage = $state(10);
+	let currentPage = $state(0);
 
-	type Component = $$Generic<typeof SvelteComponent>;
-	export let columnView: { [key: string]: Component } = {};
-	export let displayTypes: DisplayTypes = {};
-	export let selectedColumns: SelectedRoot = { selected: [] };
-	// export let selectedColumns = getSelectableHeaderColumn(items[0]).filter(
-	// 	(e) => e.isTop,
-	// );
 	function filter(items: Record<string, any>[], filterValue: string) {
 		const filterStrings = filterValue.split(" ");
 		let retItems = items;
@@ -37,15 +45,17 @@
 		return retItems;
 	}
 
-	$: filterdItems = filter(items, filterValue);
-	$: start = currentPage * rowsPerPage;
-	$: end = Math.min(start + rowsPerPage, filterdItems.length);
-	$: slice = filterdItems.slice(start, end);
-	$: lastPage = Math.max(Math.ceil(filterdItems.length / rowsPerPage) - 1, 0);
+	let filterdItems = $derived(filter(itemsState, filterValueState));
+	let start = $derived(currentPage * rowsPerPage);
+	let end = $derived(Math.min(start + rowsPerPage, filterdItems.length));
+	let slice = $derived(filterdItems.slice(start, end));
+	let lastPage = $derived(Math.max(Math.ceil(filterdItems.length / rowsPerPage) - 1, 0));
 
-	$: if (currentPage > lastPage) {
-		currentPage = lastPage;
-	}
+	$effect(() => {
+		if (currentPage > lastPage) {
+			currentPage = lastPage;
+		}
+	});
 
 	// TODO sort
 	// let sort: string;
@@ -68,17 +78,20 @@
 	items={slice}
 	bind:selectedColumns
 	bind:displayTypes
-	{columnView}
+	columnView={columnViewState}
 >
-	<div style="min-width: 100px;display:flex;" slot="tableOperation">
-		<Textfield
-			class="filter-textfield"
-			bind:value={filterValue}
-			label="Filter"
-			style="min-width:400px;"
-		></Textfield>
-	</div>
-	<Pagination slot="paginate">
+	{#snippet tableOperation()}
+		<div style="min-width: 100px;display:flex;">
+			<Textfield
+				class="filter-textfield"
+				bind:value={filterValueState}
+				label="Filter"
+				style="min-width:400px;"
+			></Textfield>
+		</div>
+	{/snippet}
+	{#snippet paginate()}
+		<Pagination>
 		<svelte:fragment slot="rowsPerPage">
 			<Label>Rows Per Page</Label>
 			<Select variant="outlined" bind:value={rowsPerPage} noLabel>
@@ -120,4 +133,5 @@
 			disabled={currentPage === lastPage}>last_page</IconButton
 		>
 	</Pagination>
+	{/snippet}
 </ObjectNestableDataTable>

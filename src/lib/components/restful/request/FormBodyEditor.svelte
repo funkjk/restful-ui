@@ -5,11 +5,16 @@
     import Textfield from "@smui/textfield";
     import Tooltip, { Wrapper } from "@smui/tooltip";
 
-    export let value: string;
-    export let definition: RequestBodyDefinition;
+    let {
+		value = $bindable(""),
+		definition
+	}: {
+		value?: string;
+		definition: RequestBodyDefinition;
+	} = $props();
 
-    $: properties = definition.properties;
-    $: required = definition.required ?? [];
+    let properties = $derived(definition.properties);
+    let required = $derived(definition.required ?? []);
 
     function initFormValue() {
         const val = {} as Record<string, any>;
@@ -20,10 +25,10 @@
         }
         return val;
     }
-    let formValue = initFormValue();
-    $: {
+    let formValue = $state(initFormValue());
+    $effect(() => {
         value = toFormUrlEncoded(formValue);
-    }
+    });
     export function toFormUrlEncoded(object: Record<string, any>) {
         return Object.entries(object)
             .map(

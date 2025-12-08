@@ -9,10 +9,16 @@
 
 	const operationStore = getContext("operationStore") as Writable<RestfulOperation>;
 	const config = getContext("config") as RestfulComponentConfig
-	export let value: string = "";
-	export let column: string = "";
-	export let item: object = {};
-	let open = false;
+	let {
+		value = "",
+		column = "",
+		item = {}
+	}: {
+		value?: string;
+		column?: string;
+		item?: object;
+	} = $props();
+	let open = $state(false);
 </script>
 
 <Dialog bind:open>
