@@ -12,10 +12,7 @@ function buildAdapter() {
 			fallback: 'index.html' // may differ from host to host
 		})
 	} else {
-		return adapter({
-			pages: 'build',
-			fallback: 'index.html' // may differ from host to host
-		})
+		return adapter()
 	}
 }
 const config = {
