@@ -5,7 +5,7 @@ const { combine, timestamp, prettyPrint, colorize, errors,  } = winston.format;
 
 export const isBrowser = typeof window !== 'undefined';
 
-// ブラウザ環境用のシンプルなロガー
+
 class BrowserLogger {
     private category?: string;
 

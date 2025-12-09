@@ -48,6 +48,7 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
         const allProperties = currentOperation.getPropertyDefinitions();
         for (let column in allProperties) {
             // TODO current swagger-parser not support x- attributes
+            // https://github.com/APIDevTools/swagger-parser/issues/56
             if (allProperties[column]['x-restfului-link']) {
                 pathColumnView[column] = PathLinkColumn;
             }

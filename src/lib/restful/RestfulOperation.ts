@@ -190,7 +190,6 @@ export abstract class RestfulOperation {
     getPropertyDefinition(propertyName: string) {
         let targetPath = this.getPropertyDefinitions();
         if (targetPath && targetPath[propertyName]) {
-            console.log("targetPath", targetPath[propertyName]);
             return targetPath[propertyName];
         }
         return null;
