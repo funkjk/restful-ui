@@ -1,14 +1,35 @@
 <script>
-  import { page } from '$app/stores';
+  import { UserButton, SignedIn, SignedOut, SignInButton } from 'svelte-clerk';
+  const BUILD_STATIC = import.meta.env.BUILD_STATIC;
 </script>
 
 <header>
+  <nav>
+  </nav>
+  <div class="auth-section">
+    {#if BUILD_STATIC !== 'true'}
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
+      <SignedOut>
+        <SignInButton mode="modal" />
+      </SignedOut>
+    {/if}
+  </div>
 </header>
 
 <style>
 	header {
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
+		padding: 0 1rem;
+	}
+
+	.auth-section {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 	}
 
 	nav {
@@ -17,11 +38,6 @@
 		--background: rgba(255, 255, 255, 0.7);
 	}
 
-	svg {
-		width: 2em;
-		height: 3em;
-		display: block;
-	}
 
 	path {
 		fill: var(--background);

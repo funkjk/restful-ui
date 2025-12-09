@@ -245,7 +245,10 @@ export abstract class AbstractRequestSettingApplyPlugin extends EmptyRestfulPlug
         let requestPath = chain.next()
         if (setting.basePath) {
             const basePath = restfulOperation.getBasePath()
-            requestPath = requestPath.replace(basePath, setting.basePath)
+            // Replace basePath if it exists at the start of the requestPath
+            if (requestPath.startsWith(basePath)) {
+                requestPath = setting.basePath + requestPath.substring(basePath.length)
+            }
         }
         if (setting.additionalQueryParameter) {
             if (requestPath.includes("?")) {

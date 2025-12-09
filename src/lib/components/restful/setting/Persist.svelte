@@ -62,11 +62,8 @@
         if (response.ok) {
             notifyMessage.notify("Save");
             const data = await response.json();
-            const link = config.linkSupport.createLink({
-                page: PAGE.SETTING,
-                basePath: `/cid/${data.configurationId}/`,
-            });
-            goto(link);
+            // Navigate directly to the config page
+            await goto(`/cid/${data.configurationId}/#?*page=setting`);
         } else {
             notifyMessage.notify("Save failed" + response.statusText);
         }
@@ -83,6 +80,19 @@
         );
         if (response.ok) {
             notifyMessage.notify("Update");
+            // Reload config from server to update local state
+            const updatedConfigResponse = await fetch("/api/configs/" + loaderConfig.configurationId);
+            if (updatedConfigResponse.ok) {
+                const updatedConfig = await updatedConfigResponse.json();
+                // Update local state with new values - use direct assignment to trigger reactivity
+                if (updatedConfig.config) {
+                    serverName = updatedConfig.config.serverName ?? serverName;
+                    openApiUrl = updatedConfig.config.openApiUrl ?? openApiUrl;
+                    serverVersion = updatedConfig.config.serverVersion ?? serverVersion;
+                    timeout = updatedConfig.config.timeout ?? timeout;
+                    maxRetries = updatedConfig.config.maxRetries ?? maxRetries;
+                }
+            }
         } else {
             notifyMessage.notify("Update failed" + response.statusText);
         }

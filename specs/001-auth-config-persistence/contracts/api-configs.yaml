@@ -1,0 +1,300 @@
+openapi: 3.0.0
+info:
+  title: Config API
+  description: API for managing user configurations with authentication
+  version: 1.0.0
+servers:
+  - url: /api/configs
+    description: Config API endpoints
+
+paths:
+  /api/configs:
+    get:
+      summary: List configurations
+      description: |
+        Get list of configurations for the authenticated user.
+        Unauthenticated users receive an empty list.
+      operationId: listConfigs
+      parameters:
+        - name: filter
+          in: query
+          description: Filter by server name
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of configurations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfigurationResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Create configuration
+      description: |
+        Create a new configuration. Requires authentication.
+        Unauthenticated users receive 401 error.
+      operationId: createConfig
+      security:
+        - ClerkAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServerConfig'
+      responses:
+        '201':
+          description: Configuration created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateConfigResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/configs/{id}:
+    get:
+      summary: Get configuration
+      description: |
+        Get a specific configuration by ID.
+        Users can only access their own configurations.
+      operationId: getConfig
+      security:
+        - ClerkAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Configuration ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Configuration found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Configuration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update configuration
+      description: |
+        Update an existing configuration.
+        Requires authentication and ownership.
+      operationId: updateConfig
+      security:
+        - ClerkAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Configuration ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServerConfig'
+      responses:
+        '200':
+          description: Configuration updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Configuration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete configuration
+      description: |
+        Delete a configuration.
+        Requires authentication and ownership.
+      operationId: deleteConfig
+      security:
+        - ClerkAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Configuration ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Configuration deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Configuration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    ClerkAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Clerk authentication token
+
+  schemas:
+    ServerConfig:
+      type: object
+      required:
+        - openApiUrl
+        - serverName
+        - serverVersion
+        - timeout
+        - maxRetries
+        - requestSettings
+      properties:
+        openApiUrl:
+          type: string
+          format: uri
+          description: OpenAPI specification URL
+        useProxy:
+          type: boolean
+          description: Whether to use proxy for requests
+        serverName:
+          type: string
+          description: Server name
+        serverVersion:
+          type: string
+          description: Server version
+        timeout:
+          type: number
+          description: Request timeout in milliseconds
+        maxRetries:
+          type: number
+          description: Maximum number of retries
+        requestSettings:
+          type: object
+          description: Request settings (headers, etc.)
+
+    ConfigurationResponse:
+      type: object
+      properties:
+        configurationId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        config:
+          $ref: '#/components/schemas/ServerConfig'
+
+    CreateConfigResponse:
+      type: object
+      properties:
+        configurationId:
+          type: string
+          format: uuid
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+

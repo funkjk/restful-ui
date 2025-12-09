@@ -5,7 +5,7 @@ const { combine, timestamp, prettyPrint, colorize, errors,  } = winston.format;
 
 export const isBrowser = typeof window !== 'undefined';
 
-// ブラウザ環境用のシンプルなロガー
+
 class BrowserLogger {
     private category?: string;
 
@@ -46,8 +46,8 @@ export const transports = isBrowser ? [
         }
     )
 ] : [
-    // new winston.transports.Console(),
-    new winston.transports.File({ filename: './logs/mcp-logger.log' })
+    new winston.transports.Console(),
+    // new winston.transports.File({ filename: './logs/mcp-logger.log' })
 ]
 
 export function createLogger(category?: string) {

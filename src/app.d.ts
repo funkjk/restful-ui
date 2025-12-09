@@ -13,7 +13,9 @@ declare global {
 // 環境変数の型定義
 declare global {
 	namespace App {
-		interface Locals {}
+		interface Locals {
+			auth?: (options?: import('@clerk/shared/types').PendingSessionOptions) => import('@clerk/backend').SessionAuthObject;
+		}
 		interface PageData {}
 		interface Error {}
 		interface Platform {}
