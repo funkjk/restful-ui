@@ -174,7 +174,27 @@ export abstract class RestfulOperation {
     }
     abstract getBodyTypes(): RequestBodyType[];
     abstract getBodyDefinition(type: RequestBodyType): RequestBodyDefinition | null;
+    abstract getResponseSchema(statusCode: string | number): any | null;
 
+    getPropertyDefinitions() {
+        const schema = this.getResponseSchema(200);
+        let targetPath:any;
+        if (schema.type === 'object') {
+            targetPath = schema.properties
+        } else if (schema.type === 'array' && schema.items) {
+            targetPath = schema.items.properties
+        }
+        return targetPath;
+
+    }
+    getPropertyDefinition(propertyName: string) {
+        let targetPath = this.getPropertyDefinitions();
+        if (targetPath && targetPath[propertyName]) {
+            console.log("targetPath", targetPath[propertyName]);
+            return targetPath[propertyName];
+        }
+        return null;
+    }
     getPathParameterUnderTargetPath() {
         const doc = this.document
         const parameters: string[] = []
@@ -296,6 +316,20 @@ export class RestfulOperationOasV2 extends RestfulOperation {
         // TODO
         return null
     }
+    getResponseSchema(statusCode: string | number = 200) {
+        const op = this.getOperation();
+        if (!op.responses) return null;
+        
+        const statusKey = String(statusCode);
+        const response = op.responses[statusKey] || op.responses['default'];
+        if (!response) return null;
+        
+        if ('schema' in response && response.schema) {
+            return response.schema;
+        }
+        
+        return null;
+    }
 }
 
 export class RestfulOperationOasV3 extends RestfulOperation {
@@ -402,6 +436,22 @@ export class RestfulOperationOasV3 extends RestfulOperation {
         const doc = this.getDocument()
         const operation = doc.paths[this.path]![this.method!];
         return operation!
+    }
+    getResponseSchema(statusCode: string | number = 200) {
+        const op = this.getOperation();
+        if (!op.responses) return null;
+        
+        const statusKey = String(statusCode);
+        const response = op.responses[statusKey] || op.responses['default'];
+        if (!response) return null;
+        if ('content' in response && response.content) {
+            const jsonContent = response.content['application/json'];
+            if (jsonContent && jsonContent.schema) {
+                return jsonContent.schema;
+            }
+        }
+        
+        return null;
     }
 }
 

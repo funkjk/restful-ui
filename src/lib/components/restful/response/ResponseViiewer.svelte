@@ -37,15 +37,23 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
     const dataTableSelectedColumn = config.storage.dataTableSelectedColumn;
     const dataTableDisplayTypes = config.storage.dataTableDisplayTypes;
 
-    let columnView: any = {};
 
     const pathParameterNames =
         currentOperation.getPathParameterUnderTargetPath();
-    const pathColumnView: any = {};
-    for (let pathParam of pathParameterNames) {
-        pathColumnView[pathParam] = PathLinkColumn;
-    }
-    columnView = pathColumnView;
+    const columnView: any = $derived.by(() => {
+        const pathColumnView: any = {};
+        for (let pathParam of pathParameterNames) {
+            pathColumnView[pathParam] = PathLinkColumn;
+        }
+        const allProperties = currentOperation.getPropertyDefinitions();
+        for (let column in allProperties) {
+            // TODO current swagger-parser not support x- attributes
+            if (allProperties[column]['x-restfului-link']) {
+                pathColumnView[column] = PathLinkColumn;
+            }
+        }
+        return pathColumnView;
+    });
     // this store use for PathLinkColumn
     const operationStore = writable(currentOperation);
     $effect(() => {
