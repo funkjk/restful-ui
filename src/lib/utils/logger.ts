@@ -46,8 +46,8 @@ export const transports = isBrowser ? [
         }
     )
 ] : [
-    // new winston.transports.Console(),
-    new winston.transports.File({ filename: './logs/mcp-logger.log' })
+    new winston.transports.Console(),
+    // new winston.transports.File({ filename: './logs/mcp-logger.log' })
 ]
 
 export function createLogger(category?: string) {
