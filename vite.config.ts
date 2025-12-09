@@ -12,7 +12,23 @@ export default defineConfig(({ mode }) => {
 	const basePath = process.env.BUILD_BASE_PATH ?? ""
 
 	return {
-		plugins: [sveltekit(), nodePolyfills()],
+		plugins: [sveltekit(), nodePolyfills({
+			// クライアントサイドのみでポリフィルを有効化
+			// サーバーサイドではcryptoとbufferのpolyfillを除外（Node.jsのネイティブ実装を使用）
+			exclude: ['crypto', 'buffer'],
+			globals: {
+				Buffer: true,
+			},
+			protocolImports: true,
+		})],
+		ssr: {
+			// サーバーサイドではポリフィルを無効化し、Node.jsのネイティブ実装を使用
+			noExternal: [],
+			resolve: {
+				// サーバーサイドではブラウザ用のpolyfillを無視し、Node.jsのネイティブ実装を使用
+				conditions: ['node', 'import', 'module'],
+			},
+		},
 		define: {
 			'process.env.NODE_ENV': '"production"',
 			'global': 'globalThis',
