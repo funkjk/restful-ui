@@ -37,21 +37,7 @@ test('test config api', async ({ page }) => {
   await page.getByText("get /configs").click();
   await page.getByRole('button', { name: 'EXECUTE' }).click();
   await page.locator(".filter-textfield>input").fill(configId);
-  // Wait for filtered results to appear in the table
-  await page.waitForSelector(`table td:has-text("${configId}")`, { timeout: 5000 });
-  // Find the cell containing the configurationId in the table body (not header)
-  const configIdCell = page.locator(`table tbody td:has-text("${configId}")`).first();
-  // Wait for the cell to be visible
-  await configIdCell.waitFor({ state: 'visible', timeout: 5000 });
-  // Find the link icon button (button containing material-icons with text "link")
-  const linkButton = configIdCell.locator('button').filter({ has: page.locator('.material-icons', { hasText: 'link' }) });
-  // Wait for button to be actionable and click it
-  await linkButton.waitFor({ state: 'attached', timeout: 5000 });
-  await linkButton.click();
-  // Wait for the specific dialog to open - wait for the operation link directly
-  // The dialog should contain the operation link
-  await page.getByText("get /configs/{configurationId}").waitFor({ state: 'visible', timeout: 10000 });
-  // Click the operation link in the dialog
+  await page.getByText("list").click();
   await page.getByText("get /configs/{configurationId}").click();
   await expect(page).toHaveURL(`#?*page=operation&path=/configs/{configurationId}&method=get&configurationId=${configId}&`);
   await page.getByRole('button', { name: 'EXECUTE' }).click();
