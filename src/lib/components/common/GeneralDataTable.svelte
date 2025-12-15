@@ -104,6 +104,11 @@
 			{start + 1}-{end} of {filterdItems.length}
 		</svelte:fragment>
 
+		<div>
+			<span>total items: [{filterdItems.length}]</span>
+			<span>page: [{currentPage + 1} of {lastPage + 1}]</span>
+		</div>
+
 		<IconButton
 			class="material-icons"
 			action="first-page"
