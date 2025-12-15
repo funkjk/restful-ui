@@ -178,21 +178,128 @@ export abstract class RestfulOperation {
 
     getPropertyDefinitions() {
         const schema = this.getResponseSchema(200);
-        let targetPath:any;
-        if (schema.type === 'object') {
-            targetPath = schema.properties
-        } else if (schema.type === 'array' && schema.items) {
-            targetPath = schema.items.properties
+        if (!schema) {
+            defaultLogger.debug("getPropertyDefinitions: schema is null");
+            return null;
         }
+        
+        // allOfからpropertiesをマージするヘルパー関数
+        // プロパティを深くマージする（拡張情報を保持するため）
+        const mergePropertiesFromAllOf = (allOfItems: any[]): Record<string, any> | null => {
+            const mergedProperties: Record<string, any> = {};
+            for (const item of allOfItems) {
+                if (item.properties) {
+                    for (const [propName, propValue] of Object.entries(item.properties)) {
+                        // 既存のプロパティがある場合は、深くマージ
+                        if (mergedProperties[propName] && typeof propValue === 'object' && propValue !== null && !Array.isArray(propValue)) {
+                            mergedProperties[propName] = { ...mergedProperties[propName], ...propValue };
+                        } else {
+                            // 新しいプロパティまたは非オブジェクトの場合は、そのまま設定
+                            mergedProperties[propName] = propValue;
+                        }
+                    }
+                }
+            }
+            return Object.keys(mergedProperties).length > 0 ? mergedProperties : null;
+        };
+        
+        // プロパティを深くマージするヘルパー関数
+        const deepMergeProperties = (target: Record<string, any>, source: Record<string, any>): void => {
+            for (const [propName, propValue] of Object.entries(source)) {
+                // 既存のプロパティがある場合は、深くマージ（拡張情報を保持）
+                if (target[propName] && typeof propValue === 'object' && propValue !== null && !Array.isArray(propValue) && typeof target[propName] === 'object' && target[propName] !== null && !Array.isArray(target[propName])) {
+                    target[propName] = { ...target[propName], ...propValue };
+                } else {
+                    // 新しいプロパティまたは非オブジェクトの場合は、そのまま設定
+                    target[propName] = propValue;
+                }
+            }
+        };
+        
+        let targetPath: any;
+        if (schema.type === 'object') {
+            // propertiesとallOfの両方をマージ
+            const merged: Record<string, any> = {};
+            if (schema.allOf) {
+                const allOfProps = mergePropertiesFromAllOf(schema.allOf);
+                if (allOfProps) {
+                    // 深くマージ（拡張情報を保持）
+                    deepMergeProperties(merged, allOfProps);
+                }
+            }
+            if (schema.properties) {
+                // 深くマージ（拡張情報を保持）- propertiesが優先される
+                deepMergeProperties(merged, schema.properties);
+            }
+            targetPath = Object.keys(merged).length > 0 ? merged : null;
+        } else if (schema.type === 'array' && schema.items) {
+            // propertiesとallOfの両方をマージ
+            const merged: Record<string, any> = {};
+            if (schema.items.allOf) {
+                const allOfProps = mergePropertiesFromAllOf(schema.items.allOf);
+                if (allOfProps) {
+                    // 深くマージ（拡張情報を保持）
+                    deepMergeProperties(merged, allOfProps);
+                }
+            }
+            if (schema.items.properties) {
+                // 深くマージ（拡張情報を保持）- propertiesが優先される
+                deepMergeProperties(merged, schema.items.properties);
+            }
+            targetPath = Object.keys(merged).length > 0 ? merged : null;
+        }
+        
         return targetPath;
-
     }
     getPropertyDefinition(propertyName: string) {
         let targetPath = this.getPropertyDefinitions();
         if (targetPath && targetPath[propertyName]) {
-            return targetPath[propertyName];
+            const propertyDef = targetPath[propertyName];
+            // 配列型プロパティの場合、items自体を返す（x-restfului-linkがitemsに設定されているため）
+            if (propertyDef && typeof propertyDef === 'object' && propertyDef.type === 'array' && propertyDef.items) {
+                return propertyDef.items;
+            }
+            return propertyDef;
         }
         return null;
+    }
+    
+    /**
+     * プロパティが配列型かどうかを判定
+     */
+    isArrayProperty(propertyName: string): boolean {
+        let targetPath = this.getPropertyDefinitions();
+        if (targetPath && targetPath[propertyName]) {
+            const propertyDef = targetPath[propertyName];
+            return propertyDef && typeof propertyDef === 'object' && propertyDef.type === 'array';
+        }
+        return false;
+    }
+    getPropertiesWithExtension(extensionKey: string): Record<string, any> {
+        const targetPath = this.getPropertyDefinitions();
+        if (!targetPath) {
+            return {};
+        }
+        const result: Record<string, any> = {};
+            for (const propertyName in targetPath) {
+            const propertyDef = targetPath[propertyName];
+            if (propertyDef) {
+                // 型アサーションを使用して拡張情報にアクセス
+                const extended = propertyDef as any;
+                // 配列型プロパティの場合、items内の拡張情報もチェック
+                if (extended.type === 'array' && extended.items) {
+                    const itemsExtended = extended.items as any;
+                    if (itemsExtended[extensionKey] !== undefined && itemsExtended[extensionKey] !== null) {
+                        result[propertyName] = itemsExtended[extensionKey];
+                    }
+                }
+                // プロパティ自体またはitemsに拡張情報がある場合
+                if (extended[extensionKey] !== undefined && extended[extensionKey] !== null) {
+                    result[propertyName] = extended[extensionKey];
+                }
+            }
+        }
+        return result;
     }
     getPathParameterUnderTargetPath() {
         const doc = this.document

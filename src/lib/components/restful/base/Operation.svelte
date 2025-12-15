@@ -74,12 +74,28 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
 		response = apiResponse.responseBody;
 		isErrorResponse = !apiResponse.ok;
 		executionTime = new Date().toISOString();
-
 		if (apiResponse.ok) {
-			let additionalSearch = currentOperation
-				.getPathParameters()
-				.map((pathParam) => `${pathParam}=${value[pathParam]}`)
+			// bodyパラメータ名を取得（除外するため）
+			const bodyParamName = currentOperation.getBodyValueName();
+
+			// 現在の入力値（value）からクエリパラメータを生成
+			const params: Record<string, string> = {};
+			for (const [key, val] of Object.entries(value)) {
+				// bodyパラメータは除外
+				if (key === bodyParamName) {
+					continue;
+				}
+				// 値が存在する場合のみ追加
+				if (val !== null && val !== undefined && val !== "") {
+					params[key] = String(val);
+				}
+			}
+
+			// additionalSearchを作成
+			let additionalSearch = Object.entries(params)
+				.map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
 				.join("&");
+
 			history.replaceState(
 				window.history.state,
 				"",
