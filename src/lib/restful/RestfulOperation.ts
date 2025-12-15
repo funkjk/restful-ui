@@ -281,23 +281,29 @@ export abstract class RestfulOperation {
             return {};
         }
         const result: Record<string, any> = {};
+        try {
             for (const propertyName in targetPath) {
-            const propertyDef = targetPath[propertyName];
-            if (propertyDef) {
-                // 型アサーションを使用して拡張情報にアクセス
-                const extended = propertyDef as any;
-                // 配列型プロパティの場合、items内の拡張情報もチェック
-                if (extended.type === 'array' && extended.items) {
-                    const itemsExtended = extended.items as any;
-                    if (itemsExtended[extensionKey] !== undefined && itemsExtended[extensionKey] !== null) {
-                        result[propertyName] = itemsExtended[extensionKey];
+                const propertyDef = targetPath[propertyName];
+                if (propertyDef && typeof propertyDef === 'object') {
+                    // 型アサーションを使用して拡張情報にアクセス
+                    const extended = propertyDef as any;
+                    // 配列型プロパティの場合、items内の拡張情報もチェック
+                    if (extended.type === 'array' && extended.items && typeof extended.items === 'object') {
+                        const itemsExtended = extended.items as any;
+                        if (itemsExtended[extensionKey] !== undefined && itemsExtended[extensionKey] !== null) {
+                            result[propertyName] = itemsExtended[extensionKey];
+                            continue; // 配列型の場合はitems内の拡張情報を優先
+                        }
+                    }
+                    // プロパティ自体に拡張情報がある場合
+                    if (extended[extensionKey] !== undefined && extended[extensionKey] !== null) {
+                        result[propertyName] = extended[extensionKey];
                     }
                 }
-                // プロパティ自体またはitemsに拡張情報がある場合
-                if (extended[extensionKey] !== undefined && extended[extensionKey] !== null) {
-                    result[propertyName] = extended[extensionKey];
-                }
             }
+        } catch (error) {
+            defaultLogger.debug(`getPropertiesWithExtension error: ${error}`);
+            return {};
         }
         return result;
     }

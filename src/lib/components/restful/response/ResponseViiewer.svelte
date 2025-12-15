@@ -38,18 +38,23 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
     const dataTableDisplayTypes = config.storage.dataTableDisplayTypes;
 
 
-    const pathParameterNames =
-        currentOperation.getPathParameterUnderTargetPath();
     const columnView: any = $derived.by(() => {
-        const pathColumnView: any = {};
-        for (let pathParam of pathParameterNames) {
-            pathColumnView[pathParam] = PathLinkColumn;
+        try {
+            const pathColumnView: any = {};
+            const op = currentOperation as any;
+            const pathParameterNames = op.getPathParameterUnderTargetPath ? op.getPathParameterUnderTargetPath() : [];
+            for (let pathParam of pathParameterNames) {
+                pathColumnView[pathParam] = PathLinkColumn;
+            }
+            const propertiesWithExtension = currentOperation.getPropertiesWithExtension('x-restfului-link');
+            for (let column in propertiesWithExtension) {
+                pathColumnView[column] = PathLinkColumn;
+            }
+            return pathColumnView;
+        } catch (error) {
+            console.error('Error in columnView derived:', error);
+            return {};
         }
-        const propertiesWithExtension = currentOperation.getPropertiesWithExtension('x-restfului-link');
-        for (let column in propertiesWithExtension) {
-            pathColumnView[column] = PathLinkColumn;
-        }
-        return pathColumnView;
     });
     // this store use for PathLinkColumn
     const operationStore = writable(currentOperation);
@@ -102,7 +107,7 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
         {columnView}
         bind:selectedColumns
         bind:displayTypes
-        bind:filterValue={filter}
+        filterValue={filter}
     ></GeneralDataTable>
 {/if}
 

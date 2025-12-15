@@ -10,6 +10,14 @@ import type { RequestEvent } from '@sveltejs/kit';
  * auth may be a function that returns AuthObject, so we need to call it if it's a function
  */
 export function requireAuth(event: RequestEvent): string {
+    // Skip authentication in test environment (for e2e tests)
+    const e2eTest = process.env.E2E_TEST;
+    const skipAuth = e2eTest === 'true';
+    
+    if (skipAuth) {
+        return 'test-user-id';
+    }
+    
     const auth = event.locals?.auth;
     if (!auth) {
         throw error(401, {
@@ -36,8 +44,27 @@ export function requireAuth(event: RequestEvent): string {
  * 
  * Note: event.locals.auth is set by withClerkHandler in hooks.server.ts
  * auth may be a function that returns AuthObject, so we need to call it if it's a function
+ * 
+ * In test environment (NODE_ENV=test), returns a dummy user ID if not authenticated
  */
 export function getUserId(event: RequestEvent): string | null {
+    // In test environment, return dummy user ID if not authenticated
+    // Check both NODE_ENV and E2E_TEST environment variables
+    const nodeEnv = process.env.NODE_ENV;
+    const e2eTest = process.env.E2E_TEST;
+    const skipAuth = nodeEnv === 'test' || e2eTest === 'true' || e2eTest === '1';
+    
+    if (skipAuth) {
+        const auth = event.locals?.auth;
+        if (!auth) {
+            return 'test-user-id';
+        }
+        
+        // auth may be a function that returns AuthObject
+        const authObject = typeof auth === 'function' ? auth() : auth;
+        return authObject?.userId ?? 'test-user-id';
+    }
+    
     const auth = event.locals?.auth;
     if (!auth) {
         return null;

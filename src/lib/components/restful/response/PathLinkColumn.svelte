@@ -122,7 +122,7 @@
 				</div>
 			{:else if isArray}
 				<div style="margin-bottom: 16px; color: #666;">
-					配列が空です
+					Empty Array
 				</div>
 			{/if}
 			
@@ -162,8 +162,8 @@
 	</Actions>
 </Dialog>
 <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
-	<Button>
-		<Icon class="material-icons" onclick={() => (open = true)}>link</Icon>
+	<Button onclick={() => (open = true)}>
+		<Icon class="material-icons">list</Icon>
 	</Button>
 	<Short value={value}></Short>
 </div>

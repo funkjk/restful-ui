@@ -64,6 +64,7 @@
             const data = await response.json();
             // Navigate directly to the config page
             await goto(`/cid/${data.configurationId}/#?*page=setting`);
+            window.location.reload();
         } else {
             notifyMessage.notify("Save failed" + response.statusText);
         }
@@ -139,7 +140,8 @@
                 page: PAGE.SETTING,
                 basePath: `/cid/${data.configurationId}/`,
             });
-            goto(link);
+            // dont use goto because it will not reload page
+            window.location.href = link;
         } else {
             notifyMessage.notify("Copy failed" + response.statusText);
         }

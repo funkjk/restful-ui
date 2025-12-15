@@ -46,8 +46,12 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'cross-env NODE_ENV=test pnpm run dev',
+    command: 'cross-env NODE_ENV=test E2E_TEST=true pnpm run dev',
     url: 'http://localhost:4210',
     reuseExistingServer: !process.env.CI,
+    env: {
+      NODE_ENV: 'test',
+      E2E_TEST: 'true',
+    },
   },
 });

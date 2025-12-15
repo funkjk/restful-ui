@@ -16,7 +16,17 @@ export interface ConfigStore {
 
 // Select ConfigStore implementation based on environment variable
 // Default to CockroachDB if DATABASE_URL is set, otherwise use InMemoryConfigStore
-const configStore: ConfigStore = env.DATABASE_URL ? CockroachDBConfigStore : InMemoryConfigStore;
+function createConfigStore(): ConfigStore {
+    const e2eTest = process.env.E2E_TEST;
+    if (e2eTest === 'true') {
+        return InMemoryConfigStore;
+    }
+    if (env.DATABASE_URL) {
+        return CockroachDBConfigStore;
+    }
+    return InMemoryConfigStore;
+}
+const configStore: ConfigStore = createConfigStore();
 
 
 export async function saveConfig(
