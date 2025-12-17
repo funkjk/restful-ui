@@ -27,7 +27,7 @@ test('test config api', async ({ page }) => {
   await page.getByRole('button', { name: 'EXECUTE' }).click();
   await expect(page.getByRole('button', { name: 'response' })).toBeVisible();
   await expect(page.locator(".error-title")).not.toBeVisible();
-  const responseJson = await page.locator("pre").innerText();
+  const responseJson = await page.locator(".pre-container").innerText();
   const response = JSON.parse(responseJson);
   const configId = response.configurationId;
   expect(configId).toBeDefined();

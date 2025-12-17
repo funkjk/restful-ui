@@ -10,6 +10,9 @@ export default defineConfig(({ mode }) => {
 		? 'false' 
 		: (env.BUILD_STATIC ?? 'true');
 	const basePath = process.env.BUILD_BASE_PATH ?? ""
+	
+	// 実際の環境変数の値を使用（E2Eテスト時は'test'、それ以外は'production'）
+	const nodeEnv = process.env.NODE_ENV || env.NODE_ENV || 'production';
 
 	return {
 		plugins: [sveltekit(), nodePolyfills({
@@ -30,7 +33,7 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 		define: {
-			'process.env.NODE_ENV': '"production"',
+			'process.env.NODE_ENV': JSON.stringify(nodeEnv),
 			'global': 'globalThis',
 			// 環境変数BUILD_STATICを定義（e2eテスト時はfalse、それ以外はtrue）
 			'import.meta.env.BUILD_STATIC': `"${buildStatic}"`,

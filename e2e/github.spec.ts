@@ -6,7 +6,8 @@ test('github api', async ({ page }) => {
   await page.getByRole("textbox").fill("https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions/ghes-3.9/ghes-3.9.2022-11-28.json");
   await page.getByRole('button', { name: 'SET' }).click();
   await page.getByRole('button', { name: 'SETTING' }).click();
-  await page.getByLabel("basePath").fill("https://api.github.com");
+  await page.waitForTimeout(1000)
+  await page.locator(".base-path input").fill("https://api.github.com");
   await page.getByRole('button', { name: 'SAVE' }).click();
 
 
