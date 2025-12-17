@@ -89,6 +89,7 @@
         selectedSampleIndex = index;
         editingUrl = sampleOasFiles[index].url;
     }
+    const buildTime = import.meta.env.BUILD_TIME || 'unknown';
 </script>
 
 {#if $url}
@@ -155,5 +156,7 @@
         </div>
     {/if}
 </div>
-
+<div style="position: fixed; bottom: 0; right: 0; padding: 8px; font-size: 12px; color: #666;">
+    built at {buildTime}
+</div>
 {/if}
