@@ -7,9 +7,17 @@
 	import LogPanel from "$lib/components/restful/base/LogPanel.svelte";
 	import { persisted } from "svelte-persisted-store";
 	import { ClerkProvider } from "svelte-clerk";
+	import { onMount } from "svelte";
+	import { initServiceWorker } from "$lib/services/service-worker-init";
 	
 	let snackbar = $state<Snackbar | null>(null);
 	let open = persisted("ui.open-log-panel", true);
+	
+	// ServiceWorkerを初期化
+	onMount(() => {
+		initServiceWorker().catch(console.error);
+	});
+	
 	$effect(() => {
 		const unsubscribe = notifyMessage.subscribe((message: string) => {
 			if (snackbar && message) {

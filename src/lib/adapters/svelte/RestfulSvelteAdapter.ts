@@ -1,5 +1,5 @@
 import { get, type Writable } from "svelte/store";
-import { persisted } from "svelte-persisted-store";
+import { swPersisted } from "$lib/stores/sw-persisted-store";
 import { CACHE_TYPE, compareBodyParameter, type CacheBody, type CacheBodyParameter, type CacheStore, type RequestSetting } from "$lib/restful/BuiltInPlugins";
 import { AbstractRequestSettingApplyPlugin, UseRestfulUIProxyPlugin } from "$lib/restful/BuiltInPlugins";
 import { EmptyRestfulPlugin, FetchPluginChain, type RestfulPlugin } from "$lib/restful/RestfulPlugin";
@@ -7,6 +7,7 @@ import type { InputRestParameters, RestfulOperation } from "$lib/restful/Restful
 import { getBaseUrl } from "$lib/utils/proxy";
 import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 import { RuningMode, DefaultLinkSupport } from "$lib/restful/RestfulInterfaces";
+import { persisted } from "svelte-persisted-store";
 
 function uniqueArray<T>(arr: T[], fn: (a1: T, a2: T) => boolean) {
     return arr.filter(
@@ -97,9 +98,11 @@ export class SvelteRestfulProxy extends UseRestfulUIProxyPlugin {
 }
 
 export function createRestfulComponentConfig(storageKey: string, baseConfig?: Partial<RestfulComponentConfig>): RestfulComponentConfig {
-    const responses = baseConfig?.storage?.responses ?? persisted(storageKey + "-responses", {} as any, {
-        storage: "session",
-    });
+    // response may be too big, so use ServiceWorker
+    const responses = baseConfig?.storage?.responses ?? swPersisted(
+        storageKey + "-responses",
+        {} as any
+    );
     const parameterHistories = baseConfig?.storage?.parameterHistories ?? persisted(
         storageKey + "-parameter-histories",
         {} as any,
