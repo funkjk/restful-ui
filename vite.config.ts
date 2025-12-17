@@ -37,7 +37,22 @@ export default defineConfig(({ mode }) => {
 			'global': 'globalThis',
 			// 環境変数BUILD_STATICを定義（e2eテスト時はfalse、それ以外はtrue）
 			'import.meta.env.BUILD_STATIC': `"${buildStatic}"`,
-			'import.meta.env.BUILD_BASE_PATH': `"${basePath}"`
+			'import.meta.env.BUILD_BASE_PATH': `"${basePath}"`,
+			// ビルド日時をISO形式（日本時間）で定義
+			'import.meta.env.BUILD_TIME': JSON.stringify(
+				(() => {
+					const now = new Date();
+					const jstOffset = 9 * 60; // JSTはUTC+9時間
+					const jstTime = new Date(now.getTime() + jstOffset * 60 * 1000);
+					const year = jstTime.getUTCFullYear();
+					const month = String(jstTime.getUTCMonth() + 1).padStart(2, '0');
+					const day = String(jstTime.getUTCDate()).padStart(2, '0');
+					const hours = String(jstTime.getUTCHours()).padStart(2, '0');
+					const minutes = String(jstTime.getUTCMinutes()).padStart(2, '0');
+					const seconds = String(jstTime.getUTCSeconds()).padStart(2, '0');
+					return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}+09:00`;
+				})()
+			)
 		}
 	};
 });
