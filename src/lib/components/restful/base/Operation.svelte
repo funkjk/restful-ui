@@ -146,12 +146,14 @@ parameters={JSON.stringify(currentOperation.parameters)}
 {#if executionTime}
 	Execution Time:{executionTime}
 {/if}
-<ResponseViiewer
-	{config}
-	{cacheStore}
-	{currentOperation}
-	{response}
-	{isErrorResponse}
-></ResponseViiewer>
+{#if response}
+	<ResponseViiewer
+		{config}
+		{cacheStore}
+		{currentOperation}
+		{response}
+		{isErrorResponse}
+	></ResponseViiewer>
+{/if}
 
 <GeneralJsonCard data={operation} title="operation"></GeneralJsonCard>

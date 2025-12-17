@@ -12,7 +12,7 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
     import SelectTableKey from "./SelectTableKey.svelte";
     import { syncObject } from "$lib/utils/ObjectStore";
     import type { SelectedRoot } from "$lib/utils/object-array";
-    import { CardType, type DisplayTypes } from "$lib/utils/utils";
+    import { CardType,isTooBigByDepth, type DisplayTypes } from "$lib/utils/utils";
     let {
 		config,
 		currentOperation,
@@ -111,6 +111,6 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
     ></GeneralDataTable>
 {/if}
 
-<GeneralJsonCard data={response} title="response" open={!arrayResponseItems}
+<GeneralJsonCard data={response} title="response" open={!arrayResponseItems && !isTooBigByDepth(response)}
 type={isErrorResponse? CardType.ERROR : undefined}
 ></GeneralJsonCard>

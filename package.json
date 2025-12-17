@@ -117,6 +117,7 @@
     "@smui/snackbar": "8.0.0-beta.3",
     "@smui/tooltip": "8.0.0-beta.3",
     "@sveltejs/adapter-vercel": "^6.2.0",
+    "@sveltejs/svelte-virtual-list": "^3.0.1",
     "@tsconfig/svelte": "^5.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.0.10",

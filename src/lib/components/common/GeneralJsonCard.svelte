@@ -1,5 +1,6 @@
 <script lang="ts">
   import { CardType } from "$lib/utils/utils";
+	import VirtualList from '@sveltejs/svelte-virtual-list'
   import ExpansionPanel from "./ExpansionPanel.svelte";
   import IconButton from "@smui/icon-button";
 
@@ -23,6 +24,22 @@
   };
   let titleClass = $derived(titleClassMap[type]);
 
+
+  const lines =  $derived.by(()=> {
+    if (!data) {
+      return []
+    }
+    if (!openState) {
+      return []
+    }
+    const dataString = JSON.stringify(
+          data,
+          null,
+          " ",
+        );
+      return dataString.split("\n")
+  })
+
   function copy() {
     let text = JSON.stringify(data, null, "\t");
     navigator.clipboard.writeText(text);
@@ -39,12 +56,15 @@
           >
         </div>
       </div>
-
-      <pre style="white-space: pre-wrap;">{JSON.stringify(
-          data,
-          null,
-          " ",
-        )}</pre>
+      <div class="pre-container">
+        <VirtualList
+          let:item
+          height="500px"
+          items={lines}
+        >
+          <div class="pre-line">{item}</div>
+        </VirtualList>
+      </div>
     </ExpansionPanel>
   </div>
 {/if}
@@ -58,5 +78,18 @@
   }
   :global(.expansion-panel > .warning-title) {
     background-color: pink !important;
+  }
+  .pre-container {
+    overflow: auto;
+    white-space: pre-wrap;
+    font-family: monospace;
+    display: block;
+    line-height: 20px;
+    tab-size: 4;
+  }
+  .pre-line {
+    display: block;
+    margin: 0;
+    padding: 0;
   }
 </style>

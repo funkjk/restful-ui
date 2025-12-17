@@ -131,3 +131,48 @@ export interface DisplayTypes {
   [propertyName: string]: DisplayType;
 }
 
+
+/**
+ * check if the item is too big by depth
+ * @param item - the item to check
+ * @param threshold - the threshold of the number of properties/elements
+ * @param maxDepth - the maximum depth to check (0: only the current level, 1: the current level and the next level, ...)
+ * @returns true if the number of properties/elements is greater than the threshold
+ */
+export function isTooBigByDepth(item: any, maxDepth = 2, threshold = 300) {
+  let count = 0;
+  const visited = new WeakSet(); // set to detect circular references
+
+  // count the number of properties/elements recursively
+  function countPropsRecursive(obj: any, currentDepth: number) {
+      if (!obj || typeof obj !== 'object') return;
+      if (currentDepth > maxDepth) return;
+      if (visited.has(obj)) return; // skip circular references
+
+      visited.add(obj);
+
+      const keys = Object.keys(obj);
+      count += keys.length;
+
+      // if the number of properties/elements is greater than the threshold, stop the processing
+      if (count > threshold) {
+          // if the number of properties/elements is greater than the threshold, stop the processing
+          return; 
+      }
+
+      // go to the next depth
+      if (currentDepth < maxDepth) {
+          for (const key of keys) {
+              // check the elements of the array and the properties of the object recursively
+              countPropsRecursive(obj[key], currentDepth + 1);
+
+              if (count > threshold) break;
+          }
+      }
+      
+  }
+
+  countPropsRecursive(item, 0);
+
+  return count > threshold;
+}
