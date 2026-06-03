@@ -122,6 +122,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.0.10",
     "@types/uri-template-lite": "^19.12.3",
+    "@upstash/redis": "^1.38.0",
     "@vercel/speed-insights": "^1.2.0",
     "dayjs": "^1.11.13",
     "dexie": "^4.2.1",

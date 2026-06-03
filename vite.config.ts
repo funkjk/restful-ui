@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
 		plugins: [sveltekit(), nodePolyfills({
 			// クライアントサイドのみでポリフィルを有効化
 			// サーバーサイドではcryptoとbufferのpolyfillを除外（Node.jsのネイティブ実装を使用）
-			exclude: ['crypto', 'buffer'],
+			exclude: ['crypto', 'buffer', 'fs', 'fs/promises'],
 			globals: {
 				Buffer: true,
 			},
@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => {
 		ssr: {
 			// サーバーサイドではポリフィルを無効化し、Node.jsのネイティブ実装を使用
 			noExternal: [],
+			external: ['fs', 'fs/promises', 'path'],
 			resolve: {
 				// サーバーサイドではブラウザ用のpolyfillを無視し、Node.jsのネイティブ実装を使用
 				conditions: ['node', 'import', 'module'],

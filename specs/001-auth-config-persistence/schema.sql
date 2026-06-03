@@ -1,9 +1,9 @@
--- CockroachDB Schema for Configurations
--- Run this SQL in your CockroachDB database
+-- PostgreSQL schema for configurations
+-- Run this SQL in your PostgreSQL database
 
 CREATE TABLE IF NOT EXISTS configurations (
   configuration_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id STRING NOT NULL,
+  user_id TEXT NOT NULL,
   config JSONB NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()

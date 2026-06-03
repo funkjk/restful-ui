@@ -1,8 +1,8 @@
 import type { ConfigStore } from './ConfigStore';
 import type { ServerConfigResponse } from './ServerSupport';
-import { getPool } from '$lib/db/cockroach';
+import { getPool } from '$lib/db/postgres';
 
-export const CockroachDBConfigStore: ConfigStore = {
+export const PostgresConfigStore: ConfigStore = {
     writeConfig,
     readConfig,
     listConfigs,
@@ -26,14 +26,12 @@ async function writeConfig(
 
     const now = new Date();
 
-    // Check if configuration exists
     const existing = await pool.query(
         'SELECT configuration_id FROM configurations WHERE configuration_id = $1 AND user_id = $2',
         [configurationId, userId],
     );
 
     if (existing.rows.length > 0) {
-        // Update existing configuration
         const result = await pool.query(
             `UPDATE configurations 
              SET config = $1, updated_at = $2
@@ -54,7 +52,6 @@ async function writeConfig(
             config: row.config,
         };
     } else {
-        // Insert new configuration
         const result = await pool.query(
             `INSERT INTO configurations (configuration_id, user_id, config, created_at, updated_at)
              VALUES ($1, $2, $3, $4, $5)
@@ -79,7 +76,6 @@ async function readConfig(configurationId: string, userId?: string): Promise<Ser
     let params: unknown[];
 
     if (userId) {
-        // Filter by userId for security (data isolation)
         query = 'SELECT configuration_id, user_id, config, created_at, updated_at FROM configurations WHERE configuration_id = $1 AND user_id = $2';
         params = [configurationId, userId];
     } else {
@@ -94,7 +90,6 @@ async function readConfig(configurationId: string, userId?: string): Promise<Ser
     }
 
     const row = result.rows[0];
-    // Parse JSONB config if it's a string (pg driver should auto-parse, but handle both cases)
     const parsedConfig = typeof row.config === 'string' ? JSON.parse(row.config) : row.config;
     return {
         configurationId: row.configuration_id,
@@ -111,7 +106,6 @@ async function listConfigs(userId?: string): Promise<ServerConfigResponse[]> {
     let params: unknown[];
 
     if (userId) {
-        // Filter by userId for security (data isolation)
         query = 'SELECT configuration_id, user_id, config, created_at, updated_at FROM configurations WHERE user_id = $1 ORDER BY updated_at DESC';
         params = [userId];
     } else {
@@ -122,7 +116,6 @@ async function listConfigs(userId?: string): Promise<ServerConfigResponse[]> {
     const result = await pool.query(query, params);
 
     return result.rows.map((row) => {
-        // Parse JSONB config if it's a string (pg driver should auto-parse, but handle both cases)
         const parsedConfig = typeof row.config === 'string' ? JSON.parse(row.config) : row.config;
         return {
             configurationId: row.configuration_id,
@@ -140,7 +133,6 @@ async function deleteConfig(configurationId: string, userId?: string): Promise<v
     let params: unknown[];
 
     if (userId) {
-        // Filter by userId for security (data isolation)
         query = 'DELETE FROM configurations WHERE configuration_id = $1 AND user_id = $2';
         params = [configurationId, userId];
     } else {
@@ -154,4 +146,3 @@ async function deleteConfig(configurationId: string, userId?: string): Promise<v
         throw new Error(`Configuration ${configurationId} not found`);
     }
 }
-

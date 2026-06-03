@@ -15,6 +15,7 @@
 import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
 	import ResponseViiewer from "../response/ResponseViiewer.svelte";
     import { PAGE } from "$lib/utils/utils";
+	import { replaceState } from "$app/navigation";
 	let {
 		config,
 		currentOperation,
@@ -95,7 +96,6 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
 			let additionalSearch = Object.entries(params)
 				.map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
 				.join("&");
-
 			history.replaceState(
 				window.history.state,
 				"",

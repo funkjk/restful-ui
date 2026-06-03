@@ -25,6 +25,25 @@ export function syncObject<T>(
         // if undefined then initialize using store value or default value
         return get(store)[key] ?? defaultValue;
     }
+    persistStoreValue(store, key, value);
+    return value;
+}
+
+/** Read a keyed value from a record store (for Svelte 5 $effect.pre). */
+export function loadStoreValue<T>(
+    store: Writable<Record<string, any>>,
+    key: string,
+    defaultValue: T,
+): T {
+    return get(store)[key] ?? defaultValue;
+}
+
+/** Write a keyed value to a record store without triggering reactive read/write loops. */
+export function persistStoreValue<T>(
+    store: Writable<Record<string, any>>,
+    key: string,
+    value: T,
+): void {
     store.update((storeValue) => {
         if (value) {
             storeValue[key] = value;
@@ -33,5 +52,4 @@ export function syncObject<T>(
         }
         return storeValue;
     });
-    return value;
 }

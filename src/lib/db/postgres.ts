@@ -16,11 +16,10 @@ export function getPool(): Pool {
         pool = new Pool({
             connectionString: databaseUrl,
             ssl: {
-                rejectUnauthorized: false, // Required for CockroachDB Serverless
+                rejectUnauthorized: false, // Required for many managed PostgreSQL providers
             },
         });
 
-        // Handle pool errors
         pool.on('error', (err) => {
             console.error('Unexpected error on idle client', err);
         });
@@ -38,4 +37,3 @@ export async function closePool(): Promise<void> {
         pool = null;
     }
 }
-
