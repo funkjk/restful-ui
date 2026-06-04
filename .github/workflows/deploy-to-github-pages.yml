@@ -1,31 +1,58 @@
-name: deploy-to-github-pages
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: setup node.js
-        uses: actions/setup-node@v3.6.0
-      
-      - name: Install dependencies
-        run: npm install -g pnpm && pnpm install
-      
-      - name: build static resources
-        run: npx cross-env BUILD_BASE_PATH=/restful-ui pnpm run build 
-          
-      - name: deploy to github pages
-        uses: peaceiris/actions-gh-pages@v3
+      - uses: pnpm/action-setup@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: build
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build static site (Explorer edition)
+        run: pnpm run build
+        env:
+          BUILD_STATIC: 'true'
+          BUILD_BASE_PATH: /restful-ui
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Deployment URL
+        run: echo "Pages URL ${{ steps.deployment.outputs.page_url }}"

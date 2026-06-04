@@ -1,69 +1,82 @@
 
-# RESTful UI portal application
+# RESTful UI
 
-A SvelteKit-based RESTful UI portal application that loads OpenAPI specifications and provides interactive API exploration and testing.
+OpenAPI-based **REST CRUD Explorer** — browse operations, try requests, and drill down from list responses to related endpoints. The same execution core also powers MCP integration for AI clients.
 
-🌐 **Live Demo**: [https://restful-ui.vercel.app/](https://restful-ui.vercel.app/)
+## Live demos
+
+| Edition | URL | Includes |
+|---------|-----|----------|
+| **Explorer** (static) | [GitHub Pages](https://funkjk.github.io/restful-ui/) | OAS explorer, path tree, try-it-out, bundled sample specs |
+| **Full** (hosted) | [Vercel](https://restful-ui.vercel.app/) | + CORS proxy, saved configs, MCP over HTTP |
+
+GitHub Pages is a static build only (`BUILD_STATIC=true`). Config persistence and MCP require the Full edition or local `pnpm run dev`.
 
 ## Features
 
-- 📋 Automatic parsing of OpenAPI v2/v3 specifications
-- 🔧 Interactive API call testing
-- 📊 Response display in data tables
-- 🎨 Modern Material UI-based design
-- 🤖 MCP Server functionality (New feature)
+- Automatic parsing of OpenAPI v2/v3 specifications
+- Interactive API call testing
+- Response display in data tables with CRUD-style navigation under path hierarchies
+- Modern Material UI-based design
+- MCP server (Full / local — shared `RestfulOperation` engine)
+- Pluggable config storage (`STORE_TYPE`: fs, upstash, postgres, inmemory)
 
-## Development Environment Setup
+## Development
 
 ```bash
-# Install dependencies
 pnpm install
-
-# Start development server
-pnpm run dev
+pnpm run dev          # http://localhost:4210 — full server (API routes)
 ```
 
-## Available Scripts
+### Build
 
-### Development & Build
-- `pnpm run dev` - Start development server (port 4210)
-- `pnpm run build` - Production build
-- `pnpm run preview` - Preview build results
+```bash
+pnpm run build              # default (Vercel adapter unless BUILD_STATIC=true)
+pnpm run build:gh-pages     # static Explorer for GitHub Pages
+pnpm run preview:gh-pages   # preview at /restful-ui base path
+```
 
-### Testing & Quality Check
-- `pnpm run test` - Unit tests with Vitest
-- `pnpm run e2e` - E2E tests with Playwright
-- `pnpm run lint` - Code quality check with ESLint
-- `pnpm run check` - TypeScript and Svelte type checking
+### Environment
 
-### MCP Server
-- `pnpm run mcp:test` - MCP server testing
-- `pnpm run mcp:start` - Start MCP server
-- `pnpm run mcp:example` - MCP server startup example with PetStore API
+Copy `.env.example` to `.env`. For local development without Redis/Postgres:
 
-### Storybook
-- `pnpm run storybook` - Start Storybook
-- `pnpm run build-storybook` - Build Storybook
+```bash
+STORE_TYPE=fs
+```
 
-## Project Structure
+See [docs/deploy-gh-pages.md](docs/deploy-gh-pages.md) for GitHub Pages deployment.
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `pnpm run dev` | Dev server (port 4210) |
+| `pnpm run build` | Production build |
+| `pnpm run build:gh-pages` | Static build for GitHub Pages |
+| `pnpm run test` | Vitest |
+| `pnpm run e2e` | Playwright |
+| `pnpm run lint` | ESLint |
+| `pnpm run check` | Svelte/TS check |
+
+## Project structure
 
 ```
 src/
 ├── lib/
-│   ├── components/     # UI components
-│   ├── restful/        # REST API operation logic
-│   ├── mcp/           # MCP server implementation (NEW!)
-│   ├── stores/        # Svelte stores
-│   └── utils/         # Utility functions
-├── routes/            # SvelteKit routes
-└── theme/             # Material UI theme
+│   ├── components/       # UI
+│   ├── restful/          # OpenAPI execution, plugins, ConfigStore
+│   ├── mcp/              # MCP server
+│   └── utils/
+├── routes/               # SvelteKit routes (+ api/* for Full edition)
+└── theme/
+docs/
+└── deploy-gh-pages.md
 ```
 
-## Technology Stack
+## Tech stack
 
-- **Frontend**: SvelteKit + TypeScript
-- **UI**: Svelte Material UI (SMUI)
-- **API**: OpenAPI/Swagger parsing
-- **Testing**: Vitest + Playwright
-- **MCP**: Model Context Protocol Server
-- **Build**: Vite
+- SvelteKit + TypeScript
+- Svelte Material UI (SMUI)
+- OpenAPI/Swagger (`@apidevtools/swagger-parser`)
+- Vitest + Playwright
+- Model Context Protocol
