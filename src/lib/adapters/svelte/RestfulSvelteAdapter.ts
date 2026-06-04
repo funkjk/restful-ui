@@ -7,6 +7,7 @@ import type { InputRestParameters, RestfulOperation } from "$lib/restful/Restful
 import { getBaseUrl } from "$lib/utils/proxy";
 import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 import { RuningMode, DefaultLinkSupport } from "$lib/restful/RestfulInterfaces";
+import { getAppBasePath } from "$lib/utils/app-base";
 import { persisted } from "svelte-persisted-store";
 
 function uniqueArray<T>(arr: T[], fn: (a1: T, a2: T) => boolean) {
@@ -150,7 +151,7 @@ export function createRestfulComponentConfig(storageKey: string, baseConfig?: Pa
             new SvelteRestfulProxy(requestSetting),
         ] as RestfulPlugin[],
         displaySupport: baseConfig?.displaySupport ?? { getArrayResponse: (restfulOperation, responseBody) => Array.isArray(responseBody) ? responseBody : null },
-        linkSupport: baseConfig?.linkSupport ?? new DefaultLinkSupport("/"),
+        linkSupport: baseConfig?.linkSupport ?? new DefaultLinkSupport(getAppBasePath()),
         runningMode: baseConfig?.runningMode ?? RuningMode.SESSION_STORAGE
     }
 } 

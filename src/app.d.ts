@@ -30,6 +30,7 @@ declare module '$env/static/public' {
 // import.meta.envの型定義
 interface ImportMetaEnv {
 	readonly BUILD_STATIC: string;
+	readonly BUILD_BASE_PATH: string;
 }
 
 interface ImportMeta {

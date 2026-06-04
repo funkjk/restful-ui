@@ -18,6 +18,7 @@
     import { loading, logMessages } from "$lib/stores/ui";
     import { writable } from "svelte/store";
     import Card, { Content } from "@smui/card";
+    import { withAppBase } from "$lib/utils/app-base";
     import { createProxyUrl } from "$lib/utils/proxy";
     import type { ServerConfig } from "$lib/restful/config-server/ServerSupport";
 
@@ -33,7 +34,7 @@
             if (_parameter.basePath) {
                 return _parameter.basePath + "#";
             } else {
-                return "/cid/" + this.configId + "/#";
+                return withAppBase(`/cid/${this.configId}/`) + "#";
             }
         }
     }

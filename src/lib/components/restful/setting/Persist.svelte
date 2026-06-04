@@ -16,6 +16,7 @@
     import GeneralJsonCard from "$lib/components/common/GeneralJsonCard.svelte";
     import IconButton from "@smui/icon-button";
     import { goto } from "$app/navigation";
+    import { getAppBasePath, withAppBase } from "$lib/utils/app-base";
     import type { ServerConfig } from "$lib/restful/config-server/ServerSupport";
     let { config }: { config: RestfulComponentConfig } = $props();
     let serverName = $state("");
@@ -101,7 +102,7 @@
     function gotoTop() {
         const link = config.linkSupport.createLink({
             page: PAGE.TOP,
-            basePath: `/`,
+            basePath: getAppBasePath(),
         });
         goto(link);
     }
@@ -117,7 +118,7 @@
             notifyMessage.notify("Delete");
             const link = config.linkSupport.createLink({
                 page: PAGE.TOP,
-                basePath: `/`,
+                basePath: getAppBasePath(),
             });
             goto(link);
         } else {
@@ -138,7 +139,7 @@
             const data = await response.json();
             const link = config.linkSupport.createLink({
                 page: PAGE.SETTING,
-                basePath: `/cid/${data.configurationId}/`,
+                basePath: withAppBase(`/cid/${data.configurationId}/`),
             });
             // dont use goto because it will not reload page
             window.location.href = link;
