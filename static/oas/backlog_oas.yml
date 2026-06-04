@@ -1,0 +1,4260 @@
+openapi: 3.0.0
+info:
+  title: Backlog Postman Collection EN
+  description: "## About Backlog\r\n\r\nBacklog is a popular cloud-based project management SaaS in Japan."
+  version: 1.0.0
+servers:
+  - url: http://{{backlogurl}}
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: http
+      scheme: apiKey
+security:
+  - apiKeyAuth: []
+paths:
+  /api/v2/space:
+    get:
+      tags:
+        - General
+      summary: Get Space
+      description: "# Description\r\n\r\nReturns information about your space.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-space/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/space/activities:
+    get:
+      tags:
+        - General
+      summary: Get Recent Updates
+      description: "# Description\r\n\r\nReturns recent updates in your space.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-recent-updates/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: activityTypeId[](複数指定可)
+          in: query
+          schema:
+            type: string
+          description: 'type(1-26) : activityTypeId[](複数指定可)'
+          example: <Number>
+        - name: minId
+          in: query
+          schema:
+            type: string
+          description: 'minimum ID : minId'
+          example: <Number>
+        - name: maxId
+          in: query
+          schema:
+            type: string
+          description: 'maximum ID : maxId'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/space/image:
+    get:
+      tags:
+        - General
+      summary: Get Space Logo
+      description: "# Description\r\n\r\nReturns logo image of your space.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-space-logo/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/space/notification:
+    get:
+      tags:
+        - General
+      summary: Get Space Notification
+      description: "# Description\r\n\r\nReturns space notification.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-space-notification/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - General
+      summary: Update Space Notification
+      description: "# Description\r\n\r\nUpdates space notification.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-space-notification/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/space/diskUsage:
+    get:
+      tags:
+        - General
+      summary: Get Space Disk Usage
+      description: "# Description\r\n\r\nReturns information about space disk usage.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-space-disk-usage/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/space/attachment:
+    post:
+      tags:
+        - General
+      summary: Post Attachment File
+      description: "# Description\r\n\r\nPosts an attachment file for issue or wiki. Returns id of the attachment file.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/post-attachment-file/"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  description: Attachment File
+                  format: binary
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users:
+    get:
+      tags:
+        - General
+      summary: Get User List
+      description: "# Description\r\n\r\nReturns list of users in your space.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-user-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add User
+      description: "# Description\r\n\r\nAdds new user to the space.\n&ldquo;Project Administrator&rdquo; cannot add &ldquo;Admin&rdquo; user.\nYou can&rsquo;t use this API at new plan space.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-user/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/{userId}:
+    get:
+      tags:
+        - General
+      summary: Get User
+      description: "# Description\r\n\r\nReturns information about user.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-user/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - General
+      summary: Update User
+      description: "# Description\r\n\r\nUpdates information about user.\nYou can&rsquo;t use this API at new plan space.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-user/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete User
+      description: "# Description\r\n\r\nDeletes user from the space.\nYou can&rsquo;t use this API at new plan space.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-user/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/myself:
+    get:
+      tags:
+        - General
+      summary: Get Own User
+      description: "# Description\r\n\r\nReturns own information about user.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-own-user/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/{userId}/icon:
+    get:
+      tags:
+        - General
+      summary: Get User Icon
+      description: "# Description\r\n\r\nDownloads user icon.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-user-icon/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/{userId}/activities:
+    get:
+      tags:
+        - General
+      summary: Get User Recent Updates
+      description: "# Description\r\n\r\nReturns user&rsquo;s recent updates\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-user-recent-updates/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: activityTypeId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'type(1-17) : activityTypeId[](Multiple)'
+          example: <Number>
+        - name: minId
+          in: query
+          schema:
+            type: string
+          description: 'minimum ID : minId'
+          example: <Number>
+        - name: maxId
+          in: query
+          schema:
+            type: string
+          description: 'maximum ID : maxId'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/{userId}/stars:
+    get:
+      tags:
+        - General
+      summary: Get Received Star List
+      description: "# Description\r\n\r\nReturns the list of stars that user received.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-received-star-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: minId
+          in: query
+          schema:
+            type: string
+          description: 'minimum ID : minId'
+          example: <Number>
+        - name: maxId
+          in: query
+          schema:
+            type: string
+          description: 'maximum ID : maxId'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/{userId}/stars/count:
+    get:
+      tags:
+        - General
+      summary: Count User Received Stars
+      description: "# Description\r\n\r\nReturns number of stars that user received.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/count-user-received-stars/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: since
+          in: query
+          schema:
+            type: string
+          description: 'after the given date (yyyy-MM-dd) : since'
+          example: <String>
+        - name: until
+          in: query
+          schema:
+            type: string
+          description: 'before the given date (yyyy-MM-dd) : until'
+          example: <String>
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/myself/recentlyViewedIssues:
+    get:
+      tags:
+        - General
+      summary: Get List of Recently Viewed Issues
+      description: "# Description\r\n\r\nReturns list of issues which the user viewed recently.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-issues/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: ' : offset'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/myself/recentlyViewedProjects:
+    get:
+      tags:
+        - General
+      summary: Get List of Recently Viewed Projects
+      description: "# Description\r\n\r\nReturns list of projects which the user viewed recently.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-projects/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: ' : offset'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/myself/recentlyViewedWikis:
+    get:
+      tags:
+        - General
+      summary: Get List of Recently Viewed Wikis
+      description: "# Description\r\n\r\nReturns list of Wikis which the user viewed recently.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-recently-viewed-wikis/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: ' : offset'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/groups:
+    get:
+      tags:
+        - General
+      summary: Get List of Groups
+      description: "# Description\r\n\r\n\n       warning\n           Deprecated API\n          This API has been deprecated and is no longer recommended for use. Please replace it with Get List of Teams.\n\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-groups/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: ' : offset'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Group
+      description: "# Description\r\n\r\n\n       warning\n           Deprecated API\n          This API has been deprecated and is no longer recommended for use. Please replace it with Add Team.\n\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-group/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/groups/{groupId}:
+    get:
+      tags:
+        - General
+      summary: Get Group
+      description: "# Description\r\n\r\n\n       warning\n           Deprecated API\n          This API has been deprecated and is no longer recommended for use. Please replace it with Get Team.\n\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-group/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: groupId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - General
+      summary: Update Group
+      description: "# Description\r\n\r\n\n       warning\n           Deprecated API\n          This API has been deprecated and is no longer recommended for use. Please replace it with Update Team.\n\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-group/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: groupId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Group
+      description: "# Description\r\n\r\n\n       warning\n           Deprecated API\n          This API has been deprecated and is no longer recommended for use. Please replace it with Delete Team.\n\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-group/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: groupId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/statuses:
+    get:
+      tags:
+        - General
+      summary: Get Status List
+      description: "# Description\r\n\r\n\n       warning\n           Deprecated API\n          This API has been deprecated and is no longer recommended for use. Please replace it with Get Status List of Project.\n\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-status-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/statuses:
+    get:
+      tags:
+        - General
+      summary: Get Status List of Project
+      description: "# Description\r\n\r\nReturns list of status in the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-status-list-of-project/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Status
+      description: "# Description\r\n\r\nAdds new Status to the project.\nYou can create up to 8 custom statuses within a Project aside from the 4 default.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-status/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/priorities:
+    get:
+      tags:
+        - General
+      summary: Get Priority List
+      description: "# Description\r\n\r\nReturns list of priorities.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-priority-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/resolutions:
+    get:
+      tags:
+        - General
+      summary: Get Resolution List
+      description: "# Description\r\n\r\nReturns list of resolutions.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-resolution-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects:
+    get:
+      tags:
+        - General
+      summary: Get Project List
+      description: "# Description\r\n\r\nReturns list of projects.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-project-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: archived
+          in: query
+          schema:
+            type: string
+          description: >-
+            For unspecified parameters, this form returns all projects. For
+            &lsquo;false&rsquo; parameters, it returns unarchived projects. For
+            &rsquo;true&rsquo; parameters, it returns archived projects. :
+            archived
+          example: <Boolean>
+        - name: all
+          in: query
+          schema:
+            type: string
+          description: >-
+            Only applies to administrators. If &rsquo;true,&rsquo; it returns
+            all projects. If &lsquo;false,&rsquo; it returns only projects they
+            have joined (set to &lsquo;false&rsquo; by default). : all
+          example: <Boolean>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Project
+      description: "# Description\r\n\r\nAdds new project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-project/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}:
+    get:
+      tags:
+        - General
+      summary: Get Project
+      description: "# Description\r\n\r\nReturns information about project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-project/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - General
+      summary: Update Project
+      description: "# Description\r\n\r\nUpdates information about project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-project/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Project
+      description: "# Description\r\n\r\nDeletes project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-project/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/image:
+    get:
+      tags:
+        - General
+      summary: Get Project Icon
+      description: "# Description\r\n\r\nDownloads project icon.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-project-icon/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/activities:
+    get:
+      tags:
+        - General
+      summary: Get Project Recent Updates
+      description: "# Description\r\n\r\nReturns recent update in the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-project-recent-updates/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: activityTypeId[](複数指定可)
+          in: query
+          schema:
+            type: string
+          description: 'type(1-26) : activityTypeId[](複数指定可)'
+          example: <Number>
+        - name: minId
+          in: query
+          schema:
+            type: string
+          description: 'minimum ID : minId'
+          example: <Number>
+        - name: maxId
+          in: query
+          schema:
+            type: string
+          description: 'maximum ID : maxId'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/users:
+    post:
+      tags:
+        - General
+      summary: Add Project User
+      description: "# Description\r\n\r\nAdds user to list of project members.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-project-user/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - General
+      summary: Get Project User List
+      description: "# Description\r\n\r\nReturns list of project members.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-project-user-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: excludeGroupMembers
+          in: query
+          schema:
+            type: string
+          description: >-
+            Set to true to exclude members that part of project groups and false
+            to get all members. Default is false. : excludeGroupMembers
+          example: <Boolean>
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Project User
+      description: "# Description\r\n\r\nRemoves user from list project members.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-project-user/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/administrators:
+    post:
+      tags:
+        - General
+      summary: Add Project Administrator
+      description: "# Description\r\n\r\nAdds &ldquo;Project Administrator&rdquo; role to user\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-project-administrator/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - General
+      summary: Get List of Project Administrators
+      description: "# Description\r\n\r\nReturns list of users who has Project Administrator role\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-project-administrators/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Project Administrator
+      description: "# Description\r\n\r\nRemoves Project Administrator role from user\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-project-administrator/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/statuses/{id}:
+    patch:
+      tags:
+        - General
+      summary: Update Status
+      description: "# Description\r\n\r\nUpdates information about Status.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-status/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Status
+      description: "# Description\r\n\r\nDeletes Status.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-status/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/statuses/updateDisplayOrder:
+    patch:
+      tags:
+        - General
+      summary: Update Order of Status
+      description: "# Description\r\n\r\nUpdates order about Status.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-order-of-status/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/issueTypes:
+    get:
+      tags:
+        - General
+      summary: Get Issue Type List
+      description: "# Description\r\n\r\nReturns list of Issue Types in the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-issue-type-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Issue Type
+      description: "# Description\r\n\r\nAdds new Issue Type to the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-issue-type/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/issueTypes/{id}:
+    patch:
+      tags:
+        - General
+      summary: Update Issue Type
+      description: "# Description\r\n\r\nUpdates information about Issue Type.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-issue-type/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Issue Type
+      description: "# Description\r\n\r\nDeletes Issue Type.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-issue-type/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/categories:
+    get:
+      tags:
+        - General
+      summary: Get Category List
+      description: "# Description\r\n\r\nReturns list of Categories in the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-category-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Category
+      description: "# Description\r\n\r\nAdds new Category to the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-category/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/categories/{id}:
+    patch:
+      tags:
+        - General
+      summary: Update Category
+      description: "# Description\r\n\r\nUpdates information about Category.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-category/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Category
+      description: "# Description\r\n\r\nDeletes Category.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-category/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/versions:
+    get:
+      tags:
+        - General
+      summary: Get Version/Milestone List
+      description: "# Description\r\n\r\nReturns list of Versions/Milestones in the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-version-milestone-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Version/Milestone
+      description: "# Description\r\n\r\nAdds new Version/Milestone to the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-version-milestone/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/versions/{id}:
+    patch:
+      tags:
+        - General
+      summary: Update Version/Milestone
+      description: "# Description\r\n\r\nUpdates information about Version/Milestone.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-version-milestone/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Version
+      description: "# Description\r\n\r\nDeletes Version.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-version/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/customFields:
+    get:
+      tags:
+        - General
+      summary: Get Custom Field List
+      description: "# Description\r\n\r\nReturns list of Custom Fields in the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-custom-field-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Custom Field
+      description: "# Description\r\n\r\nAdds new Custom Field to the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-custom-field/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/customFields/{id}:
+    patch:
+      tags:
+        - General
+      summary: Update Custom Field
+      description: "# Description\r\n\r\nUpdates Custom Field.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-custom-field/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Custom Field
+      description: "# Description\r\n\r\nDeletes Custom Field.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-custom-field/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/customFields/{id}/items:
+    post:
+      tags:
+        - General
+      summary: Add List Item for List Type Custom Field
+      description: "# Description\r\n\r\nAdds new list item for list type custom field.\nOnly administrator can call this API if the option &ldquo;Add items in adding or editing issues&rdquo; is disabled in settings.\nCalling API fails if specified custom field&rsquo;s type is not a list.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-list-item-for-list-type-custom-field/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/customFields/{id}/items/{itemId}:
+    patch:
+      tags:
+        - General
+      summary: Update List Item for List Type Custom Field
+      description: "# Description\r\n\r\nUpdates list item for list type custom field.\nCalling API fails if specified custom field&rsquo;s type is not a list.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-list-item-for-list-type-custom-field/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: itemId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete List Item for List Type Custom Field
+      description: "# Description\r\n\r\nDeletes list item for list type custom field.\nCalling API fails if specified custom field&rsquo;s type is not a list.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-list-item-for-list-type-custom-field/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: itemId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/files/metadata/{path}:
+    get:
+      tags:
+        - General
+      summary: Get List of Shared Files
+      description: "# Description\r\n\r\nGets list of Shared Files.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: ' : offset'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: path
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/files/{sharedFileId}:
+    get:
+      tags:
+        - General
+      summary: Get File
+      description: "# Description\r\n\r\nDownloads the file.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-file/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: sharedFileId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/diskUsage:
+    get:
+      tags:
+        - General
+      summary: Get Project Disk Usage
+      description: "# Description\r\n\r\nReturns information about project disk usage.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-project-disk-usage/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/webhooks:
+    get:
+      tags:
+        - General
+      summary: Get List of Webhooks
+      description: "# Description\r\n\r\nReturns list of webhooks.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-webhooks/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Webhook
+      description: "# Description\r\n\r\nAdds new webhook.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-webhook/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/webhooks/{webhookId}:
+    get:
+      tags:
+        - General
+      summary: Get Webhook
+      description: "# Description\r\n\r\nReturns information about webhook.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-webhook/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: webhookId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - General
+      summary: Update Webhook
+      description: "# Description\r\n\r\nUpdates information about webhook.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-webhook/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: webhookId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Webhook
+      description: "# Description\r\n\r\nDeletes webhook.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-webhook/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: webhookId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues:
+    get:
+      tags:
+        - General
+      summary: Get Issue List
+      description: "# Description\r\n\r\nReturns list of issues.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-issue-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Project ID : projectId[](Multiple)'
+          example: <Number>
+        - name: issueTypeId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Issue Type ID : issueTypeId[](Multiple)'
+          example: <Number>
+        - name: categoryId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Category ID : categoryId[](Multiple)'
+          example: <Number>
+        - name: versionId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Version ID : versionId[](Multiple)'
+          example: <Number>
+        - name: milestoneId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Milestone ID : milestoneId[](Multiple)'
+          example: <Number>
+        - name: statusId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Status IDAPI of status list for each project : statusId[](Multiple)'
+          example: <Number>
+        - name: priorityId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Priority ID : priorityId[](Multiple)'
+          example: <Number>
+        - name: assigneeId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Assignee ID : assigneeId[](Multiple)'
+          example: <Number>
+        - name: createdUserId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Created User ID : createdUserId[](Multiple)'
+          example: <Number>
+        - name: resolutionId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Resolution ID : resolutionId[](Multiple)'
+          example: <Number>
+        - name: parentChild
+          in: query
+          schema:
+            type: string
+          description: >-
+            Subtasking0: All1: Exclude Child Issue2: Child Issue3: Neither
+            Parent Issue nor Child Issue4: Parent Issue : parentChild
+          example: <Number>
+        - name: attachment
+          in: query
+          schema:
+            type: string
+          description: 'True to make include Issue with Attachment : attachment'
+          example: <Boolean>
+        - name: sharedFile
+          in: query
+          schema:
+            type: string
+          description: 'True to make include Issue with File : sharedFile'
+          example: <Boolean>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: >-
+            What to sort results
+            by“issueType”“category”“version”“milestone”“summary”“status”“priority”“attachment”“sharedFile”“created”“createdUser”“updated”“updatedUser”“assignee”“startDate”“dueDate”“estimatedHours”“actualHours”“childIssue”“customField_${id}”
+            : sort
+          example: <String>
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: 'Order of the sort “asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: ' : offset'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: createdSince
+          in: query
+          schema:
+            type: string
+          description: 'Created since (yyyy-MM-dd) : createdSince'
+          example: <String>
+        - name: createdUntil
+          in: query
+          schema:
+            type: string
+          description: 'Created until (yyyy-MM-dd) : createdUntil'
+          example: <String>
+        - name: updatedSince
+          in: query
+          schema:
+            type: string
+          description: 'Updated since (yyyy-MM-dd) : updatedSince'
+          example: <String>
+        - name: updatedUntil
+          in: query
+          schema:
+            type: string
+          description: 'Updated until (yyyy-MM-dd) : updatedUntil'
+          example: <String>
+        - name: startDateSince
+          in: query
+          schema:
+            type: string
+          description: 'Start Date since (yyyy-MM-dd) : startDateSince'
+          example: <String>
+        - name: startDateUntil
+          in: query
+          schema:
+            type: string
+          description: 'Start Date until (yyyy-MM-dd) : startDateUntil'
+          example: <String>
+        - name: dueDateSince
+          in: query
+          schema:
+            type: string
+          description: 'Due Date since (yyyy-MM-dd) : dueDateSince'
+          example: <String>
+        - name: dueDateUntil
+          in: query
+          schema:
+            type: string
+          description: 'Due Date until (yyyy-MM-dd) : dueDateUntil'
+          example: <String>
+        - name: id[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Issue ID : id[](Multiple)'
+          example: <Number>
+        - name: parentIssueId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Parent Issue ID : parentIssueId[](Multiple)'
+          example: <Number>
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 'Keyword : keyword'
+          example: <String>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Issue
+      description: "# Description\r\n\r\nAdds new issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-issue/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/count:
+    get:
+      tags:
+        - General
+      summary: Count Issue
+      description: "# Description\r\n\r\nReturns number of issues.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/count-issue/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Project ID : projectId[](Multiple)'
+          example: <Number>
+        - name: issueTypeId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Issue Type ID : issueTypeId[](Multiple)'
+          example: <Number>
+        - name: categoryId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Category ID : categoryId[](Multiple)'
+          example: <Number>
+        - name: versionId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Version ID : versionId[](Multiple)'
+          example: <Number>
+        - name: milestoneId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Milestone ID : milestoneId[](Multiple)'
+          example: <Number>
+        - name: statusId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Status ID : statusId[](Multiple)'
+          example: <Number>
+        - name: priorityId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Priority ID : priorityId[](Multiple)'
+          example: <Number>
+        - name: assigneeId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Assignee ID : assigneeId[](Multiple)'
+          example: <Number>
+        - name: createdUserId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Created User ID : createdUserId[](Multiple)'
+          example: <Number>
+        - name: resolutionId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Resolution ID : resolutionId[](Multiple)'
+          example: <Number>
+        - name: parentChild
+          in: query
+          schema:
+            type: string
+          description: >-
+            Subtasking0: All1: Exclude Child Issue2: Child Issue3: Neither
+            Parent Issue nor Child Issue4: Parent Issue : parentChild
+          example: <Number>
+        - name: attachment
+          in: query
+          schema:
+            type: string
+          description: 'True to make include Issue with Attachment : attachment'
+          example: <Boolean>
+        - name: sharedFile
+          in: query
+          schema:
+            type: string
+          description: 'True to make include Issue with File : sharedFile'
+          example: <Boolean>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: >-
+            What to sort results
+            by“issueType”“category”“version”“milestone”“summary”“status”“priority”“attachment”“sharedFile”“created”“createdUser”“updated”“updatedUser”“assignee”“startDate”“dueDate”“estimatedHours”“actualHours”“childIssue”“customField_${id}”
+            : sort
+          example: <String>
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: 'Order of the sort “asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: ' : offset'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: createdSince
+          in: query
+          schema:
+            type: string
+          description: 'Created since (yyyy-MM-dd) : createdSince'
+          example: <String>
+        - name: createdUntil
+          in: query
+          schema:
+            type: string
+          description: 'Created until (yyyy-MM-dd) : createdUntil'
+          example: <String>
+        - name: updatedSince
+          in: query
+          schema:
+            type: string
+          description: 'Updated since (yyyy-MM-dd) : updatedSince'
+          example: <String>
+        - name: updatedUntil
+          in: query
+          schema:
+            type: string
+          description: 'Updated until (yyyy-MM-dd) : updatedUntil'
+          example: <String>
+        - name: startDateSince
+          in: query
+          schema:
+            type: string
+          description: 'Start Date since (yyyy-MM-dd) : startDateSince'
+          example: <String>
+        - name: startDateUntil
+          in: query
+          schema:
+            type: string
+          description: 'Start Date until (yyyy-MM-dd) : startDateUntil'
+          example: <String>
+        - name: dueDateSince
+          in: query
+          schema:
+            type: string
+          description: 'Due Date since (yyyy-MM-dd) : dueDateSince'
+          example: <String>
+        - name: dueDateUntil
+          in: query
+          schema:
+            type: string
+          description: 'Due Date until (yyyy-MM-dd) : dueDateUntil'
+          example: <String>
+        - name: id[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Issue ID : id[](Multiple)'
+          example: <Number>
+        - name: parentIssueId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Parent Issue ID : parentIssueId[](Multiple)'
+          example: <Number>
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 'Keyword : keyword'
+          example: <String>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/{issueIdOrKey}:
+    get:
+      tags:
+        - General
+      summary: Get Issue
+      description: "# Description\r\n\r\nReturns information about issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-issue/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - General
+      summary: Update Issue
+      description: "# Description\r\n\r\nUpdates information about issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-issue/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Issue
+      description: "# Description\r\n\r\nDeletes issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-issue/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/{issueIdOrKey}/comments:
+    get:
+      tags:
+        - General
+      summary: Get Comment List
+      description: "# Description\r\n\r\nReturns list of comments in issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-comment-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: minId
+          in: query
+          schema:
+            type: string
+          description: 'minimum ID : minId'
+          example: <Number>
+        - name: maxId
+          in: query
+          schema:
+            type: string
+          description: 'maximum ID : maxId'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Comment
+      description: "# Description\r\n\r\nAdds a comment to the issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-comment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/{issueIdOrKey}/comments/count:
+    get:
+      tags:
+        - General
+      summary: Count Comment
+      description: "# Description\r\n\r\nReturns number of comments in issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/count-comment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/{issueIdOrKey}/comments/{commentId}:
+    get:
+      tags:
+        - General
+      summary: Get Comment
+      description: "# Description\r\n\r\nReturns information about comment.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-comment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: commentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    "delete\n":
+      tags:
+        - General
+      summary: Delete Comment
+      description: "# Description\r\n\r\nDelete comment.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-comment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: commentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - General
+      summary: Update comment
+      description: "# Description\r\n\r\nUpdates content of comment.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-comment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: commentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/{issueIdOrKey}/comments/{commentId}/notifications:
+    get:
+      tags:
+        - General
+      summary: Get List of Comment Notifications
+      description: "# Description\r\n\r\nReturns the list of comment notifications.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-comment-notifications/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: commentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Comment Notification
+      description: "# Description\r\n\r\nAdds notifications to the comment.\nOnly the user who added the comment can add notifications.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-comment-notification/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: commentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/{issueIdOrKey}/attachments:
+    get:
+      tags:
+        - General
+      summary: Get List of Issue Attachments
+      description: "# Description\r\n\r\nReturns the list of issue attachments.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-issue-attachments/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/{issueIdOrKey}/attachments/{attachmentId}:
+    get:
+      tags:
+        - General
+      summary: Get Issue Attachment
+      description: "# Description\r\n\r\nDownloads issue&rsquo;s attachment file.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-issue-attachment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: attachmentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Issue Attachment
+      description: "# Description\r\n\r\nDeletes an attachment of issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-issue-attachment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: attachmentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/{issueIdOrKey}/participants:
+    get:
+      tags:
+        - General
+      summary: Get Issue Participant List
+      description: "# Description\r\n\r\nReturns list of participants of an issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-issue-participant-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/{issueIdOrKey}/sharedFiles:
+    get:
+      tags:
+        - General
+      summary: Get List of Linked Shared Files
+      description: "# Description\r\n\r\nReturns the list of linked Shared Files to issues.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-linked-shared-files/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Link Shared Files to Issue
+      description: "# Description\r\n\r\nLinks shared files to issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/link-shared-files-to-issue/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/issues/{issueIdOrKey}/sharedFiles/{id}:
+    delete:
+      tags:
+        - General
+      summary: Remove Link to Shared File from Issue
+      description: "# Description\r\n\r\nRemoves link to shared file from issue.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/remove-link-to-shared-file-from-issue/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: issueIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/wikis:
+    get:
+      tags:
+        - General
+      summary: Get Wiki Page List
+      description: "# Description\r\n\r\nReturns list of Wiki pages.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-wiki-page-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: query
+          schema:
+            type: string
+          description: 'Project ID or Project Key : projectIdOrKey'
+          example: <String>
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 'Keyword : keyword'
+          example: <String>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Wiki Page
+      description: "# Description\r\n\r\nAdds new Wiki page.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-wiki-page/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/wikis/count:
+    get:
+      tags:
+        - General
+      summary: Count Wiki Page
+      description: "# Description\r\n\r\nReturns number of Wiki pages.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/count-wiki-page/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: query
+          schema:
+            type: string
+          description: 'Project ID or Project Key : projectIdOrKey'
+          example: <String>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/wikis/tags:
+    get:
+      tags:
+        - General
+      summary: Get Wiki Page Tag List
+      description: "# Description\r\n\r\nReturns list of tags that are used in the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-wiki-page-tag-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: query
+          schema:
+            type: string
+          description: 'Project ID or Project Key : projectIdOrKey'
+          example: <String>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/wikis/{wikiId}:
+    get:
+      tags:
+        - General
+      summary: Get Wiki Page
+      description: "# Description\r\n\r\nReturns information about Wiki page.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-wiki-page/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - General
+      summary: Update Wiki Page
+      description: "# Description\r\n\r\nUpdates information about Wiki page.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-wiki-page/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Wiki Page
+      description: "# Description\r\n\r\nDeletes Wiki page.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-wiki-page/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/wikis/{wikiId}/attachments:
+    get:
+      tags:
+        - General
+      summary: Get List of Wiki attachments
+      description: "# Description\r\n\r\nGets list of files attached to Wiki.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-wiki-attachments/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Attach File to Wiki
+      description: "# Description\r\n\r\nAttaches file to Wiki\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/attach-file-to-wiki/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/wikis/{wikiId}/attachments/{attachmentId}:
+    get:
+      tags:
+        - General
+      summary: Get Wiki Page Attachment
+      description: "# Description\r\n\r\nDownloads Wiki page&rsquo;s attachment file.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-wiki-page-attachment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: attachmentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Remove Wiki Attachment
+      description: "# Description\r\n\r\nRemoves files attached to Wiki.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/remove-wiki-attachment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: attachmentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/wikis/{wikiId}/sharedFiles:
+    get:
+      tags:
+        - General
+      summary: Get List of Shared Files on Wiki
+      description: "# Description\r\n\r\nReturns the list of Shared Files on Wiki.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-shared-files-on-wiki/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Link Shared Files to Wiki
+      description: "# Description\r\n\r\nLinks Shared Files to Wiki.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/link-shared-files-to-wiki/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/wikis/{wikiId}/sharedFiles/{id}:
+    delete:
+      tags:
+        - General
+      summary: Remove Link to Shared File from Wiki
+      description: "# Description\r\n\r\nRemoves link to shared file from Wiki.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/remove-link-to-shared-file-from-wiki/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/wikis/{wikiId}/history:
+    get:
+      tags:
+        - General
+      summary: Get Wiki Page History
+      description: "# Description\r\n\r\nReturns history of Wiki page.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-wiki-page-history/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: minId
+          in: query
+          schema:
+            type: string
+          description: 'minimum ID : minId'
+          example: <Number>
+        - name: maxId
+          in: query
+          schema:
+            type: string
+          description: 'maximum ID : maxId'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=desc : order'
+          example: <String>
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/wikis/{wikiId}/stars:
+    get:
+      tags:
+        - General
+      summary: Get Wiki Page Star
+      description: "# Description\r\n\r\nReturns list of stars received on the Wiki page.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-wiki-page-star/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: wikiId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/stars:
+    post:
+      tags:
+        - General
+      summary: Add Star
+      description: "# Description\r\n\r\nAdds star.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-star/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/notifications:
+    get:
+      tags:
+        - General
+      summary: Get Notification
+      description: "# Description\r\n\r\nReturns own notifications.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-notification/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: minId
+          in: query
+          schema:
+            type: string
+          description: 'minimum ID : minId'
+          example: <Number>
+        - name: maxId
+          in: query
+          schema:
+            type: string
+          description: 'maximum ID : maxId'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” : order'
+          example: <String>
+        - name: senderId
+          in: query
+          schema:
+            type: string
+          description: 'sender ID : senderId'
+          example: <Number>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/notifications/count:
+    get:
+      tags:
+        - General
+      summary: Count Notification
+      description: "# Description\r\n\r\nReturns number of Notifications.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/count-notification/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: resourceAlreadyRead
+          in: query
+          schema:
+            type: string
+          description: >-
+            This parameter is optional. Set to false for unread notification
+            count and true for already read notification count. :
+            resourceAlreadyRead
+          example: <Boolean>
+        - name: alreadyRead
+          in: query
+          schema:
+            type: string
+          description: >-
+            This parameter is optional. Set this parameter to false to get
+            unread notification count since the last time checked by user and
+            true for already read notification count. : alreadyRead
+          example: <Boolean>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/notifications/markAsRead:
+    post:
+      tags:
+        - General
+      summary: Reset Unread Notification Count
+      description: "# Description\r\n\r\nResets unread Notification count.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/reset-unread-notification-count/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/notifications/{id}/markAsRead:
+    post:
+      tags:
+        - General
+      summary: Read Notification
+      description: "# Description\r\n\r\nChanges notifications read.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/read-notification/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/git/repositories:
+    get:
+      tags:
+        - General
+      summary: Get List of Git Repositories
+      description: "# Description\r\n\r\nReturns list of Git repositories.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-git-repositories/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/git/repositories/{repoIdOrName}:
+    get:
+      tags:
+        - General
+      summary: Get Git Repository
+      description: "# Description\r\n\r\nReturns Git repository.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-git-repository/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/git/repositories/{repoIdOrName}/pullRequests:
+    get:
+      tags:
+        - General
+      summary: Get Pull Request List
+      description: "# Description\r\n\r\nReturns list of pull requests.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-pull-request-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: statusId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Status ID : statusId[](Multiple)'
+          example: <Number>
+        - name: assigneeId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Assignee ID : assigneeId[](Multiple)'
+          example: <Number>
+        - name: issueId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Issue ID : issueId[](Multiple)'
+          example: <Number>
+        - name: createdUserId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Created User ID : createdUserId[](Multiple)'
+          example: <Number>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: ' : offset'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Pull Request
+      description: "# Description\r\n\r\nAdds pull requests.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-pull-request/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/git/repositories/{repoIdOrName}/pullRequests/count:
+    get:
+      tags:
+        - General
+      summary: Get Number of Pull Requests
+      description: "# Description\r\n\r\nReturns number of pull requests.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-requests/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: statusId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Status ID : statusId[](Multiple)'
+          example: <Number>
+        - name: assigneeId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Assignee ID : assigneeId[](Multiple)'
+          example: <Number>
+        - name: issueId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Related issue ID : issueId[](Multiple)'
+          example: <Number>
+        - name: createdUserId[](Multiple)
+          in: query
+          schema:
+            type: string
+          description: 'Created User ID : createdUserId[](Multiple)'
+          example: <Number>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: ' : offset'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/git/repositories/{repoIdOrName}/pullRequests/{number}:
+    get:
+      tags:
+        - General
+      summary: Get Pull Request
+      description: "# Description\r\n\r\nReturns pull reuqest.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-pull-request/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: number
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - General
+      summary: Update Pull Request
+      description: "# Description\r\n\r\nUpdates pull requests.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-pull-request/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: number
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/git/repositories/{repoIdOrName}/pullRequests/{number}/comments:
+    get:
+      tags:
+        - General
+      summary: Get Pull Request Comment
+      description: "# Description\r\n\r\nReturns list of pull request comments.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-pull-request-comment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: minId
+          in: query
+          schema:
+            type: string
+          description: 'minimum ID : minId'
+          example: <Number>
+        - name: maxId
+          in: query
+          schema:
+            type: string
+          description: 'maximum ID : maxId'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: number
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Pull Request Comment
+      description: "# Description\r\n\r\nAdds comments on pull requests.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-pull-request-comment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: number
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/git/repositories/{repoIdOrName}/pullRequests/{number}/comments/count:
+    get:
+      tags:
+        - General
+      summary: Get Number of Pull Request Comments
+      description: "# Description\r\n\r\nReturns number of comments on pull requests.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-number-of-pull-request-comments/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: number
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/git/repositories/{repoIdOrName}/pullRequests/{number}/comments/{commentId}:
+    patch:
+      tags:
+        - General
+      summary: Update Pull Request Comment Information
+      description: "# Description\r\n\r\nUpdates pull request comment information.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-pull-request-comment-information/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: number
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: commentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/git/repositories/{repoIdOrName}/pullRequests/{number}/attachments:
+    get:
+      tags:
+        - General
+      summary: Get List of Pull Request Attachment
+      description: "# Description\r\n\r\nReturns list of attached files on pull requests.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-pull-request-attachment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: number
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/git/repositories/{repoIdOrName}/pullRequests/{number}/attachments/{attachmentId}:
+    get:
+      tags:
+        - General
+      summary: Download Pull Request Attachment
+      description: "# Description\r\n\r\nDownloads attached files on pull requests.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/download-pull-request-attachment/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: number
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: attachmentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Pull Request Attachments
+      description: "# Description\r\n\r\nDeletes attached files on pull requests.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-pull-request-attachments/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: repoIdOrName
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: number
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: attachmentId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/{userId}/watchings:
+    get:
+      tags:
+        - General
+      summary: Get Watching List
+      description: "# Description\r\n\r\nReturns list of your watching issues.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-watching-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: 'Order of the sort “asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: >-
+            What to sort results by. The value “created”, “updated” or
+            “issueUpdated” are allowed. default=“issueUpdated” : sort
+          example: <String>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'Number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: >-
+            Where to start returning records from the entire results. default=0
+            : offset
+          example: <Number>
+        - name: resourceAlreadyRead
+          in: query
+          schema:
+            type: string
+          description: >-
+            Whether the issues already read are retrieved or not. The all
+            watching issues are returned if this parameter is omitted. The read
+            watching issues are returned if true. The unread watching issues are
+            returned if false. default=null : resourceAlreadyRead
+          example: <Boolean>
+        - name: issueId[]
+          in: query
+          schema:
+            type: string
+          description: 'Issue ID : issueId[]'
+          example: <Number>
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/users/{userId}/watchings/count:
+    get:
+      tags:
+        - General
+      summary: Count Watching
+      description: "# Description\r\n\r\nReturns the number of your watching issues.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/count-watching/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: resourceAlreadyRead
+          in: query
+          schema:
+            type: string
+          description: >-
+            This parameter is optional. Set to false for unread watching count
+            and true for already read watching count. : resourceAlreadyRead
+          example: <Boolean>
+        - name: alreadyRead
+          in: query
+          schema:
+            type: string
+          description: >-
+            This parameter is optional. Set this parameter to false to get
+            unread watching count since the last time checked by user and true
+            for already read watching count. When both alreadyRead and
+            resourceAlreadyRead parameters set, resourceAlreadyRead will be
+            ignored. : alreadyRead
+          example: <Boolean>
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/watchings/{watchingId}:
+    get:
+      tags:
+        - General
+      summary: Get Watching
+      description: "# Description\r\n\r\nReturns the information about a watching.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-watching/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: watchingId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - General
+      summary: Update Watching
+      description: "# Description\r\n\r\nUpdates a watching. User can update own note.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-watching/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: watchingId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Watching
+      description: "# Description\r\n\r\nDeletes a own watching.\nUser can delete a own watching.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-watching/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: watchingId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/watchings:
+    post:
+      tags:
+        - General
+      summary: Add Watching
+      description: "# Description\r\n\r\nAdds a watching. User can add a own watching.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-watching/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/watchings/{watchingId}/markAsRead:
+    post:
+      tags:
+        - General
+      summary: Mark Watching as Read
+      description: "# Description\r\n\r\nMark a watching as read.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/mark-watching-as-read/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: watchingId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/groups:
+    get:
+      tags:
+        - General
+      summary: Get Project Group List
+      description: "# Description\r\n\r\n\n       warning\n           Deprecated API\n          This API has been deprecated and is no longer recommended for use. Please replace it with Get Project Team List.\n\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-project-group-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Project Group
+      description: "# Description\r\n\r\n\n       warning\n           Deprecated API\n          This API has been deprecated and is no longer recommended for use. Please replace it with Add Project Team.\n\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-project-group/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Project Group
+      description: "# Description\r\n\r\n\n       warning\n           Deprecated API\n          This API has been deprecated and is no longer recommended for use. Please replace it with Delete Project Team.\n\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-project-group/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/groups/{groupId}/icon:
+    get:
+      tags:
+        - General
+      summary: Get Group Icon
+      description: "# Description\r\n\r\n\n       warning\n           Deprecated API\n          This API has been deprecated and is no longer recommended for use. Please replace it with Get Team Icon.\n\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-group-icon/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: groupId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/space/licence:
+    get:
+      tags:
+        - General
+      summary: Get Licence
+      description: "# Description\r\n\r\nReturns licence.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-licence/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/teams:
+    get:
+      tags:
+        - General
+      summary: Get List of Teams
+      description: "# Description\r\n\r\nReturns list of teams.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-list-of-teams/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: order
+          in: query
+          schema:
+            type: string
+          description: '“asc” or “desc” default=“desc” : order'
+          example: <String>
+        - name: offset
+          in: query
+          schema:
+            type: string
+          description: ' : offset'
+          example: <Number>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: 'number of records to retrieve(1-100) default=20 : count'
+          example: <Number>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Team
+      description: "# Description\r\n\r\nAdds new team.\nYou can&rsquo;t use this API at new plan space.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-team/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/teams/{teamId}:
+    get:
+      tags:
+        - General
+      summary: Get Team
+      description: "# Description\r\n\r\nReturns information about team.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-team/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: teamId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - General
+      summary: Update Team
+      description: "# Description\r\n\r\nUpdates information about team.\nYou can&rsquo;t use this API at new plan space.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/update-team/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: teamId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Team
+      description: "# Description\r\n\r\nDeletes team.\nYou can&rsquo;t use this API at new plan space.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-team/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: teamId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/teams/{teamId}/icon:
+    get:
+      tags:
+        - General
+      summary: Get Team Icon
+      description: "# Description\r\n\r\nDownloads team icon.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-team-icon/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: teamId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v2/projects/{projectIdOrKey}/teams:
+    get:
+      tags:
+        - General
+      summary: Get Project Team List
+      description: "# Description\r\n\r\nReturns list of project teams.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/get-project-team-list/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - General
+      summary: Add Project Team
+      description: "# Description\r\n\r\nAdd team to project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/add-project-team/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - General
+      summary: Delete Project Team
+      description: "# Description\r\n\r\nRemoves a team from the project.\r\n\r\n# Reference Url\r\n\r\nhttps://developer.nulab.com/docs/backlog/api/2/delete-project-team/"
+      parameters:
+        - name: apiKey
+          in: query
+          schema:
+            type: string
+          example: '{{ApiKey}}'
+        - name: projectIdOrKey
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}

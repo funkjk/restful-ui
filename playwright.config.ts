@@ -1,0 +1,63 @@
+import { defineConfig, devices } from '@playwright/test';
+
+/**
+ * Read environment variables from file.
+ * https://github.com/motdotla/dotenv
+ */
+// import dotenv from 'dotenv';
+// import path from 'path';
+// dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+/**
+ * See https://playwright.dev/docs/test-configuration.
+ */
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: false,
+  globalTimeout: 300000,
+  timeout: 100000,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
+  use: {
+    baseURL: 'http://localhost:4210',
+    trace: 'on-first-retry',
+    video: {
+      mode: 'on-first-retry',
+      size: { width: 640, height: 480 }
+    }
+  },
+
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+
+    // Webkit is not supported because playwright test offen fails timeout
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
+
+  ],
+
+  webServer: {
+    command: 'pnpm run dev',
+    url: 'http://localhost:4210',
+    reuseExistingServer: false,
+    env: {
+      PORT: '4210',
+      NODE_ENV: 'test',
+      E2E_TEST: 'true',
+    },
+    stdout: 'pipe',
+    stderr: 'pipe',
+  },
+});

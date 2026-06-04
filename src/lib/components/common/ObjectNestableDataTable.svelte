@@ -1,0 +1,270 @@
+<script lang="ts">
+    import { convertToDataTableHeaders, DisplayType, type DisplayTypes, type DataTableHeaderColumn } from "$lib/utils/utils";
+
+
+    import dayjs from "dayjs";
+
+    import List, { Item, Separator } from "@smui/list";
+
+    import Menu from "@smui/menu";
+
+    import Button, { Label } from "@smui/button";
+    import {
+        ObjectArray,
+        ColumnDefinition,
+        type SelectedRoot,
+        MoveDirection,
+        moveSelected,
+    } from "$lib/utils/object-array";
+
+    import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
+    import IconButton from "@smui/icon-button";
+    import Short from "./Short.svelte";
+    import ActionMenu from "./ActionMenu.svelte";
+    import type { Snippet } from "svelte";
+    type Component = $$Generic<typeof SvelteComponent>;
+    // TODO key must string array like path?
+    let {
+        columnView = $bindable({} as { [key: string]: Component }),
+        items,
+        displayTypes = $bindable({} as DisplayTypes),
+        selectedColumns = $bindable({ selected: [] } as SelectedRoot),
+        tableOperation,
+        paginate
+    }: {
+        columnView?: { [key: string]: Component };
+        items: Record<string, any>[];
+        displayTypes?: DisplayTypes;
+        selectedColumns?: SelectedRoot;
+        tableOperation?: Snippet;
+        paginate?: Snippet;
+    } = $props();
+    let objectArray = $derived(new ObjectArray(items));
+    $effect(() => {
+        if (
+            !selectedColumns.selected ||
+            selectedColumns.selected.length === 0
+        ) {
+            selectedColumns = objectArray.initialSelectedColumns;
+        }
+    });
+    let selectedColumnDefinition = $derived(
+        objectArray.getSelectedColumnDefinition(selectedColumns)
+    );
+    let headers = $derived(convertToDataTableHeaders(objectArray, selectedColumns));
+    let hidedColumns = $derived(
+        objectArray
+            .getFlattenDefinitons()
+            .filter((e) => !e.isShowed(selectedColumns))
+            .filter(
+                (e) =>
+                    !e.parentColumn ||
+                    e.parentColumn?.isShowed(selectedColumns),
+            )
+    );
+    function getCellDisplayType(column: ColumnDefinition): DisplayType {
+        const propertyName = column.getKey().join(".");
+        return displayTypes[propertyName] ?? DisplayType.DEFAULT;
+    }
+    function getCellValue(value: any, column: ColumnDefinition) {
+        let ret = value;
+        for (let prop of column.getKey()) {
+            if (!ret[prop]) {
+                return;
+            } else {
+                ret = ret[prop];
+            }
+        }
+        if (getCellDisplayType(column) == DisplayType.TIMESTAMP) {
+            try {
+                ret = dayjs(ret).toISOString();
+            } catch (e) {
+                console.error(e);
+                ret = "timestamp format error " + ret;
+            }
+        }
+        return ret;
+    }
+    function deselect(header: DataTableHeaderColumn) {
+        selectedColumns = objectArray.deselect(
+            selectedColumns,
+            header.definition!.getKey(),
+        );
+    }
+    function changeDataType(
+        header: DataTableHeaderColumn,
+        displayType: DisplayType,
+    ) {
+        const propertyName = header.definition!.getKey().join(".");
+
+        if (displayType !== DisplayType.DEFAULT) {
+            displayTypes = { ...displayTypes, [propertyName]: displayType };
+        } else {
+            displayTypes = Object.entries(displayTypes)
+                .filter(([prop]) => prop !== propertyName)
+                .reduce((prev, [prop, value]) => {
+                    return { ...prev, [prop]: value };
+                }, {});
+        }
+    }
+    function move(header: DataTableHeaderColumn, direction: MoveDirection) {
+        const key = header.definition!.getKey();
+        selectedColumns = moveSelected(selectedColumns, key, direction);
+    }
+    function expandShrink(header: DataTableHeaderColumn) {
+        const m = header.definition?.isExpanded(selectedColumns)
+            ? "shrink"
+            : "expand";
+        if (header.definition?.isExpanded(selectedColumns)) {
+            selectedColumns = objectArray.expand(
+                selectedColumns,
+                header.definition!.getKey(),
+            );
+        } else {
+            selectedColumns = objectArray.shrink(
+                selectedColumns,
+                header.definition!.getKey(),
+            );
+        }
+    }
+
+    function selectHidedItem(column: ColumnDefinition) {
+        selectedColumns = objectArray.select(selectedColumns, column.getKey());
+    }
+    let menu = $state<Menu | null>(null);
+</script>
+
+<div style="display:flex;justify-content: space-between; ">
+    {#if tableOperation}
+        {@render tableOperation()}
+    {/if}
+    {#if hidedColumns.length > 0}
+        <span style="min-width:180px">
+            <Button onclick={() => menu?.setOpen(true)}>
+                <Label>Show hided column</Label>
+            </Button>
+            <Menu bind:this={menu}>
+                <List>
+                    {#each hidedColumns as column, index (index)}
+                        <Item onSMUIAction={() => selectHidedItem(column)}>
+                            {column.getKey().join(".")}
+                        </Item>
+                    {/each}
+                </List>
+            </Menu>
+        </span>
+    {/if}
+</div>
+
+<DataTable style="width: 100%;">
+    <Head>
+        {#each headers as headerRow, index (index)}
+            <Row>
+                {#each headerRow as header, index (index)}
+                    <Cell>
+                        {#if header.dummyFlag === false}
+                            {#if selectedColumns.selected.length > 1}
+                                <ActionMenu>
+                                    {#snippet content({openMenu})}
+                                        <IconButton
+                                            class="material-icons"
+                                            onclick={openMenu}
+                                        >
+                                            menu
+                                        </IconButton>
+                                    {/snippet}
+                                    <List>
+                                        {#each Object.values(MoveDirection) as direction, index (index)}
+                                            <Item
+                                                onSMUIAction={() =>
+                                                    move(header, direction)}
+                                            >
+                                                {direction.toLocaleLowerCase()}
+                                            </Item>
+                                        {/each}
+                                        <Separator />
+                                        <Item
+                                            onSMUIAction={() =>
+                                                deselect(header)}
+                                        >
+                                            delete
+                                        </Item>
+                                        {#if header.parentFlag === false}
+                                            <Separator />
+                                            {#each Object.values(DisplayType) as dataType, index (index)}
+                                                <Item
+                                                    onSMUIAction={() =>
+                                                        changeDataType(
+                                                            header,
+                                                            dataType,
+                                                        )}
+                                                >
+                                                    change to {dataType.toLocaleLowerCase()}
+                                                </Item>
+                                            {/each}
+                                        {/if}
+                                    </List>
+                                </ActionMenu>
+                            {/if}
+                            {header.definition?.name}
+                            {#if header.definition?.isExpandable()}
+                                <IconButton
+                                    class="material-icons"
+                                    onclick={() => expandShrink(header)}
+                                    >{header.definition?.isExpanded(
+                                        selectedColumns,
+                                    )
+                                        ? "expand"
+                                        : "unfold_less"}
+                                </IconButton>
+                            {/if}
+                        {/if}
+                    </Cell>
+                {/each}
+            </Row>
+        {/each}
+    </Head>
+    <Body>
+        {#each items as item, index (index)}
+            <Row>
+                {#each selectedColumnDefinition as column, index (index)}
+                    <Cell
+                        class={"datacell-" +
+                            column.columnType.toLocaleLowerCase()}
+                    >
+                        {#if columnView[column.name]}
+                            {@const Component = columnView[column.name]}
+                            <Component
+                                value={getCellValue(item, column)}
+                                {item}
+                                column={column.name}
+                            />
+                        {:else if getCellDisplayType(column) == DisplayType.LONG_STING}
+                            <Short
+                                value={getCellValue(item, column)}
+                                length={400}
+                            ></Short>
+                        {:else}
+                            <Short value={getCellValue(item, column)}></Short>
+                        {/if}
+                    </Cell>
+                {/each}
+            </Row>
+        {/each}
+    </Body>
+</DataTable>
+{#if paginate}
+    {@render paginate()}
+{/if}
+
+<style>
+    :global(.datacell-long_sting) {
+        width: inherit !important;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        white-space: normal;
+    }
+    :global(.mdc-data-table__cell, .mdc-data-table__header-cell) {
+        width: initial;
+    }
+</style>
