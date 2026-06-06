@@ -1,0 +1,181 @@
+# API の探索と OpenAPI 拡張
+
+RESTful UI で OpenAPI を読み込み、一覧から詳細へ辿りながら API を試す手順と、`x-restfului-link` 拡張の書き方を説明します。
+
+## Part A — 基本的な使い方
+
+### 1. OpenAPI の読み込み
+
+トップページで OpenAPI の URL を入力し **set** を押します。仕様が解析されると API TOP が表示され、左ドロワーにパスツリーが現れます。
+
+![OpenAPI 読み込み後の API TOP](../assets/ja-01-openapi-top.png)
+
+- OpenAPI v2 / v3 に対応（`@apidevtools/swagger-parser` で `$ref` を解決）
+- 同梱サンプルは `static/oas/` にあり、ローカルでは `/oas/...` で参照できます
+
+**Try it**
+
+- デモ: [GitHub Pages（静的ビルドモード / Explorer デモ）](https://funkjk.github.io/restful-ui/)
+- Spec: `https://petstore.swagger.io/v2/swagger.json`
+
+---
+
+### 2. パス階層でのドリルダウン
+
+一覧 GET のレスポンスが配列のとき、テーブル表示されます。列の値（ID など）の横にある **list** ボタンから、下位 path の operation へ進めます。
+
+RESTful UI は現在の path より **深い path**（例: `/pet` → `/pet/{petId}`）を OpenAPI 定義から自動検出します（`getUnderOperations`）。
+
+![コレクション GET のテーブル](../assets/ja-02-collection-table.png)
+
+**手順（PetStore の例）**
+
+1. パスツリーまたは API TOP から `GET /pet/findByStatus` を開く
+2. `status=available` などを指定して **Execute**
+3. テーブルの `id` 列で **list** をクリック
+4. ダイアログ内の `GET /pet/{petId}` などのリンクを選ぶ — 選択した ID が次のリクエストのパラメータに載ります
+
+![PathLink ダイアログ](../assets/ja-03-path-link-dialog.png)
+
+**Try it**
+
+- `GET /pet/findByStatus` → 行の `id` から `GET /pet/{petId}` へ
+
+---
+
+### 3. パスツリー
+
+左ドロワーで API 全体の path 階層を俯瞰し、メソッドリンクから operation へジャンプできます。
+
+![パスツリー](../assets/ja-04-path-tree.png)
+
+---
+
+### 4. PUT ワークフロー
+
+更新系メソッドでは、直前の GET 結果や body 履歴を土台に編集できます。
+
+1. 対象リソースを `GET` する
+2. 成功した GET はブラウザ側にキャッシュされる（同じ URL・初期パラメータのとき再表示）
+3. `PUT` / `POST` では **Parameter histories** から過去の body を呼び出せる
+4. 変更したいフィールドだけ編集して **Execute**
+
+キャッシュの実装は `CachedRestfulPlugin` と Service Worker 経由の IndexedDB です。詳細は [development.md](development.md) の「ブラウザストレージ」を参照してください。
+
+---
+
+### 5. テーブル表示
+
+- レスポンス body の **トップレベルが配列** のときテーブル化
+- ネストした配列は **Select table key** で対象キーを選択
+- 列フィルタ・表示列の選択は operation ごとに sessionStorage に保存
+
+PathLink 列（list ボタン）は次の条件で有効になります。
+
+- 下位 path に `{param}` がある列（path パラメータ名と列名が一致）
+- `x-restfului-link` が schema に定義されている列（Part B 参照）
+
+---
+
+### 6. Settings（リクエスト設定）
+
+ドロワーの **Setting** から共通設定を変更できます。
+
+![Settings 画面](../assets/ja-05-settings.png)
+
+| 項目 | 説明 |
+|------|------|
+| Base path | OpenAPI の base URL を実行時 URL に差し替え |
+| Headers | 全リクエストに付与するヘッダ |
+| Additional query | 全 URL に追加するクエリ文字列 |
+| Use Restful-UI Proxy | サーバービルドモードのみ。CORS 回避用プロキシ（**既定 OFF**） |
+
+プロキシ ON/OFF と通信経路の詳細は [network-and-security.md](network-and-security.md) を参照してください。
+
+---
+
+## Part B — OpenAPI 拡張 `x-restfului-link`
+
+RESTful UI 固有の拡張は **`x-restfului-link`** です。path 階層だけでは辿れない関連 operation（別 path・クエリ付き GET など）へのリンクを、レスポンス schema 上で明示できます。
+
+### 記述場所
+
+- 200 レスポンス schema の **property**
+- **array 型** の場合は `items` に記述
+
+### 形式
+
+```yaml
+# 単一リンク
+id:
+  type: string
+  x-restfului-link: /custom/configs/{id}
+
+# 複数リンク（配列）
+"owl:sameAs":
+  type: string
+  x-restfului-link:
+    - "/odpt:StationTimetable?odpt:calendar={owl:sameAs}"
+```
+
+リンク先の HTTP メソッドは **GET 固定** です。path と query は OpenAPI の path キーに合わせて記述します。
+
+### プレースホルダ
+
+| プレースホルダ | 置換される値 |
+|---------------|-------------|
+| `{value}` / `{$value}` | セルの値 |
+| `{列名}` | 列名と一致するときセルの値 |
+| `{その他}` | 行オブジェクトの同名フィールド（例: `{owl:sameAs}`） |
+
+### 例 1 — 自プロジェクトのサンプル
+
+[`static/oas/restful-api-sample-config.yaml`](../../static/oas/restful-api-sample-config.yaml):
+
+```yaml
+id:
+  type: string
+  x-restfului-link: /custom/configs/{id}
+```
+
+**Try it**
+
+- ローカル: `/oas/restful-api-sample-config.yaml` を読み込み、`GET /custom/configs/` を実行
+
+### 例 2 — ODPT API（path 階層外へのリンク）
+
+[`static/oas/odpt-api-openapi.yaml`](../../static/oas/odpt-api-openapi.yaml):
+
+```yaml
+"owl:sameAs":
+  type: string
+  x-restfului-link:
+    - "/odpt:StationTimetable?odpt:calendar={owl:sameAs}"
+```
+
+カレンダー ID から時刻表 API へ、**別 path + クエリ** でジャンプする例です。
+
+**Try it**
+
+- ローカル: `/oas/odpt-api-openapi.yaml` を読み込み、該当 GET のレスポンステーブルで `owl:sameAs` 列の list を確認
+
+### 拡張なしのフォールバック
+
+`x-restfului-link` がなくても、**下位 path の path パラメータ名と同じ列** は自動的に PathLink 列になります（Part A §2）。PetStore の `id` 列がこれに該当します。
+
+### 階層ベース vs 拡張明示
+
+| 方式 | いつ使うか |
+|------|-----------|
+| パス階層（自動） | `/pets` → `/pets/{id}` のような REST 的な親子 path |
+| `x-restfului-link` | 別リソースへの参照、クエリで絞る GET、Graph 的な関連 |
+
+---
+
+## 関連ドキュメント
+
+- [deployment.md](deployment.md) — ビルドモードとデプロイ
+- [development.md](development.md) — 内部構成・プラグイン
+- [network-and-security.md](network-and-security.md) — 通信経路・セキュリティ
+- [mcp.md](mcp.md) — MCP 連携
+- [README.ja.md](../../README.ja.md) — プロジェクト概要

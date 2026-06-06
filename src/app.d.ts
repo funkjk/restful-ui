@@ -22,14 +22,12 @@ declare global {
 	}
 }
 
-// 環境変数の型定義
 declare module '$env/static/public' {
-	export const BUILD_STATIC: string;
+	export const BUILD_MODE: 'static' | 'server';
 }
 
-// import.meta.envの型定義
 interface ImportMetaEnv {
-	readonly BUILD_STATIC: string;
+	readonly BUILD_MODE: 'static' | 'server';
 	readonly BUILD_BASE_PATH: string;
 }
 

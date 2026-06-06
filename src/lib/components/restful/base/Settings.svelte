@@ -5,13 +5,14 @@
     import FormField from "@smui/form-field";
     import Request from "../setting/Request.svelte";
     import Persist from "../setting/Persist.svelte";
+    import { isServerBuildMode } from "$lib/utils/build-mode";
     let { config }: { config: RestfulComponentConfig } = $props();
 
     let options = $state([
         { name: "Request", value: Request },
         { name: "Storage", value: Storage },
     ]);
-    if ( import.meta.env.BUILD_STATIC !== 'true') {
+    if ( isServerBuildMode()) {
         options.push(
             { name: "Persist", value: Persist })
     }

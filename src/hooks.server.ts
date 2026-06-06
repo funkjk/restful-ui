@@ -8,7 +8,7 @@ const clerkHandle = withClerkHandler({
 
 function shouldSkipClerk(): boolean {
 	return (
-		process.env.E2E_TEST === 'true' || process.env.BUILD_STATIC === 'true'
+		process.env.E2E_TEST === 'true' || process.env.BUILD_MODE === 'static'
 	);
 }
 

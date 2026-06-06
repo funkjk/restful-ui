@@ -18,6 +18,7 @@
     import { loading, logMessages } from "$lib/stores/ui";
     import RestfulApi from "../../base/RestfulApi.svelte";
     import ConfigList from "$lib/components/restful/call/config-loader/ConfigList.svelte";
+    import { isStaticBuildMode, isServerBuildMode } from "$lib/utils/build-mode";
 
     let url = persisted("base-url", "", { storage: "session" });
     const basePath = window.location.origin + import.meta.env.BUILD_BASE_PATH
@@ -132,7 +133,7 @@
                 style="width: 100%;"
                 label="Open API URL"
             />
-            {#if import.meta.env.BUILD_STATIC !== 'true'}
+            {#if isServerBuildMode()}
             <Checkbox
                 bind:checked={useProxy}
                 label="Use Restful-UI Proxy to get OAS file"
@@ -142,7 +143,7 @@
         <Actions>
             <Button
                 onclick={() =>
-                    url.set((import.meta.env.BUILD_STATIC === 'true' || !useProxy) ? editingUrl : createProxyUrl(editingUrl))}
+                    url.set((isStaticBuildMode() || !useProxy) ? editingUrl : createProxyUrl(editingUrl))}
             >
                 <Label>set</Label>
             </Button>
@@ -150,7 +151,7 @@
     </Card>
     </div>
 
-    {#if import.meta.env.BUILD_STATIC !== 'true'}
+    {#if isServerBuildMode()}
         <div style="margin-left: 10px;">
             <ConfigList></ConfigList>
         </div>

@@ -43,14 +43,14 @@ OpenAPI → collection GET → pick one row → detail GET / PUT / DELETE
 
 ## Live demos
 
-| Edition | URL | Includes |
-|---------|-----|----------|
-| **Explorer** (static) | [GitHub Pages](https://funkjk.github.io/restful-ui/) | Exploration & try-it-out above, path tree, bundled sample specs |
-| **Full** (hosted) | [Vercel](https://restful-ui.vercel.app/) | + optional CORS proxy, saved configs, MCP over HTTP |
+| Build mode | URL | Includes |
+|------------|-----|----------|
+| **Static** (Explorer demo) | [GitHub Pages](https://funkjk.github.io/restful-ui/) | Exploration & try-it-out above, path tree, bundled sample specs |
+| **Server** (Full demo) | [Vercel](https://restful-ui.vercel.app/) | + optional CORS proxy, saved configs, MCP over HTTP |
 
-Local `pnpm run dev` is **Full edition** (API routes, proxy, config persistence, MCP).
+Local `pnpm run dev` uses the **server build mode** (API routes, proxy, config persistence, MCP).
 
-**The flow in [How you explore and call a RESTful API](#how-you-explore-and-call-a-restful-api) works on Explorer too.** Server-side config save, proxy, and MCP require Full (or local dev).
+**The flow in [How you explore and call a RESTful API](#how-you-explore-and-call-a-restful-api) works in static build mode too.** Server-side config save, proxy, and MCP require server build mode (or local dev).
 
 ## Not a Swagger UI replacement
 
@@ -58,38 +58,38 @@ Local `pnpm run dev` is **Full edition** (API routes, proxy, config persistence,
 
 Typical OpenAPI UIs focus on reading the spec and one-off try-it-out. RESTful UI focuses on **walking REST-style path APIs from collections to single resources to nested resources while executing calls**. The same execution layer is reused for MCP.
 
-## Editions
+## Build modes
 
-| | Explorer (GitHub Pages) | Full (Vercel / local dev) |
-|--|-------------------------|---------------------------|
+| | Static (`BUILD_MODE=static`) | Server (`BUILD_MODE=server`, default) |
+|--|------------------------------|---------------------------------------|
 | Explore & try it out | Yes | Yes |
-| Build | `BUILD_STATIC=true`, static only | Server adapter (default: Vercel) |
+| Build | `BUILD_MODE=static`, static adapter | Server adapter (default: Vercel) |
 | Try-it-out traffic | Browser → target API **directly** | Same when proxy is OFF |
 | CORS proxy | None (no server) | Optional, **OFF by default** (Settings) |
-| Saved OpenAPI configs | None | ConfigStore + Clerk |
+| Saved OpenAPI configs | None | ConfigStore |
 | MCP over HTTP | None | `/api/mcp`, etc. |
 
 ## Proxy (CORS)
 
 Try it out uses **cross-origin** `fetch` in the browser. If the target API does not allow CORS, the response may not appear in the UI.
 
-With **proxy ON** (Full only, Settings → “Use Restful-UI Proxy”), the browser calls same-origin `/api/proxy` only; the RESTful UI server forwards to the target API and adds CORS headers on the way back.
+With **proxy ON** (server build mode only, Settings → “Use Restful-UI Proxy”), the browser calls same-origin `/api/proxy` only; the RESTful UI server forwards to the target API and adds CORS headers on the way back.
 
-**Default is OFF.** Use direct calls when CORS already works or you do not want try-it-out traffic on the host. Explorer (static hosting) has no proxy.
+**Default is OFF.** Use direct calls when CORS already works or you do not want try-it-out traffic on the host. Static build mode has no proxy.
 
 ## Privacy and data paths
 
 **Proxy OFF (default)** — Try it out uses **direct** `fetch` from the browser to the **target API**. URLs, headers, bodies, and API keys are **not sent to the RESTful UI server**.
 
-**Proxy ON** (Full only) — Traffic goes through the host’s `/api/proxy`; **the operator’s server sees request contents** (disable logging in production).
+**Proxy ON** (server build mode only) — Traffic goes through the host’s `/api/proxy`; **the operator’s server sees request contents** (disable logging in production).
 
 **Also note**
 
 - The browser still sends data to the target API (their logs and CORS are outside RESTful UI’s control)
-- **Saved OpenAPI configs** (ConfigStore) and **Clerk sign-in** are server-side on Full (separate from try-it-out)
+- **Saved OpenAPI configs** (ConfigStore) are server-side in server build mode (separate from try-it-out)
 - Caching in [step 5](#5-browser-side-retention) stays in the browser; try-it-out responses are not uploaded to the server by design
 
-Details: [docs/privacy-and-requests.md](docs/privacy-and-requests.md)
+Details: [docs/network-and-security.md](docs/network-and-security.md)
 
 ## Quick start
 
@@ -99,16 +99,17 @@ cp .env.example .env
 pnpm run dev    # http://localhost:4210
 ```
 
-For Clerk, `STORE_TYPE`, scripts, and tests, see [docs/development.md](docs/development.md).
+For deployment and `STORE_TYPE`, see [docs/deployment.md](docs/deployment.md) and [docs/development.md](docs/development.md).
 
 ## Documentation
 
 | Document | Contents |
 |----------|----------|
-| [docs/privacy-and-requests.md](docs/privacy-and-requests.md) | CORS, proxy, traffic paths, stored data |
-| [docs/development.md](docs/development.md) | Local dev, env vars, scripts, testing |
-| [docs/deploy-gh-pages.md](docs/deploy-gh-pages.md) | GitHub Pages (Explorer) deploy |
-| [docs/self-host.md](docs/self-host.md) | Self-hosting Full edition |
+| [docs/exploring-apis.md](docs/exploring-apis.md) | API exploration, try it out, `x-restfului-link` |
+| [docs/deployment.md](docs/deployment.md) | Build modes and deployment |
+| [docs/development.md](docs/development.md) | Internal architecture and plugins |
+| [docs/network-and-security.md](docs/network-and-security.md) | CORS, proxy, traffic paths, stored data |
+| [docs/mcp.md](docs/mcp.md) | MCP integration |
 | [docs/ja/](docs/ja/README.md) | Japanese docs |
 | [README.ja.md](README.ja.md) | Japanese README |
 
