@@ -12,7 +12,7 @@ test('test config api', async ({ page }) => {
   await page.locator(`a[href$="${selConfigPost}"]`).click();
   await expect(page).toHaveURL(/\/#\?\*page=operation&path=\/configs&method=post/);
   const configData = {
-    "openApiUrl": "http://localhost:4210/oas/restful-api-sample_mcp-config.yaml",
+    "openApiUrl": "http://localhost:4210/oas/restful-api-sample-config.yaml",
     "serverName": "openapi-config-server",
     "serverVersion": "1.0.0",
     "timeout": 10000,

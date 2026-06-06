@@ -4,5 +4,5 @@
     ],
     "ext": "ts",
     "exec": "npx tsx src/lib/mcp/server-cli.ts -f ./mcp-configs/quip.json",
-    "exec2": "npx tsx src/lib/mcp/server-cli.ts -f ./mcp-configs/restful-api-sample_mcp-config.json"
+    "exec2": "npx tsx src/lib/mcp/server-cli.ts -f ./mcp-configs/restful-api-sample-config.json"
 }

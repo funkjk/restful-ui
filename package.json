@@ -1,6 +1,7 @@
 {
   "name": "restful-ui",
   "version": "0.0.1",
+  "license": "MIT",
   "scripts": {
     "prepare": "npm run smui-theme-light && npm run smui-theme-dark",
     "smui-theme-light": "smui-theme compile static/smui.css -i src/theme -i ./node_modules",

@@ -1,12 +1,12 @@
 openapi: 3.0.3
 info:
-  title: Restful UI MCP Server Setting
+  title: Restful UI Server Setting
   version: 0.9.0
 externalDocs:
   description: Find out Restful UI
   url: https://github.com/funkjk/restful-ui
 servers:
-  - url: http://localhost:4210/api
+  - url: https://restful-ui.vercel.app/api
 paths:
   /mcp/init:
     get:
@@ -18,7 +18,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/McpServerState'
+                $ref: '#/components/schemas/ServerState'
     post:
       summary: Initialize and start MCP Server.
       requestBody:
@@ -286,7 +286,7 @@ components:
           type: string
         useProxy:
           type: boolean
-    McpServerState:
+    ServerState:
       type: object
       properties:
         isRunning:
@@ -294,10 +294,10 @@ components:
           example: true
         openApiUrl:
           type: string
-          example: "http://localhost:4210/mcp-config.yaml"
+          example: "https://restful-ui.vercel.app/oas/restful-api-sample-config.yaml"
         serverName:
           type: string
-          example: "openapi-mcp-server"
+          example: "openapi-server"
         serverVersion:
           type: string
           example: "1.0.0"
