@@ -1,77 +1,116 @@
-
 # RESTful UI
 
-OpenAPI-based **REST CRUD Explorer** — browse operations, try requests, and drill down from list responses to related endpoints. The same execution core also powers MCP integration for AI clients.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+**日本語:** [README.ja.md](README.ja.md)
+
+**An explorer for RESTful APIs — load OpenAPI specs and navigate from list views to individual resources and updates, all in the UI.**
+
+Endpoints are derived from your OpenAPI document; you set parameters and call APIs from the browser. The same execution core (`RestfulOperation`) also powers MCP for AI clients.
+
+## What makes it useful
+
+- **Run from OpenAPI** — Parse the spec, surface endpoints, methods, and parameters in the UI, and try requests immediately
+- **Navigate like REST** — After a collection GET, drill from a row or ID into related GET / PUT / DELETE operations on the same API
+- **Easy to retry** — Keep GET results and parameter history in the browser so you can revisit the same resource (by default, try-it-out data is not sent to the RESTful UI server; see [Privacy and data paths](#privacy-and-data-paths))
+
+## How you explore and call a RESTful API
+
+### 1. Discover operations from OpenAPI
+
+Load OpenAPI v2/v3 and list operations by path and HTTP method. Set path, query, and body parameters in forms and execute calls from the UI.
+
+### 2. Move from a list to the next operation
+
+Collection GET responses appear in a table. From column values (IDs, path segments, etc.) you can **drill down to related operations** along the path hierarchy (detail GET, PUT, DELETE, and more). Values you pick in the table carry into the next request’s parameters.
+
+### 3. Reach nested endpoints
+
+Navigate to child-path operations under a parent resource the same way. Use the path tree to see the API hierarchy and jump to the method you need.
+
+### 4. Update resources (PUT, etc.)
+
+Base updates on a prior GET: edit only the fields you want to change, then send PUT or similar calls. This matches a practical REST workflow of “fetch, then modify real data.”
+
+### 5. Browser-side retention
+
+Responses and parameter history are stored in the **browser (localStorage / Service Worker)** so you can return to the same resource or repeat similar requests quickly.
+
+```
+OpenAPI → collection GET → pick one row → detail GET / PUT / DELETE
+                ↘ nested path operations
+```
 
 ## Live demos
 
 | Edition | URL | Includes |
 |---------|-----|----------|
-| **Explorer** (static) | [GitHub Pages](https://funkjk.github.io/restful-ui/) | OAS explorer, path tree, try-it-out, bundled sample specs |
-| **Full** (hosted) | [Vercel](https://restful-ui.vercel.app/) | + CORS proxy, saved configs, MCP over HTTP |
+| **Explorer** (static) | [GitHub Pages](https://funkjk.github.io/restful-ui/) | Exploration & try-it-out above, path tree, bundled sample specs |
+| **Full** (hosted) | [Vercel](https://restful-ui.vercel.app/) | + optional CORS proxy, saved configs, MCP over HTTP |
 
-GitHub Pages is a static build only (`BUILD_STATIC=true`). Config persistence and MCP require the Full edition or local `pnpm run dev`.
+Local `pnpm run dev` is **Full edition** (API routes, proxy, config persistence, MCP).
 
-## Features
+**The flow in [How you explore and call a RESTful API](#how-you-explore-and-call-a-restful-api) works on Explorer too.** Server-side config save, proxy, and MCP require Full (or local dev).
 
-- Automatic parsing of OpenAPI v2/v3 specifications
-- Interactive API call testing
-- Response display in data tables with CRUD-style navigation under path hierarchies
-- Modern Material UI-based design
-- MCP server (Full / local — shared `RestfulOperation` engine)
-- Pluggable config storage (`STORE_TYPE`: fs, upstash, postgres, inmemory)
+## Not a Swagger UI replacement
 
-## Development
+**This is not a drop-in replacement for Swagger UI or Scalar.**
+
+Typical OpenAPI UIs focus on reading the spec and one-off try-it-out. RESTful UI focuses on **walking REST-style path APIs from collections to single resources to nested resources while executing calls**. The same execution layer is reused for MCP.
+
+## Editions
+
+| | Explorer (GitHub Pages) | Full (Vercel / local dev) |
+|--|-------------------------|---------------------------|
+| Explore & try it out | Yes | Yes |
+| Build | `BUILD_STATIC=true`, static only | Server adapter (default: Vercel) |
+| Try-it-out traffic | Browser → target API **directly** | Same when proxy is OFF |
+| CORS proxy | None (no server) | Optional, **OFF by default** (Settings) |
+| Saved OpenAPI configs | None | ConfigStore + Clerk |
+| MCP over HTTP | None | `/api/mcp`, etc. |
+
+## Proxy (CORS)
+
+Try it out uses **cross-origin** `fetch` in the browser. If the target API does not allow CORS, the response may not appear in the UI.
+
+With **proxy ON** (Full only, Settings → “Use Restful-UI Proxy”), the browser calls same-origin `/api/proxy` only; the RESTful UI server forwards to the target API and adds CORS headers on the way back.
+
+**Default is OFF.** Use direct calls when CORS already works or you do not want try-it-out traffic on the host. Explorer (static hosting) has no proxy.
+
+## Privacy and data paths
+
+**Proxy OFF (default)** — Try it out uses **direct** `fetch` from the browser to the **target API**. URLs, headers, bodies, and API keys are **not sent to the RESTful UI server**.
+
+**Proxy ON** (Full only) — Traffic goes through the host’s `/api/proxy`; **the operator’s server sees request contents** (disable logging in production).
+
+**Also note**
+
+- The browser still sends data to the target API (their logs and CORS are outside RESTful UI’s control)
+- **Saved OpenAPI configs** (ConfigStore) and **Clerk sign-in** are server-side on Full (separate from try-it-out)
+- Caching in [step 5](#5-browser-side-retention) stays in the browser; try-it-out responses are not uploaded to the server by design
+
+Details: [docs/privacy-and-requests.md](docs/privacy-and-requests.md)
+
+## Quick start
 
 ```bash
 pnpm install
-pnpm run dev          # http://localhost:4210 — full server (API routes)
+cp .env.example .env
+pnpm run dev    # http://localhost:4210
 ```
 
-### Build
+For Clerk, `STORE_TYPE`, scripts, and tests, see [docs/development.md](docs/development.md).
 
-```bash
-pnpm run build              # default (Vercel adapter unless BUILD_STATIC=true)
-pnpm run build:gh-pages     # static Explorer for GitHub Pages
-pnpm run preview:gh-pages   # preview at /restful-ui base path
-```
+## Documentation
 
-### Environment
-
-Copy `.env.example` to `.env`. For local development without Redis/Postgres:
-
-```bash
-STORE_TYPE=fs
-```
-
-See [docs/deploy-gh-pages.md](docs/deploy-gh-pages.md) for GitHub Pages deployment.
-
-## Scripts
-
-| Script | Description |
-|--------|-------------|
-| `pnpm run dev` | Dev server (port 4210) |
-| `pnpm run build` | Production build |
-| `pnpm run build:gh-pages` | Static build for GitHub Pages |
-| `pnpm run test` | Vitest |
-| `pnpm run e2e` | Playwright |
-| `pnpm run lint` | ESLint |
-| `pnpm run check` | Svelte/TS check |
-
-## Project structure
-
-```
-src/
-├── lib/
-│   ├── components/       # UI
-│   ├── restful/          # OpenAPI execution, plugins, ConfigStore
-│   ├── mcp/              # MCP server
-│   └── utils/
-├── routes/               # SvelteKit routes (+ api/* for Full edition)
-└── theme/
-docs/
-└── deploy-gh-pages.md
-```
+| Document | Contents |
+|----------|----------|
+| [docs/privacy-and-requests.md](docs/privacy-and-requests.md) | CORS, proxy, traffic paths, stored data |
+| [docs/development.md](docs/development.md) | Local dev, env vars, scripts, testing |
+| [docs/deploy-gh-pages.md](docs/deploy-gh-pages.md) | GitHub Pages (Explorer) deploy |
+| [docs/self-host.md](docs/self-host.md) | Self-hosting Full edition |
+| [docs/ja/](docs/ja/README.md) | Japanese docs |
+| [README.ja.md](README.ja.md) | Japanese README |
 
 ## Tech stack
 
@@ -80,3 +119,7 @@ docs/
 - OpenAPI/Swagger (`@apidevtools/swagger-parser`)
 - Vitest + Playwright
 - Model Context Protocol
+
+## License
+
+[MIT](LICENSE)

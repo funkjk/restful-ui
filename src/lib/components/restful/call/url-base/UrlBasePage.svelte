@@ -21,14 +21,14 @@
 
     let url = persisted("base-url", "", { storage: "session" });
     const basePath = window.location.origin + import.meta.env.BUILD_BASE_PATH
-    let editingUrl: string = $state(`${basePath}/oas/restful-api-sample_mcp-config.yaml`);
+    let editingUrl: string = $state(`${basePath}/oas/restful-api-sample-config.yaml`);
     let useProxy: boolean = $state(false);
 
     // サンプルOASファイルのリスト
     const sampleOasFiles = [
         {
-            name: "Restful API Sample (MCP Config)",
-            url: `${basePath}/oas/restful-api-sample_mcp-config.yaml`,
+            name: "Restful API Sample (Config)",
+            url: `${basePath}/oas/restful-api-sample-config.yaml`,
             description: "RESTful API Sample"
         },
         {
