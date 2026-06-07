@@ -19,6 +19,7 @@ jobs:
     env:
       BUILD_MODE: static
       BUILD_BASE_PATH: /restful-ui
+      PUBLIC_CORS_PROXY_URL: https://restful-ui.vercel.app/api/proxy
       STORE_TYPE: inmemory
       KV_REST_API_URL: https://build.invalid
       KV_REST_API_TOKEN: build-dummy

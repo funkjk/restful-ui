@@ -4,7 +4,7 @@
     import Button, { Label } from "@smui/button";
     import Select, { Option } from "@smui/select";
     import { persisted } from "svelte-persisted-store";
-    import { createProxyUrl } from "$lib/utils/proxy";
+    import { createProxyUrl, getDefaultProxyBaseUrl } from "$lib/utils/proxy";
     import Checkbox from "$lib/components/common/Checkbox.svelte";
     import {
         createRestfulComponentConfig,
@@ -18,12 +18,14 @@
     import { loading, logMessages } from "$lib/stores/ui";
     import RestfulApi from "../../base/RestfulApi.svelte";
     import ConfigList from "$lib/components/restful/call/config-loader/ConfigList.svelte";
-    import { isStaticBuildMode, isServerBuildMode } from "$lib/utils/build-mode";
+    import { isServerBuildMode } from "$lib/utils/build-mode";
+    import { get } from "svelte/store";
 
     let url = persisted("base-url", "", { storage: "session" });
+    let useProxy = persisted("base-url-proxy-use", false, { storage: "session" });
+    let proxyBaseUrl = persisted("base-url-proxy-base", getDefaultProxyBaseUrl(), { storage: "session" });
     const basePath = window.location.origin + import.meta.env.BUILD_BASE_PATH
     let editingUrl: string = $state(`${basePath}/oas/restful-api-sample-config.yaml`);
-    let useProxy: boolean = $state(false);
 
     // サンプルOASファイルのリスト
     const sampleOasFiles = [
@@ -78,6 +80,11 @@
         let storageKey = "test";
         const config = createRestfulComponentConfig(storageKey);
         config.documentUrl = $url;
+        config.storage.requestSetting.set({
+            ...get(config.storage.requestSetting),
+            useProxy: $useProxy,
+            proxyBaseUrl: $proxyBaseUrl.trim() || getDefaultProxyBaseUrl(),
+        });
         config.additionalPlugins = [
             new LoggingRestfulPlugin(messageLogger),
             new SetLoadingPlugin(loading),
@@ -90,6 +97,15 @@
         selectedSampleIndex = index;
         editingUrl = sampleOasFiles[index].url;
     }
+
+    function setOpenApiUrl() {
+        if ($useProxy) {
+            url.set(createProxyUrl(editingUrl, $proxyBaseUrl));
+        } else {
+            url.set(editingUrl);
+        }
+    }
+
     const buildTime = import.meta.env.BUILD_TIME || 'unknown';
 </script>
 
@@ -133,18 +149,21 @@
                 style="width: 100%;"
                 label="Open API URL"
             />
-            {#if isServerBuildMode()}
             <Checkbox
-                bind:checked={useProxy}
-                label="Use Restful-UI Proxy to get OAS file"
+                bind:checked={$useProxy}
+                label="Use CORS proxy to get OAS file"
             ></Checkbox>
+            {#if $useProxy}
+            <Textfield
+                bind:value={$proxyBaseUrl}
+                style="width: 100%;"
+                label="Proxy base URL (cors-anywhere compatible)"
+                placeholder={getDefaultProxyBaseUrl()}
+            />
             {/if}
         </Content>
         <Actions>
-            <Button
-                onclick={() =>
-                    url.set((isStaticBuildMode() || !useProxy) ? editingUrl : createProxyUrl(editingUrl))}
-            >
+            <Button onclick={setOpenApiUrl}>
                 <Label>set</Label>
             </Button>
         </Actions>

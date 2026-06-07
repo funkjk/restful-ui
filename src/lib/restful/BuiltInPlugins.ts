@@ -175,6 +175,7 @@ export interface RequestSetting {
     additionalQueryParameter?: string,
     basePath?: string,
     useProxy: boolean,
+    proxyBaseUrl?: string,
 }
 
 export abstract class AbstractRequestSettingApplyPlugin extends EmptyRestfulPlugin {

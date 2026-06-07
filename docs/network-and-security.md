@@ -18,9 +18,18 @@ JavaScript cannot read the response body. DevTools may show HTTP 200 while the c
 
 ### When proxy is ON
 
-1. The browser calls only the **same-origin** RESTful UI host (cors-anywhere style, e.g. `GET /api/proxy/https://api.example.com/path`)
-2. The RESTful UI server forwards the request to the target API
-3. The server adds CORS headers when returning to the browser ([`src/routes/api/proxy/[...path]/+server.ts`](../src/routes/api/proxy/[...path]/+server.ts))
+1. The browser calls the configured **cors-anywhere compatible** proxy (default: same-origin `/api/proxy`, or `PUBLIC_CORS_PROXY_URL` when set)
+2. The proxy server forwards the request to the target API or OAS URL
+3. The proxy adds CORS headers when returning to the browser
+
+Proxy base URL can be changed in **Settings → Request** and on the **OpenAPI URL** entry screen. Format: `{proxyBase}/{targetUrl}` (e.g. `/api/proxy/https://api.example.com/path`).
+
+### Default proxy base URL
+
+| Source | Initial value |
+|--------|----------------|
+| `PUBLIC_CORS_PROXY_URL` set at build/deploy | That URL |
+| Not set | Current origin + `/api/proxy` (respects `BUILD_BASE_PATH`) |
 
 ### Allowed origins (`CORS_ALLOWED_ORIGINS`)
 

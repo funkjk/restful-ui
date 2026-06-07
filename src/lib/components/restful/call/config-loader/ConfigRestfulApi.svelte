@@ -64,7 +64,10 @@
             runningMode: RuningMode.LOAD_CONFIG,
         };
         if (serverConfig.useProxy) {
-            localConfig.documentUrl = createProxyUrl(serverConfig.openApiUrl);
+            localConfig.documentUrl = createProxyUrl(
+                serverConfig.openApiUrl,
+                serverConfig.requestSettings.proxyBaseUrl,
+            );
         } else {
             localConfig.documentUrl = serverConfig.openApiUrl;
         }

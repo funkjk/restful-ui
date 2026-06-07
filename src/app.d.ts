@@ -29,6 +29,7 @@ declare module '$env/static/public' {
 interface ImportMetaEnv {
 	readonly BUILD_MODE: 'static' | 'server';
 	readonly BUILD_BASE_PATH: string;
+	readonly PUBLIC_CORS_PROXY_URL?: string;
 }
 
 interface ImportMeta {

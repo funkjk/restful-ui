@@ -89,9 +89,10 @@ PathLink 列（list ボタン）は次の条件で有効になります。
 | Base path | OpenAPI の base URL を実行時 URL に差し替え |
 | Headers | 全リクエストに付与するヘッダ |
 | Additional query | 全 URL に追加するクエリ文字列 |
-| Use Restful-UI Proxy | サーバービルドモードのみ。CORS 回避用プロキシ（**既定 OFF**） |
+| Use CORS proxy | CORS 回避用プロキシ（**既定 OFF**） |
+| Proxy base URL | cors-anywhere 互換のプロキシベース URL。初期値は `PUBLIC_CORS_PROXY_URL`、未設定時は同一オリジンの `/api/proxy` |
 
-プロキシ ON/OFF と通信経路の詳細は [network-and-security.md](network-and-security.md) を参照してください。
+トップ画面の OAS URL 入力でも同様にプロキシ ON/OFF と Proxy base URL を指定できます。プロキシ ON/OFF と通信経路の詳細は [network-and-security.md](network-and-security.md) を参照してください。
 
 ---
 

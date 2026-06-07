@@ -18,9 +18,18 @@ DevTools ではネットワーク上は 200 でも、コンソールに CORS エ
 
 ### プロキシ ON のとき
 
-1. ブラウザは **同一オリジン** の RESTful UI（cors-anywhere 形式、例: `GET /api/proxy/https://api.example.com/path`）だけを呼ぶ
-2. RESTful UI サーバーが対象 API にリクエストを転送する
-3. サーバーがブラウザへ返す際に CORS ヘッダを付与する（[`src/routes/api/proxy/[...path]/+server.ts`](../../src/routes/api/proxy/[...path]/+server.ts)）
+1. ブラウザは設定された **cors-anywhere 互換** プロキシを呼ぶ（既定: 同一オリジンの `/api/proxy`、または `PUBLIC_CORS_PROXY_URL` 設定時はその URL）
+2. プロキシが対象 API または OAS URL に転送する
+3. プロキシがブラウザへ返す際に CORS ヘッダを付与する
+
+Proxy base URL は **Settings → Request** と **OpenAPI URL 入力画面** の両方で変更できます。形式: `{proxyBase}/{targetUrl}`
+
+### プロキシベース URL の初期値
+
+| 条件 | 初期値 |
+|------|--------|
+| ビルド時に `PUBLIC_CORS_PROXY_URL` あり | その URL |
+| 未設定 | 現在のオリジン + `/api/proxy`（`BUILD_BASE_PATH` 考慮） |
 
 ### 許可 Origin（`CORS_ALLOWED_ORIGINS`）
 

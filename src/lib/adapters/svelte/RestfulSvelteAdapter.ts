@@ -4,7 +4,7 @@ import { CACHE_TYPE, compareBodyParameter, type CacheBody, type CacheBodyParamet
 import { AbstractRequestSettingApplyPlugin, UseRestfulUIProxyPlugin } from "$lib/restful/BuiltInPlugins";
 import { EmptyRestfulPlugin, FetchPluginChain, type RestfulPlugin } from "$lib/restful/RestfulPlugin";
 import type { InputRestParameters, RestfulOperation } from "$lib/restful/RestfulOperation";
-import { getBaseUrl } from "$lib/utils/proxy";
+import { getDefaultProxyBaseUrl, resolveProxyBaseUrl } from "$lib/utils/proxy";
 import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 import { RuningMode, DefaultLinkSupport } from "$lib/restful/RestfulInterfaces";
 import { getAppBasePath } from "$lib/utils/app-base";
@@ -86,7 +86,7 @@ export class SvelteRestfulProxy extends UseRestfulUIProxyPlugin {
     }
     requestSetting: Writable<RequestSetting>;
     getProxyUrl(): string {
-        return getBaseUrl() + "api/proxy";
+        return resolveProxyBaseUrl(get(this.requestSetting).proxyBaseUrl);
     }
     async doFetch(_restfulOperation: RestfulOperation, chain: FetchPluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         if (get(this.requestSetting).useProxy) {
@@ -131,7 +131,11 @@ export function createRestfulComponentConfig(storageKey: string, baseConfig?: Pa
     );
     const requestSetting = baseConfig?.storage?.requestSetting ?? persisted(
         storageKey + "-request-setting",
-        {} as RequestSetting,
+        {
+            headers: [],
+            useProxy: false,
+            proxyBaseUrl: getDefaultProxyBaseUrl(),
+        } as RequestSetting,
         { storage: "session" },
     );
     return {
