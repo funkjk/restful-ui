@@ -15,7 +15,7 @@ RESTful UI で OpenAPI を読み込み、一覧から詳細へ辿りながら AP
 
 **Try it**
 
-- デモ: <a href="https://funkjk.github.io/restful-ui/" target="_blank" rel="noopener noreferrer">GitHub Pages（静的ビルドモード / Explorer デモ）</a>
+- デモ: [GitHub Pages（静的ビルドモード / Explorer デモ）](https://funkjk.github.io/restful-ui/)
 - Spec: `https://petstore.swagger.io/v2/swagger.json`
 
 ---

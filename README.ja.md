@@ -45,8 +45,8 @@ OpenAPI → 一覧 GET → テーブルで 1 件選択 → GET 詳細 / PUT / DE
 
 | ビルドモード | URL | 含まれる機能 |
 |-------------|-----|-------------|
-| **静的**（Explorer デモ） | <a href="https://funkjk.github.io/restful-ui/" target="_blank" rel="noopener noreferrer">GitHub Pages</a> | 上記の探索・実行、パスツリー、同梱サンプル spec。外部プロキシ URL（`PUBLIC_CORS_PROXY_URL`）で CORS プロキシも可 |
-| **サーバー**（Full デモ） | <a href="https://restful-ui.vercel.app/" target="_blank" rel="noopener noreferrer">Vercel</a> | ＋ 同一オリジン `/api/proxy`、設定の保存、MCP over HTTP |
+| **静的**（Explorer デモ） | [GitHub Pages](https://funkjk.github.io/restful-ui/) | 上記の探索・実行、パスツリー、同梱サンプル spec。外部プロキシ URL（`PUBLIC_CORS_PROXY_URL`）で CORS プロキシも可 |
+| **サーバー**（Full デモ） | [Vercel](https://restful-ui.vercel.app/) | ＋ 同一オリジン `/api/proxy`、設定の保存、MCP over HTTP |
 
 ローカルの `pnpm run dev` は **サーバービルドモード**（API ルート・プロキシ・設定保存・MCP）です。
 

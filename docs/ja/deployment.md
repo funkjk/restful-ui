@@ -13,7 +13,7 @@ RESTful UI の **静的ビルドモード** と **サーバービルドモード
 | 設定のサーバー保存 | 不可 | ConfigStore |
 | MCP over HTTP | 不可 | `/api/mcp` 系 |
 
-公開デモ名: 静的 → <a href="https://funkjk.github.io/restful-ui/" target="_blank" rel="noopener noreferrer">Explorer（GitHub Pages）</a> / サーバー → <a href="https://restful-ui.vercel.app/" target="_blank" rel="noopener noreferrer">Full（Vercel）</a>
+公開デモ名: 静的 → [Explorer（GitHub Pages）](https://funkjk.github.io/restful-ui/) / サーバー → [Full（Vercel）](https://restful-ui.vercel.app/)
 
 ### 使い分け
 
@@ -112,7 +112,7 @@ pnpm run build
 2. 環境変数を設定
 3. デプロイ（ビルドコマンドは `pnpm run build`）
 
-公開デモ <a href="https://restful-ui.vercel.app/" target="_blank" rel="noopener noreferrer">Full（Vercel）</a> もこの方式です。
+公開デモ [Full（Vercel）](https://restful-ui.vercel.app/) もこの方式です。
 
 #### 自前サーバー（adapter-node 等）
 

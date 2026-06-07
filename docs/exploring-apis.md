@@ -15,7 +15,7 @@ On the home page, enter an OpenAPI URL and click **set**. After the spec is pars
 
 **Try it**
 
-- Demo: <a href="https://funkjk.github.io/restful-ui/" target="_blank" rel="noopener noreferrer">GitHub Pages (static build mode / Explorer demo)</a>
+- Demo: [GitHub Pages (static build mode / Explorer demo)](https://funkjk.github.io/restful-ui/)
 - Spec: `https://petstore.swagger.io/v2/swagger.json`
 
 ---
