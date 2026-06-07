@@ -54,10 +54,25 @@ export function parseProxyTargetUrl(pathAndSearch: string): URL | null {
 	}
 }
 
+function normalizeProxyPathSegment(raw: string): string {
+	if (!raw) {
+		return raw;
+	}
+	// Preferred: full target URL encoded (avoids https:// collapse in URL paths)
+	if (/^https?%3A/i.test(raw) || raw.includes('%2F') || raw.includes('%3F')) {
+		try {
+			return decodeURIComponent(raw);
+		} catch {
+			return raw;
+		}
+	}
+	return raw;
+}
+
 function extractTargetUrl(event: RequestEvent): URL | null {
 	const pathParam = event.params.path;
 	if (pathParam) {
-		return parseProxyTargetUrl(pathParam + event.url.search);
+		return parseProxyTargetUrl(normalizeProxyPathSegment(pathParam + event.url.search));
 	}
 
 	const { pathname, search } = event.url;
@@ -69,7 +84,7 @@ function extractTargetUrl(event: RequestEvent): URL | null {
 	if (!raw) {
 		return null;
 	}
-	return parseProxyTargetUrl(raw);
+	return parseProxyTargetUrl(normalizeProxyPathSegment(raw));
 }
 
 function buildProxyCorsHeaders(request: Request): Headers {
@@ -175,7 +190,7 @@ export async function handleCorsAnywhereProxy(event: RequestEvent): Promise<Resp
 				headers,
 			});
 		}
-		return new Response('Invalid URL. Usage: /api/proxy/https://example.com/path', {
+		return new Response('Invalid URL. Usage: /api/proxy/{encoded-target-url}', {
 			status: 400,
 			headers,
 		});
