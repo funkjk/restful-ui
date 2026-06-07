@@ -8,9 +8,13 @@
     import { RestfulOperation } from "$lib/restful/RestfulOperation";
     import { type RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 	import Short from "$lib/components/common/Short.svelte";
+    import {
+        buildUserLinkGroups,
+    } from "$lib/restful/linkMapping";
 
 	const operationStore = getContext("operationStore") as Writable<RestfulOperation>;
-	const config = getContext("config") as RestfulComponentConfig
+	const config = getContext("config") as RestfulComponentConfig;
+    const linkMappingsStore = config.storage.linkMappings;
 	let {
 		value = "",
 		column = "",
@@ -86,6 +90,17 @@
 			});
 		});
 	});
+
+	const userLinkGroups = $derived.by(() => {
+		if (!column || !actualValue) return [];
+		return buildUserLinkGroups(
+			config.linkSupport,
+			$operationStore,
+			$linkMappingsStore,
+			column,
+			actualValue,
+		);
+	});
 </script>
 
 <Dialog bind:open>
@@ -147,6 +162,29 @@
 							</a>
 						{/each}
 					</div>
+				</div>
+			{/if}
+
+			{#if userLinkGroups.length > 0 && actualValue}
+				<div style="margin-bottom: 16px;">
+					<div style="font-weight: bold; margin-bottom: 8px;">User Links:</div>
+					{#each userLinkGroups as group}
+						<div style="margin-bottom: 12px;">
+							<div style="font-weight: bold; font-size: 0.875rem; margin-bottom: 4px;">
+								{group.mapping.targetPath}
+							</div>
+							<div style="display: flex; flex-direction: column; gap: 4px; padding-left: 12px;">
+								{#each group.paths as pathEntry}
+									<a
+										href={pathEntry.href}
+										style="color: #1976d2; text-decoration: underline; font-size: 0.875rem; word-break: break-all; display: block;"
+									>
+										{pathEntry.openApiPath}
+									</a>
+								{/each}
+							</div>
+						</div>
+					{/each}
 				</div>
 			{/if}
 			

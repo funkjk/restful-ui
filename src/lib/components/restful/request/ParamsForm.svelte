@@ -55,6 +55,15 @@
 			notifyMessage.notify("Failed to get. " + response.status);
 		}
 	}
+
+	function getParameterEnum(param: any): string[] | undefined {
+		return (
+			param.enum ??
+			param.items?.enum ??
+			param.schema?.enum ??
+			param.schema?.items?.enum
+		);
+	}
 </script>
 
 <h3>parameters</h3>
@@ -63,6 +72,7 @@
 	<LayoutGrid>
 		{#if params}
 			{#each params as param (param.name)}
+				{@const enumValues = getParameterEnum(param)}
 				<Cell span={3}>
 					{#if param.in == "body"}
 						<!-- skip to render inside grid -->
@@ -84,12 +94,12 @@
 								>"used in "{param.in}</HelperText
 							>
 						</Textfield>
-					{:else if param.enum}
+					{:else if enumValues}
 						<Select
 							label={param.name + (param.required ? "*" : "")}
 							bind:value={value[param.name]}
 						>
-							{#each param.enum as e, index (index)}
+							{#each enumValues as e, index (index)}
 								<Option value={e}>{e}</Option>
 							{/each}
 						</Select>

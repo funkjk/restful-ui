@@ -1,3 +1,4 @@
+import type { LinkMapping } from "$lib/types/link-mapping";
 import type { RequestSettings } from "$lib/types/request-config";
 
 export type ServerConfig = {
@@ -8,6 +9,7 @@ export type ServerConfig = {
     timeout: number;
     maxRetries: number;
     requestSettings: RequestSettings;
+    linkMappings?: LinkMapping[];
 }
 export type ServerConfigResponse = {
     configurationId: string;

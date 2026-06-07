@@ -1,5 +1,6 @@
 import type { ServerConfig } from "$lib/restful/config-server/ServerSupport";
 import type { RequestSetting } from "$lib/restful/BuiltInPlugins";
+import type { LinkMapping } from "$lib/types/link-mapping";
 
 export interface SaveConfigRequest {
     openApiUrl: string;
@@ -8,6 +9,7 @@ export interface SaveConfigRequest {
     timeout: number;
     maxRetries: number;
     requestSettings: RequestSetting;
+    linkMappings?: LinkMapping[];
 }
 
 export interface SaveConfigResponse {
@@ -28,6 +30,7 @@ export class ConfigService {
             timeout: request.timeout,
             maxRetries: request.maxRetries,
             requestSettings: request.requestSettings,
+            linkMappings: request.linkMappings,
         };
 
         const response = await fetch("/api/configs", {

@@ -171,6 +171,75 @@ id:
 |------|-----------|
 | パス階層（自動） | `/pets` → `/pets/{id}` のような REST 的な親子 path |
 | `x-restfului-link` | 別リソースへの参照、クエリで絞る GET、Graph 的な関連 |
+| ユーザ定義リンク | OpenAPI を変更せず Settings で定義（Part C 参照） |
+
+---
+
+## Part C — ユーザ定義リンク
+
+Swagger / OpenAPI 本体を変更せず、**Settings > Links** または operation 画面の **Quick Add Link** で、レスポンステーブルの列から別 operation へのリンクを登録できます。定義は sessionStorage（Explorer）または Config サーバー（`/cid/{id}/`）に永続化されます。
+
+### いつ使うか
+
+- 現在 path の prefix では辿れない関連（例: `/pet/findByStatus` → `/pet/{petId}`）
+- レスポンス列名と path パラメータ名が一致しない（例: 列 `id` → `{petId}`）
+
+### Settings > Links
+
+| 項目 | 説明 |
+|------|------|
+| Source path / method | リンク元 operation |
+| Column | テーブル列名 |
+| Target path prefix | 遷移先 prefix（プレースホルダ付き、例: `/pet/{petId}`）。この prefix 配下の全 OpenAPI path が対象 |
+| Target param | 列の値が埋める placeholder 名（例: `petId`）。未解決の param のうち先頭のみ選択可能 |
+
+**Save** でストレージに反映します。
+
+### Quick Add Link
+
+配列レスポンスを Execute した直後、**Quick Add Link** から列・target path prefix・target param を選び **Add link** できます。現在 operation の bound パラメータに応じて、リンク可能な placeholder だけが候補になります。
+
+### テーブルからの利用
+
+登録済み列に **list** ボタンが表示されます。ダイアログ内 **User Links** では **target path prefix をグループ見出し**（例: `/pet/{petId}`）とし、その下にマッチする各 OpenAPI path（例: `/pet/{petId}`, `/pet/{petId}/uploadImage`）をリンク表示します。HTTP メソッドは UI に表示せず、内部では GET を優先して遷移します。
+
+### 複数 placeholder の例
+
+`targetPath prefix` が `/pet/{petId}/resource/{resourceId}` の場合:
+
+- source が `/pet/findByStatus`（`petId` 未解決）→ 候補は `petId` のみ
+- source が `/pet/{petId}` で `petId=123` 済み → 候補は `resourceId` のみ
+
+### 例 — Petstore
+
+`GET /pet/findByStatus` の `id` 列から `/pet/{petId}` prefix へ:
+
+```json
+{
+  "sourcePath": "/pet/findByStatus",
+  "sourceMethod": "get",
+  "column": "id",
+  "targetPath": "/pet/{petId}",
+  "targetParam": "petId"
+}
+```
+
+期待 URL（配下 path `/pet/{petId}` をクリックした場合）:
+
+```
+#?*page=operation&path=/pet/{petId}&method=get&petId=123
+```
+
+**Try it**
+
+1. Spec: `https://petstore.swagger.io/v2/swagger.json`
+2. `GET /pet/findByStatus` を Execute（`status=available`）
+3. Quick Add Link で column `id` → prefix `/pet/{petId}` → param `petId` を追加
+4. テーブルの `id` 列で list → User Links の `/pet/{petId}` グループ内リンクをクリック
+
+### Config JSON（サーバー永続化）
+
+Config サーバー利用時、`linkMappings` は `requestSettings` と同様に `ServerConfig` に含めます。Persist 画面の JSON ダウンロードにも出力されます。
 
 ---
 

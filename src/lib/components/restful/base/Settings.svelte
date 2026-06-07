@@ -4,12 +4,14 @@
     import Radio from "@smui/radio";
     import FormField from "@smui/form-field";
     import Request from "../setting/Request.svelte";
+    import LinkMappings from "../setting/LinkMappings.svelte";
     import Persist from "../setting/Persist.svelte";
     import { isServerBuildMode } from "$lib/utils/build-mode";
     let { config }: { config: RestfulComponentConfig } = $props();
 
     let options = $state([
         { name: "Request", value: Request },
+        { name: "Links", value: LinkMappings },
         { name: "Storage", value: Storage },
     ]);
     if ( isServerBuildMode()) {
