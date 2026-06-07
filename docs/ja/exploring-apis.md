@@ -24,22 +24,23 @@ RESTful UI で OpenAPI を読み込み、一覧から詳細へ辿りながら AP
 
 一覧 GET のレスポンスが配列のとき、テーブル表示されます。列の値（ID など）の横にある **list** ボタンから、下位 path の operation へ進めます。
 
-RESTful UI は現在の path より **深い path**（例: `/pet` → `/pet/{petId}`）を OpenAPI 定義から自動検出します（`getUnderOperations`）。
+RESTful UI は現在の path より **深い path**（例: `/configs` → `/configs/{configurationId}`）を OpenAPI 定義から自動検出します（`getUnderOperations`）。
 
 ![コレクション GET のテーブル](../assets/ja-02-collection-table.png)
 
-**手順（PetStore の例）**
+**手順（同梱サンプル `restful-api-sample-config.yaml` の例）**
 
-1. パスツリーまたは API TOP から `GET /pet/findByStatus` を開く
-2. `status=available` などを指定して **Execute**
-3. テーブルの `id` 列で **list** をクリック
-4. ダイアログ内の `GET /pet/{petId}` などのリンクを選ぶ — 選択した ID が次のリクエストのパラメータに載ります
+1. ローカルで `/oas/restful-api-sample-config.yaml` を読み込む
+2. Settings で **Base path** を `http://localhost:4210/api` に設定して **Save**（`pnpm run dev` 時）
+3. `GET /configs` を開いて **Execute**
+4. テーブルの `configurationId` 列で **list** をクリック
+5. ダイアログ内の `GET /configs/{configurationId}` などを選ぶ — 選択した ID が次のリクエストのパラメータに載ります
 
 ![PathLink ダイアログ](../assets/ja-03-path-link-dialog.png)
 
 **Try it**
 
-- `GET /pet/findByStatus` → 行の `id` から `GET /pet/{petId}` へ
+- ローカル: `/oas/restful-api-sample-config.yaml` → Settings → Base path を `http://localhost:4210/api` → `GET /configs`
 
 ---
 
@@ -161,7 +162,7 @@ id:
 
 ### 拡張なしのフォールバック
 
-`x-restfului-link` がなくても、**下位 path の path パラメータ名と同じ列** は自動的に PathLink 列になります（Part A §2）。PetStore の `id` 列がこれに該当します。
+`x-restfului-link` がなくても、**下位 path の path パラメータ名と同じ列** は自動的に PathLink 列になります（Part A §2）。`GET /configs` の `configurationId` 列がこれに該当します。
 
 ### 階層ベース vs 拡張明示
 

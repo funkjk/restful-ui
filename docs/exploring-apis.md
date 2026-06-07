@@ -8,7 +8,7 @@ How to load OpenAPI specs in RESTful UI, navigate from lists to details while tr
 
 On the home page, enter an OpenAPI URL and click **set**. After the spec is parsed, the API TOP view appears and the path tree shows in the left drawer.
 
-![API TOP after loading OpenAPI](../assets/ja-01-openapi-top.png)
+![API TOP after loading OpenAPI](assets/ja-01-openapi-top.png)
 
 - OpenAPI v2 / v3 supported (`$ref` resolved via `@apidevtools/swagger-parser`)
 - Bundled samples live under `static/oas/`; locally you can reference them at `/oas/...`
@@ -24,22 +24,23 @@ On the home page, enter an OpenAPI URL and click **set**. After the spec is pars
 
 When a collection GET response is an array, it is shown as a table. Use the **list** button next to column values (IDs, etc.) to open operations on deeper paths.
 
-RESTful UI automatically detects **deeper paths** than the current one (e.g. `/pet` → `/pet/{petId}`) from the OpenAPI definition (`getUnderOperations`).
+RESTful UI automatically detects **deeper paths** than the current one (e.g. `/configs` → `/configs/{configurationId}`) from the OpenAPI definition (`getUnderOperations`).
 
-![Collection GET table](../assets/ja-02-collection-table.png)
+![Collection GET table](assets/ja-02-collection-table.png)
 
-**Steps (PetStore example)**
+**Steps (bundled sample `restful-api-sample-config.yaml`)**
 
-1. Open `GET /pet/findByStatus` from the path tree or API TOP
-2. Set `status=available` (or similar) and click **Execute**
-3. In the table’s `id` column, click **list**
-4. In the dialog, choose a link such as `GET /pet/{petId}` — the selected ID is carried into the next request’s parameters
+1. Load `/oas/restful-api-sample-config.yaml` locally
+2. In Settings, set **Base path** to `http://localhost:4210/api` and click **Save** (when using `pnpm run dev`)
+3. Open `GET /configs` and click **Execute**
+4. In the table’s `configurationId` column, click **list**
+5. Choose a link such as `GET /configs/{configurationId}` in the dialog — the selected ID is carried into the next request’s parameters
 
-![PathLink dialog](../assets/ja-03-path-link-dialog.png)
+![PathLink dialog](assets/ja-03-path-link-dialog.png)
 
 **Try it**
 
-- `GET /pet/findByStatus` → from a row’s `id`, open `GET /pet/{petId}`
+- Local: `/oas/restful-api-sample-config.yaml` → Settings → Base path `http://localhost:4210/api` → `GET /configs`
 
 ---
 
@@ -47,7 +48,7 @@ RESTful UI automatically detects **deeper paths** than the current one (e.g. `/p
 
 The left drawer shows the full path hierarchy. Jump to an operation via method links.
 
-![Path tree](../assets/ja-04-path-tree.png)
+![Path tree](assets/ja-04-path-tree.png)
 
 ---
 
@@ -81,7 +82,7 @@ PathLink columns (list buttons) are enabled when:
 
 Open the drawer’s **Setting** tab to change shared request options.
 
-![Settings](../assets/ja-05-settings.png)
+![Settings](assets/ja-05-settings.png)
 
 | Item | Description |
 |------|-------------|
@@ -161,7 +162,7 @@ Jump from a calendar ID to the timetable API via **another path + query**.
 
 ### Fallback without the extension
 
-Even without `x-restfului-link`, columns whose names match **path parameters on deeper paths** become PathLink columns automatically (Part A §2). PetStore’s `id` column is an example.
+Even without `x-restfului-link`, columns whose names match **path parameters on deeper paths** become PathLink columns automatically (Part A §2). The `configurationId` column on `GET /configs` is an example.
 
 ### Hierarchy vs explicit extension
 
