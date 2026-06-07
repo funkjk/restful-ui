@@ -11,13 +11,13 @@
     import { PAGE } from "$lib/utils/utils";
     import Button, { Label } from "@smui/button";
     import Textfield from "@smui/textfield";
-    import { onMount } from "svelte";
     import { get } from "svelte/store";
     import GeneralJsonCard from "$lib/components/common/GeneralJsonCard.svelte";
     import IconButton from "@smui/icon-button";
     import { goto } from "$app/navigation";
     import { getAppBasePath, withAppBase } from "$lib/utils/app-base";
     import type { ServerConfig } from "$lib/restful/config-server/ServerSupport";
+    import type { RequestSettings } from "$lib/types/request-config";
     let { config }: { config: RestfulComponentConfig } = $props();
     let serverName = $state("");
     let openApiUrl = $state("");
@@ -41,10 +41,9 @@
         serverVersion,
         timeout,
         maxRetries,
-        requestSettings: get(config.storage.requestSetting),
+        requestSettings: get(config.storage.requestSetting) as RequestSettings,
+        linkMappings: get(config.storage.linkMappings),
     });
-
-    onMount(() => {});
 
     async function save() {
         const request: ServerConfig = {
@@ -54,7 +53,8 @@
             serverVersion,
             timeout,
             maxRetries,
-            requestSettings: get(config.storage.requestSetting),
+            requestSettings: get(config.storage.requestSetting) as RequestSettings,
+            linkMappings: get(config.storage.linkMappings),
         };
         const response = await fetch("/api/configs", {
             method: "POST",

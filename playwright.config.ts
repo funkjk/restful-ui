@@ -51,7 +51,7 @@ export default defineConfig({
   webServer: {
     command: 'pnpm run dev',
     url: 'http://localhost:4210',
-    reuseExistingServer: false,
+    reuseExistingServer: !process.env.CI,
     env: {
       PORT: '4210',
       NODE_ENV: 'test',

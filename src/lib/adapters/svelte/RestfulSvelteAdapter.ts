@@ -5,6 +5,8 @@ import { AbstractRequestSettingApplyPlugin, UseRestfulUIProxyPlugin } from "$lib
 import { EmptyRestfulPlugin, FetchPluginChain, type RestfulPlugin } from "$lib/restful/RestfulPlugin";
 import type { InputRestParameters, RestfulOperation } from "$lib/restful/RestfulOperation";
 import { getDefaultProxyBaseUrl, resolveProxyBaseUrl } from "$lib/utils/proxy";
+import type { LinkMapping } from "$lib/types/link-mapping";
+import { migrateLinkMappings } from "$lib/restful/linkMapping";
 import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 import { RuningMode, DefaultLinkSupport } from "$lib/restful/RestfulInterfaces";
 import { getAppBasePath } from "$lib/utils/app-base";
@@ -138,6 +140,14 @@ export function createRestfulComponentConfig(storageKey: string, baseConfig?: Pa
         } as RequestSetting,
         { storage: "session" },
     );
+    const linkMappings = baseConfig?.storage?.linkMappings ?? persisted(
+        storageKey + "-link-mappings",
+        [] as LinkMapping[],
+        {
+            storage: "session",
+            beforeRead: (value) => migrateLinkMappings(Array.isArray(value) ? value : []),
+        },
+    );
     return {
         ...baseConfig,
         storage: {
@@ -149,6 +159,7 @@ export function createRestfulComponentConfig(storageKey: string, baseConfig?: Pa
             dataTableDisplayTypes,
             selectedTableKeys,
             requestSetting,
+            linkMappings,
         },
         additionalPlugins: [
             new SetRequestPlugin(requestSetting),

@@ -45,6 +45,15 @@
         link.click();
     }
     let selectedIndex = $state(-1);
+    const LOG_MESSAGE_MAX_LENGTH = 200;
+
+    function formatLogMessage(message: string): string {
+        if (message.length <= LOG_MESSAGE_MAX_LENGTH) {
+            return message;
+        }
+        return message.slice(0, LOG_MESSAGE_MAX_LENGTH) + "...";
+    }
+
     function copy() {
         let text = $logs[selectedIndex].messages.join("\n");
         navigator.clipboard.writeText(text);
@@ -121,7 +130,7 @@
                                     >
                                 {/if}
                                 <td>
-                                    <div>{message}</div>
+                                    <div>{formatLogMessage(message)}</div>
                                 </td>
                             </tr>
                         {/each}

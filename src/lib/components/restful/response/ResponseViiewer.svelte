@@ -13,6 +13,7 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
     import { syncObject } from "$lib/utils/ObjectStore";
     import type { SelectedRoot } from "$lib/utils/object-array";
     import { CardType,isTooBigByDepth, type DisplayTypes } from "$lib/utils/utils";
+    import { findMappingsForOperation } from "$lib/restful/linkMapping";
     let {
 		config,
 		currentOperation,
@@ -38,6 +39,9 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
     const dataTableDisplayTypes = config.storage.dataTableDisplayTypes;
 
 
+    const linkMappingsStore = config.storage.linkMappings;
+
+
     const columnView: any = $derived.by(() => {
         try {
             const pathColumnView: any = {};
@@ -49,6 +53,14 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
             const propertiesWithExtension = currentOperation.getPropertiesWithExtension('x-restfului-link');
             for (let column in propertiesWithExtension) {
                 pathColumnView[column] = PathLinkColumn;
+            }
+            const userMappings = findMappingsForOperation(
+                $linkMappingsStore,
+                currentOperation.path,
+                currentOperation.method ?? "get",
+            );
+            for (const mapping of userMappings) {
+                pathColumnView[mapping.column] = PathLinkColumn;
             }
             return pathColumnView;
         } catch (error) {

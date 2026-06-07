@@ -14,6 +14,7 @@
 } from "$lib/restful/RestfulInterfaces";
 import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
 	import ResponseViiewer from "../response/ResponseViiewer.svelte";
+	import QuickAddLink from "../operation/QuickAddLink.svelte";
     import { PAGE } from "$lib/utils/utils";
 	import { replaceState } from "$app/navigation";
 	let {
@@ -154,6 +155,7 @@ parameters={JSON.stringify(currentOperation.parameters)}
 		{response}
 		{isErrorResponse}
 	></ResponseViiewer>
+	<QuickAddLink {config} {currentOperation} {response}></QuickAddLink>
 {/if}
 
 <GeneralJsonCard data={operation} title="operation"></GeneralJsonCard>

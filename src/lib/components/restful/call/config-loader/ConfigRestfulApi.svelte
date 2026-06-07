@@ -16,7 +16,9 @@
         LogMessage,
     } from "$lib/restful/BuiltInPlugins";
     import { loading, logMessages } from "$lib/stores/ui";
-    import { writable } from "svelte/store";
+    import type { LinkMapping } from "$lib/types/link-mapping";
+    import { migrateLinkMappings } from "$lib/restful/linkMapping";
+    import { get, writable } from "svelte/store";
     import Card, { Content } from "@smui/card";
     import { withAppBase } from "$lib/utils/app-base";
     import { createProxyUrl } from "$lib/utils/proxy";
@@ -72,6 +74,9 @@
             localConfig.documentUrl = serverConfig.openApiUrl;
         }
         const requestSetting = writable(serverConfig.requestSettings);
+        const linkMappings = writable<LinkMapping[]>(
+            migrateLinkMappings(serverConfig.linkMappings ?? []),
+        );
         localConfig.additionalPlugins = [
             new LoggingRestfulPlugin(messageLogger),
             new SetLoadingPlugin(loading),
@@ -79,15 +84,20 @@
             new SvelteRestfulProxy(requestSetting),
         ];
         localConfig.storage.requestSetting = requestSetting;
-        localConfig.storage.requestSetting.subscribe((value: any) => {
+        localConfig.storage.linkMappings = linkMappings;
+
+        function persistServerConfig() {
             fetch("/api/configs/" + configurationId, {
                 method: "PUT",
                 body: JSON.stringify({
                     ...serverConfig,
-                    requestSettings: value,
+                    requestSettings: get(requestSetting),
+                    linkMappings: get(linkMappings),
                 }),
             });
-        });
+        }
+        requestSetting.subscribe(() => persistServerConfig());
+        linkMappings.subscribe(() => persistServerConfig());
         localConfig.linkSupport = new PathParameterLinkSupport(configurationId);
         return localConfig;
     }

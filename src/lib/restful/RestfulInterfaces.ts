@@ -1,3 +1,5 @@
+import type { LinkMapping } from "$lib/types/link-mapping";
+import type { Writable } from "svelte/store";
 import type { RestfulOperation } from "./RestfulOperation";
 import type { RestfulPlugin } from "./RestfulPlugin";
 import type { ServerConfig } from "./config-server/ServerSupport";
@@ -32,6 +34,7 @@ export interface RestfulComponentConfig {
         dataTableDisplayTypes: any;
         selectedTableKeys: any;
         requestSetting: any;
+        linkMappings: Writable<LinkMapping[]>;
     }
     additionalPlugins: RestfulPlugin[];
     displaySupport: RestfulDisplaySupport;
