@@ -22,7 +22,11 @@ JavaScript cannot read the response body. DevTools may show HTTP 200 while the c
 2. The proxy server forwards the request to the target API or OAS URL
 3. The proxy adds CORS headers when returning to the browser
 
-Proxy base URL can be changed in **Settings → Request** and on the **OpenAPI URL** entry screen. Format: `{proxyBase}/{targetUrl}` (e.g. `/api/proxy/https://api.example.com/path`).
+Proxy base URL can be changed in **Settings → Request** and on the **OpenAPI URL** entry screen.
+
+**URL format:** `{proxyBase}/{encodeURIComponent(targetUrl)}` — the target URL is one encoded path segment (avoids `https://` collapsing in reverse-proxy paths).
+
+Example: `/api/proxy/https%3A%2F%2Fapi.example.com%2Fpath` (same as cors-anywhere).
 
 ### Default proxy base URL
 
@@ -40,6 +44,16 @@ Proxy base URL can be changed in **Settings → Request** and on the **OpenAPI U
 
 Same variable applies to `/api/configs` CORS. In production, restrict to your RESTful UI origin.
 
+### Localhost and remote proxies
+
+A proxy server on Vercel (or any remote host) **cannot** fetch `http://localhost` or `127.0.0.1` on your PC. The server returns **400** for such targets; the UI may fall back to a direct browser fetch when the proxy base is on another origin.
+
+| Scenario | What works |
+|----------|------------|
+| `pnpm run dev` + same-origin `/api/proxy` + `http://localhost:…` API | Yes (proxy and API on your machine) |
+| GitHub Pages + Vercel proxy + `http://localhost:…` in Base path | No — use a public API URL or run RESTful UI locally |
+| Static site + `PUBLIC_CORS_PROXY_URL` + public HTTPS API | Yes, if the proxy operator allows your Origin (`CORS_ALLOWED_ORIGINS`) |
+
 ### When to turn proxy ON
 
 - Trying third-party APIs without CORS on a public demo or during development
@@ -51,7 +65,7 @@ Same variable applies to `/api/configs` CORS. In production, restrict to your RE
 - You do not want **credentials or internal APIs** routed through the RESTful UI host
 - Privacy-first self-hosting
 
-Setting: server build mode → Settings → **Use Restful-UI Proxy** (hidden in static build mode)
+Setting: **Settings → Request** → **Use CORS proxy** (also on the OpenAPI URL entry screen). In static build mode there is no same-origin `/api/proxy`; set **Proxy base URL** to an external server or rely on `PUBLIC_CORS_PROXY_URL` baked in at build time.
 
 ## 2. Traffic paths
 
@@ -64,8 +78,8 @@ sequenceDiagram
   Note over Browser,TargetAPI: Proxy OFF (default)
   Browser->>TargetAPI: fetch (with headers/body)
 
-  Note over Browser,TargetAPI: Proxy ON (server build mode only)
-  Browser->>RestfulUI: GET/POST /api/proxy/https://target/path
+  Note over Browser,TargetAPI: Proxy ON
+  Browser->>RestfulUI: GET/POST /api/proxy/{encoded-target-url}
   RestfulUI->>TargetAPI: forward
   TargetAPI-->>RestfulUI: response
   RestfulUI-->>Browser: return with CORS headers
@@ -73,13 +87,13 @@ sequenceDiagram
 
 ## 3. Where data goes (comparison)
 
-| Data | Proxy OFF | Proxy ON | Static build mode |
-|------|-----------|----------|-------------------|
-| Try-it-out API requests | Browser → target API only | Browser → RESTful UI server → target API | Browser → target API only |
-| CORS | Depends on target API | Proxy response adds ACAO, etc. | Depends on target API |
-| Authorization and similar headers | Sent only to target API | **Also received by host server** | Sent only to target API |
-| Saved OAS configs | — | Server (fs / upstash / postgres, etc.) | — |
-| Response history, table UI state | Browser (IndexedDB / sessionStorage) | Same (try-it-out responses are not sent to the server by design) | Same |
+| Data | Proxy OFF | Proxy ON | Static build (proxy OFF) | Static build (proxy ON, external URL) |
+|------|-----------|----------|--------------------------|---------------------------------------|
+| Try-it-out API requests | Browser → target API only | Browser → proxy server → target API | Browser → target API only | Browser → external proxy → target API |
+| CORS | Depends on target API | Proxy response adds ACAO, etc. | Depends on target API | Depends on proxy server |
+| Authorization and similar headers | Sent only to target API | **Also received by proxy server** | Sent only to target API | **Also received by proxy server** |
+| Saved OAS configs | — | Server (fs / upstash / postgres, etc.) | — | — |
+| Response history, table UI state | Browser (IndexedDB / sessionStorage) | Same (try-it-out responses are not sent to the server by design) | Same | Same |
 
 ### Wording note
 
