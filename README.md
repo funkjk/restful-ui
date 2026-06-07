@@ -45,12 +45,12 @@ OpenAPI → collection GET → pick one row → detail GET / PUT / DELETE
 
 | Build mode | URL | Includes |
 |------------|-----|----------|
-| **Static** (Explorer demo) | [GitHub Pages](https://funkjk.github.io/restful-ui/) | Exploration & try-it-out above, path tree, bundled sample specs |
-| **Server** (Full demo) | [Vercel](https://restful-ui.vercel.app/) | + optional CORS proxy, saved configs, MCP over HTTP |
+| **Static** (Explorer demo) | [GitHub Pages](https://funkjk.github.io/restful-ui/) | Exploration & try-it-out, path tree, bundled sample specs; optional CORS proxy via external URL (`PUBLIC_CORS_PROXY_URL`) |
+| **Server** (Full demo) | [Vercel](https://restful-ui.vercel.app/) | + same-origin `/api/proxy`, saved configs, MCP over HTTP |
 
 Local `pnpm run dev` uses the **server build mode** (API routes, proxy, config persistence, MCP).
 
-**The flow in [How you explore and call a RESTful API](#how-you-explore-and-call-a-restful-api) works in static build mode too.** Server-side config save, proxy, and MCP require server build mode (or local dev).
+**The flow in [How you explore and call a RESTful API](#how-you-explore-and-call-a-restful-api) works in static build mode too.** Server-side config save and MCP require server build mode (or local dev). CORS proxy works in static build mode when you point **Proxy base URL** at an external cors-anywhere compatible server (the GitHub Pages demo uses the Vercel Full demo’s `/api/proxy`).
 
 ## Not a Swagger UI replacement
 
@@ -65,7 +65,7 @@ Typical OpenAPI UIs focus on reading the spec and one-off try-it-out. RESTful UI
 | Explore & try it out | Yes | Yes |
 | Build | `BUILD_MODE=static`, static adapter | Server adapter (default: Vercel) |
 | Try-it-out traffic | Browser → target API **directly** | Same when proxy is OFF |
-| CORS proxy | None (no server) | Optional, **OFF by default** (Settings) |
+| CORS proxy | Optional via **external** proxy URL (`PUBLIC_CORS_PROXY_URL`); no same-origin `/api/proxy` | Optional: same-origin `/api/proxy` or external URL; **OFF by default** (Settings) |
 | Saved OpenAPI configs | None | ConfigStore |
 | MCP over HTTP | None | `/api/mcp`, etc. |
 
@@ -73,15 +73,22 @@ Typical OpenAPI UIs focus on reading the spec and one-off try-it-out. RESTful UI
 
 Try it out uses **cross-origin** `fetch` in the browser. If the target API does not allow CORS, the response may not appear in the UI.
 
-With **proxy ON** (server build mode only, Settings → “Use Restful-UI Proxy”), the browser calls same-origin `/api/proxy` only; the RESTful UI server forwards to the target API and adds CORS headers on the way back.
+With **proxy ON** (Settings → **Use CORS proxy**), the browser calls a **cors-anywhere compatible** proxy base URL. The target URL is appended as a single encoded path segment: `{proxyBase}/{encodeURIComponent(targetUrl)}`.
 
-**Default is OFF.** Use direct calls when CORS already works or you do not want try-it-out traffic on the host. Static build mode has no proxy.
+| Build mode | Default proxy base |
+|------------|-------------------|
+| Server (or `pnpm run dev`) | Same-origin `/api/proxy` |
+| Static | `PUBLIC_CORS_PROXY_URL` if set at build time (GitHub Pages demo → Vercel Full demo) |
+
+You can override **Proxy base URL** in Settings and on the OpenAPI URL entry screen. Remote proxies cannot reach `localhost` on your machine — use a public URL or run RESTful UI locally with same-origin `/api/proxy`.
+
+**Default is OFF.** Use direct calls when CORS already works or you do not want try-it-out traffic on the proxy operator’s server.
 
 ## Privacy and data paths
 
 **Proxy OFF (default)** — Try it out uses **direct** `fetch` from the browser to the **target API**. URLs, headers, bodies, and API keys are **not sent to the RESTful UI server**.
 
-**Proxy ON** (server build mode only) — Traffic goes through the host’s `/api/proxy`; **the operator’s server sees request contents** (disable logging in production).
+**Proxy ON** — Traffic goes through the configured proxy server (same-origin `/api/proxy` or an external URL); **that server sees request contents** (disable logging in production).
 
 **Also note**
 

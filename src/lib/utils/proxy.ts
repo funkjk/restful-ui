@@ -1,6 +1,12 @@
-
 import { page } from '$app/stores';
+import * as publicEnv from '$env/static/public';
 import { get } from 'svelte/store';
+
+function getPublicCorsProxyUrlFromEnv(): string | undefined {
+	const value = (publicEnv as Record<string, string | undefined>).PUBLIC_CORS_PROXY_URL;
+	const trimmed = value?.trim();
+	return trimmed || undefined;
+}
 
 /** cors-anywhere compatible: `{proxyBase}/{encodeURIComponent(targetUrl)}` */
 export function buildProxyRequestUrl(proxyBase: string, targetUrl: string): string {
@@ -18,7 +24,7 @@ function getSameOriginProxyPath(): string {
 
 /** Default proxy base: PUBLIC_CORS_PROXY_URL, else same-origin /api/proxy */
 export function getDefaultProxyBaseUrl(): string {
-	const fromEnv = import.meta.env.PUBLIC_CORS_PROXY_URL?.trim();
+	const fromEnv = getPublicCorsProxyUrlFromEnv();
 	if (fromEnv) {
 		return fromEnv.replace(/\/$/, '');
 	}

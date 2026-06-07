@@ -45,12 +45,12 @@ OpenAPI → 一覧 GET → テーブルで 1 件選択 → GET 詳細 / PUT / DE
 
 | ビルドモード | URL | 含まれる機能 |
 |-------------|-----|-------------|
-| **静的**（Explorer デモ） | [GitHub Pages](https://funkjk.github.io/restful-ui/) | 上記の探索・実行、パスツリー、同梱サンプル spec |
-| **サーバー**（Full デモ） | [Vercel](https://restful-ui.vercel.app/) | ＋ CORS 用プロキシ（任意）、設定の保存、MCP over HTTP |
+| **静的**（Explorer デモ） | [GitHub Pages](https://funkjk.github.io/restful-ui/) | 上記の探索・実行、パスツリー、同梱サンプル spec。外部プロキシ URL（`PUBLIC_CORS_PROXY_URL`）で CORS プロキシも可 |
+| **サーバー**（Full デモ） | [Vercel](https://restful-ui.vercel.app/) | ＋ 同一オリジン `/api/proxy`、設定の保存、MCP over HTTP |
 
 ローカルの `pnpm run dev` は **サーバービルドモード**（API ルート・プロキシ・設定保存・MCP）です。
 
-**§2 の探索・実行は静的ビルドモードでも利用できます。** 設定のサーバー保存・プロキシ・MCP はサーバービルドモード（またはローカル dev）のみです。
+**§2 の探索・実行は静的ビルドモードでも利用できます。** 設定のサーバー保存と MCP はサーバービルドモード（またはローカル dev）のみです。CORS プロキシは、**Proxy base URL** を cors-anywhere 互換の外部サーバーに向ければ静的ビルドでも利用できます（GitHub Pages デモは Vercel Full デモの `/api/proxy` を使用）。
 
 ## 他の OpenAPI UI との違い
 
@@ -65,7 +65,7 @@ OpenAPI → 一覧 GET → テーブルで 1 件選択 → GET 詳細 / PUT / DE
 | 探索・Try it out（§2） | 可 | 可 |
 | ビルド | `BUILD_MODE=static`、静的アダプタ | サーバーアダプタ（既定: Vercel） |
 | Try it out の通信 | ブラウザ → 対象 API **直接** | 同上（プロキシ OFF 時） |
-| CORS 用プロキシ | なし（サーバーなし） | 任意・**既定 OFF**（Settings） |
+| CORS 用プロキシ | **外部**プロキシ URL で任意（`PUBLIC_CORS_PROXY_URL`）。同一オリジン `/api/proxy` はなし | 同一オリジン `/api/proxy` または外部 URL。任意・**既定 OFF**（Settings） |
 | OpenAPI 設定の保存 | なし | ConfigStore |
 | MCP over HTTP | なし | `/api/mcp` など |
 
@@ -73,15 +73,22 @@ OpenAPI → 一覧 GET → テーブルで 1 件選択 → GET 詳細 / PUT / DE
 
 ブラウザの Try it out は **クロスオリジン** の `fetch` になります。対象 API が CORS を許可していないと、レスポンスが UI に表示されないことがあります。
 
-**プロキシ ON**（サーバービルドモードのみ、Settings の「Use Restful-UI Proxy」）では、ブラウザは同一オリジンの `/api/proxy` のみを呼び、RESTful UI サーバーが対象 API に転送します。返却時に CORS ヘッダを付与するため、CORS 未対応の API でも試行しやすくなります。
+**プロキシ ON**（Settings → **Use CORS proxy**）では、ブラウザは **cors-anywhere 互換** のプロキシベース URL を呼びます。対象 URL は 1 つのエンコード済みパスとして付与されます: `{proxyBase}/{encodeURIComponent(targetUrl)}`。
 
-**既定は OFF** です。CORS が通る API や、試行内容をホストに載せたくない場合はそのまま直接呼び出しで十分です。静的ビルドモードではプロキシは使えません。
+| ビルドモード | プロキシベースの初期値 |
+|-------------|----------------------|
+| サーバー（`pnpm run dev` 含む） | 同一オリジン `/api/proxy` |
+| 静的 | ビルド時の `PUBLIC_CORS_PROXY_URL`（GitHub Pages デモ → Vercel Full デモ） |
+
+**Proxy base URL** は Settings と OpenAPI URL 入力画面で上書きできます。リモートプロキシは手元 PC の `localhost` には到達できません — 公開 URL を使うか、ローカルで RESTful UI を動かして同一オリジン `/api/proxy` を使ってください。
+
+**既定は OFF** です。CORS が通る API や、試行内容をプロキシ運用者のサーバーに載せたくない場合は直接呼び出しのままで十分です。
 
 ## プライバシーとデータの行き先
 
 **プロキシ OFF（既定）** — Try it out はブラウザから **対象 API へ直接** `fetch` します。URL・ヘッダ・ボディ・API キーは **RESTful UI のサーバーには送られません**。
 
-**プロキシ ON**（サーバービルドモードのみ） — リクエストはホストの `/api/proxy` を経由し、**運用者のサーバーに内容が届きます**（本番ではログ無効化を推奨）。
+**プロキシ ON** — リクエストは設定されたプロキシサーバー（同一オリジン `/api/proxy` または外部 URL）を経由し、**そのサーバーに内容が届きます**（本番ではログ無効化を推奨）。
 
 **あわせて**
 
