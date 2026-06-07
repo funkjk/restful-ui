@@ -18,9 +18,18 @@ DevTools ではネットワーク上は 200 でも、コンソールに CORS エ
 
 ### プロキシ ON のとき
 
-1. ブラウザは **同一オリジン** の RESTful UI（`POST /api/proxy` など）だけを呼ぶ
+1. ブラウザは **同一オリジン** の RESTful UI（cors-anywhere 形式、例: `GET /api/proxy/https://api.example.com/path`）だけを呼ぶ
 2. RESTful UI サーバーが対象 API にリクエストを転送する
 3. サーバーがブラウザへ返す際に CORS ヘッダを付与する（[`src/routes/api/proxy/[...path]/+server.ts`](../../src/routes/api/proxy/[...path]/+server.ts)）
+
+### 許可 Origin（`CORS_ALLOWED_ORIGINS`）
+
+| 設定 | 挙動 |
+|------|------|
+| 未設定または空 | 任意の Origin から `/api/proxy` 利用可（`Access-Control-Allow-Origin: *`） |
+| カンマ区切りリスト | リスト内の Origin のみ（例: `https://app.example.com,http://localhost:4210`）、それ以外は 403 |
+
+`/api/configs` の CORS にも同じ変数を使用します。本番では RESTful UI の Origin のみに絞ることを推奨します。
 
 ### プロキシを ON にすべきケース
 
@@ -47,7 +56,7 @@ sequenceDiagram
   Browser->>TargetAPI: fetch（ヘッダ・ボディ付き）
 
   Note over Browser,TargetAPI: プロキシ ON（サーバービルドモードのみ）
-  Browser->>RestfulUI: api/proxy へ送信
+  Browser->>RestfulUI: GET/POST /api/proxy/https://target/path
   RestfulUI->>TargetAPI: 転送
   TargetAPI-->>RestfulUI: レスポンス
   RestfulUI-->>Browser: CORS ヘッダ付きで返却

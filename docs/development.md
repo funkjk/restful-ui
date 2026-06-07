@@ -141,7 +141,7 @@ flowchart LR
   SetRequestPlugin --> doRequestPath
   SetRequestPlugin --> doExecute
   SvelteRestfulProxy --> doFetch
-  SvelteRestfulProxy -->|"useProxy=true"| ProxyAPI["/api/proxy"]
+  SvelteRestfulProxy -->|"useProxy=true"| ProxyAPI["/api/proxy/https://target..."]
   SvelteRestfulProxy -->|"useProxy=false"| TargetAPI["Target API"]
 ```
 

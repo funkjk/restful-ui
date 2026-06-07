@@ -4,7 +4,7 @@ export function isConfigsApiPath(pathname: string): boolean {
 	return pathname === CONFIGS_API_PREFIX || pathname.startsWith(`${CONFIGS_API_PREFIX}/`);
 }
 
-function getAllowedOrigins(): string[] | null {
+export function getAllowedOrigins(): string[] | null {
 	const raw = process.env.CORS_ALLOWED_ORIGINS;
 	if (!raw?.trim()) {
 		return null;
@@ -12,7 +12,7 @@ function getAllowedOrigins(): string[] | null {
 	return raw.split(',').map((origin) => origin.trim()).filter(Boolean);
 }
 
-function isOriginAllowed(origin: string): boolean {
+export function isOriginAllowed(origin: string): boolean {
 	const allowed = getAllowedOrigins();
 	if (allowed === null) {
 		return true;

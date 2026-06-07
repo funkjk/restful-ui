@@ -18,9 +18,18 @@ JavaScript cannot read the response body. DevTools may show HTTP 200 while the c
 
 ### When proxy is ON
 
-1. The browser calls only the **same-origin** RESTful UI host (e.g. `POST /api/proxy`)
+1. The browser calls only the **same-origin** RESTful UI host (cors-anywhere style, e.g. `GET /api/proxy/https://api.example.com/path`)
 2. The RESTful UI server forwards the request to the target API
 3. The server adds CORS headers when returning to the browser ([`src/routes/api/proxy/[...path]/+server.ts`](../src/routes/api/proxy/[...path]/+server.ts))
+
+### Allowed origins (`CORS_ALLOWED_ORIGINS`)
+
+| Setting | Behavior |
+|---------|----------|
+| Unset or empty | Any origin may use `/api/proxy` (`Access-Control-Allow-Origin: *`) |
+| Comma-separated list | Only listed origins (e.g. `https://app.example.com,http://localhost:4210`); others receive 403 |
+
+Same variable applies to `/api/configs` CORS. In production, restrict to your RESTful UI origin.
 
 ### When to turn proxy ON
 
@@ -47,7 +56,7 @@ sequenceDiagram
   Browser->>TargetAPI: fetch (with headers/body)
 
   Note over Browser,TargetAPI: Proxy ON (server build mode only)
-  Browser->>RestfulUI: POST to /api/proxy
+  Browser->>RestfulUI: GET/POST /api/proxy/https://target/path
   RestfulUI->>TargetAPI: forward
   TargetAPI-->>RestfulUI: response
   RestfulUI-->>Browser: return with CORS headers
