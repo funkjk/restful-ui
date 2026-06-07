@@ -6,12 +6,13 @@
     import Textfield from "@smui/textfield";
     import { onMount } from "svelte";
     import { get } from "svelte/store";
-    import { isStaticBuildMode, isServerBuildMode } from "$lib/utils/build-mode";
+    import { getDefaultProxyBaseUrl } from "$lib/utils/proxy";
     let {config}:{config:RestfulComponentConfig} = $props();
     let headers: any[] = $state([]);
     let additionalQueryParameter = $state("");
     let basePath  = $state("");
     let useProxy: boolean = $state(false);
+    let proxyBaseUrl = $state("");
     function addHeader() {
         headers = [...headers, { name: "", value: "" }];
     }
@@ -26,7 +27,8 @@
         }
         additionalQueryParameter = requestSetting.additionalQueryParameter ?? "";
         basePath = requestSetting.basePath ?? "";
-        useProxy = requestSetting.useProxy
+        useProxy = requestSetting.useProxy;
+        proxyBaseUrl = requestSetting.proxyBaseUrl?.trim() || getDefaultProxyBaseUrl();
     });
 
     function save() {
@@ -35,7 +37,8 @@
             headers: storageHeaders,
             additionalQueryParameter,
             basePath,
-            useProxy: isStaticBuildMode() ? false : useProxy,
+            useProxy,
+            proxyBaseUrl: proxyBaseUrl.trim() || getDefaultProxyBaseUrl(),
         });
         notifyMessage.notify("Save");
     }
@@ -51,9 +54,15 @@
 
 <Textfield bind:value={basePath} class="base-path" label="basePath" style="width:100%;" placeholder="https://www.example.com/api"></Textfield>
 
-{#if isServerBuildMode()}
 <h3>Use Proxy</h3>
-<Checkbox bind:checked={useProxy} label="Use Restful-UI Proxy to call API"></Checkbox>
+<Checkbox bind:checked={useProxy} label="Use CORS proxy to call API"></Checkbox>
+{#if useProxy}
+<Textfield
+    bind:value={proxyBaseUrl}
+    label="Proxy base URL (cors-anywhere compatible)"
+    style="width:100%;"
+    placeholder={getDefaultProxyBaseUrl()}
+></Textfield>
 {/if}
 
 <h3>Request Headers</h3>

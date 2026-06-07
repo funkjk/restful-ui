@@ -8,4 +8,5 @@ export interface RequestSettings {
   additionalQueryParameter?: string;
   basePath?: string;
   useProxy: boolean;
+  proxyBaseUrl?: string;
 }
