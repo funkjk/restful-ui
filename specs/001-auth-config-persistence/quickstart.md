@@ -13,7 +13,7 @@
 
 ### 1. Clerkのセットアップ
 
-1. [Clerk](https://clerk.com)でアカウントを作成
+1. <a href="https://clerk.com" target="_blank" rel="noopener noreferrer">Clerk</a>でアカウントを作成
 2. 新しいアプリケーションを作成
 3. API Keysを取得:
    - `PUBLIC_CLERK_PUBLISHABLE_KEY` (公開キー、PUBLIC_プレフィックスが必要)
@@ -25,7 +25,7 @@
 
 ### 2. CockroachDBのセットアップ
 
-1. [CockroachDB Cloud](https://cockroachlabs.cloud)でアカウントを作成
+1. <a href="https://cockroachlabs.cloud" target="_blank" rel="noopener noreferrer">CockroachDB Cloud</a>でアカウントを作成
 2. Serverlessクラスターを作成（無料プラン）
 3. 接続文字列を取得（`DATABASE_URL`）
 

@@ -98,7 +98,7 @@ Try it out とは独立して、次は **サーバー側** に関わります。
 
 ## 5. 公開デモ（Vercel）を使うとき
 
-[restful-ui.vercel.app](https://restful-ui.vercel.app/) は第三者が運用するデモです。
+<a href="https://restful-ui.vercel.app/" target="_blank" rel="noopener noreferrer">restful-ui.vercel.app</a> は第三者が運用するデモです。
 
 - プロキシを ON にすると、試行内容が **デモ運用者のサーバー** を経由します
 - 機密のある API キーや本番データでの試行は避け、**自己ホスト**（[deployment.md](deployment.md)）を検討してください

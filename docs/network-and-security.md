@@ -112,7 +112,7 @@ Static build mode (static hosting) has none of the above.
 
 ## 5. Using the public demo (Vercel)
 
-[restful-ui.vercel.app](https://restful-ui.vercel.app/) is a third-party demo.
+<a href="https://restful-ui.vercel.app/" target="_blank" rel="noopener noreferrer">restful-ui.vercel.app</a> is a third-party demo.
 
 - With proxy ON, try-it-out traffic passes through **the demo operator’s server**
 - Avoid API keys and production data on public demos; consider **self-hosting** ([deployment.md](deployment.md))

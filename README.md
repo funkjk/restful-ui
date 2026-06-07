@@ -45,8 +45,8 @@ OpenAPI → collection GET → pick one row → detail GET / PUT / DELETE
 
 | Build mode | URL | Includes |
 |------------|-----|----------|
-| **Static** (Explorer demo) | [GitHub Pages](https://funkjk.github.io/restful-ui/) | Exploration & try-it-out, path tree, bundled sample specs; optional CORS proxy via external URL (`PUBLIC_CORS_PROXY_URL`) |
-| **Server** (Full demo) | [Vercel](https://restful-ui.vercel.app/) | + same-origin `/api/proxy`, saved configs, MCP over HTTP |
+| **Static** (Explorer demo) | <a href="https://funkjk.github.io/restful-ui/" target="_blank" rel="noopener noreferrer">GitHub Pages</a> | Exploration & try-it-out, path tree, bundled sample specs; optional CORS proxy via external URL (`PUBLIC_CORS_PROXY_URL`) |
+| **Server** (Full demo) | <a href="https://restful-ui.vercel.app/" target="_blank" rel="noopener noreferrer">Vercel</a> | + same-origin `/api/proxy`, saved configs, MCP over HTTP |
 
 Local `pnpm run dev` uses the **server build mode** (API routes, proxy, config persistence, MCP).
 

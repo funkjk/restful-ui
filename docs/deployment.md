@@ -13,7 +13,7 @@ How **static** and **server** build modes differ in RESTful UI, and how to deplo
 | Server-side saved configs | No | ConfigStore |
 | MCP over HTTP | No | `/api/mcp`, etc. |
 
-Public demos: static → [Explorer (GitHub Pages)](https://funkjk.github.io/restful-ui/) / server → [Full (Vercel)](https://restful-ui.vercel.app/)
+Public demos: static → <a href="https://funkjk.github.io/restful-ui/" target="_blank" rel="noopener noreferrer">Explorer (GitHub Pages)</a> / server → <a href="https://restful-ui.vercel.app/" target="_blank" rel="noopener noreferrer">Full (Vercel)</a>
 
 ### When to use which
 
@@ -112,7 +112,7 @@ See [`.env.example`](../.env.example).
 2. Set environment variables
 3. Deploy (build command: `pnpm run build`)
 
-The public [Full (Vercel)](https://restful-ui.vercel.app/) demo uses this setup.
+The public <a href="https://restful-ui.vercel.app/" target="_blank" rel="noopener noreferrer">Full (Vercel)</a> demo uses this setup.
 
 #### Self-managed server (adapter-node, etc.)
 
