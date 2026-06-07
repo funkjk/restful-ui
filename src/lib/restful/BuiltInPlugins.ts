@@ -1,4 +1,5 @@
 import { defaultLogger } from "$lib/utils/logger";
+import { buildProxyRequestUrl } from "$lib/utils/proxy";
 import type { RestApiResponse } from "./apiFetch";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain, RequestPathPluginChain } from "./RestfulPlugin";
@@ -159,78 +160,16 @@ export abstract class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
         return this.requestUsingProxy(input, init);
     }
     async requestUsingProxy(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-        const proxyRequestbody: ProxyRequestBody = this.createRequest(input, init);
-        const proxyResponse = await this.doProxyRequest(proxyRequestbody)
-        const responseData = JSON.parse(await proxyResponse.text())
-        const response = this.createResponse(responseData)
-        return response
-    }
-    createRequest(input: RequestInfo | URL, init?: RequestInit): ProxyRequestBody {
-        return {
-            url: input.toString(),
-            method: init?.method,
+        const targetUrl = input.toString();
+        const proxyUrl = buildProxyRequestUrl(this.getProxyUrl(), targetUrl);
+        return fetch(proxyUrl, {
+            method: init?.method ?? 'GET',
             headers: init?.headers,
-            body: init?.body
-        }
-    }
-    createResponse(responseData: ProxyResponseBody): Response {
-        const headers = new Headers()
-        for (const [name, value] of Object.entries(responseData.headers)) {
-            headers.append(name, value as string)
-        }
-        const response: Response = {
-            ok: responseData.status < 400,
-            status: responseData.status,
-            headers: headers,
-            redirected: false,
-            statusText: "status:" + responseData.status,
-            type: "default",
-            url: "",
-            body: null,
-            bodyUsed: false,
-            text: async () => responseData.responseBody,
-            json: async () => JSON.parse(responseData.responseBody),
-            clone: function (): Response {
-                throw new Error("Function not implemented.");
-            },
-            arrayBuffer: function (): Promise<ArrayBuffer> {
-                throw new Error("Function not implemented.");
-            },
-            blob: function (): Promise<Blob> {
-                throw new Error("Function not implemented.");
-            },
-            bytes: function (): Promise<Uint8Array> {
-                throw new Error("Function not implemented.");
-            },
-            formData: function (): Promise<FormData> {
-                throw new Error("Function not implemented.");
-            },
-        }
-        return response
+            body: init?.body,
+        });
     }
     abstract getProxyUrl(): string;
-    async doProxyRequest(requestBody: ProxyRequestBody): Promise<Response> {
-        const response = await fetch(this.getProxyUrl(), {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(requestBody)
-        })
-        return response
-    }
 }
-export interface ProxyRequestBody {
-    url: string,
-    method?: string,
-    headers?: HeadersInit,
-    body?: BodyInit | null
-}
-export interface ProxyResponseBody {
-    headers: { [s: string]: unknown; } | ArrayLike<unknown>;
-    status: number;
-    responseBody: string
-}
-
-
 export interface RequestSetting {
     headers: { name: string, value: string }[],
     additionalQueryParameter?: string,

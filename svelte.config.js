@@ -6,7 +6,7 @@ const basePath = process.env.BUILD_BASE_PATH ?? ""
 console.log("in build basePath="+basePath)
 /** @type {import('@sveltejs/kit').Config} */
 function buildAdapter() {
-	if ( process.env.BUILD_STATIC === 'true') {
+	if ( process.env.BUILD_MODE === 'static') {
 		return StaticAdapter({
 			pages: 'build',
 			fallback: 'index.html' // may differ from host to host

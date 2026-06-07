@@ -6,11 +6,12 @@
     import Textfield from "@smui/textfield";
     import { onMount } from "svelte";
     import { get } from "svelte/store";
+    import { isStaticBuildMode, isServerBuildMode } from "$lib/utils/build-mode";
     let {config}:{config:RestfulComponentConfig} = $props();
     let headers: any[] = $state([]);
     let additionalQueryParameter = $state("");
     let basePath  = $state("");
-    let useProxy: boolean = $state(import.meta.env.BUILD_STATIC === 'true' ? false : false);
+    let useProxy: boolean = $state(false);
     function addHeader() {
         headers = [...headers, { name: "", value: "" }];
     }
@@ -34,7 +35,7 @@
             headers: storageHeaders,
             additionalQueryParameter,
             basePath,
-            useProxy: import.meta.env.BUILD_STATIC === 'true' ? false : useProxy,
+            useProxy: isStaticBuildMode() ? false : useProxy,
         });
         notifyMessage.notify("Save");
     }
@@ -50,7 +51,7 @@
 
 <Textfield bind:value={basePath} class="base-path" label="basePath" style="width:100%;" placeholder="https://www.example.com/api"></Textfield>
 
-{#if import.meta.env.BUILD_STATIC !== 'true'}
+{#if isServerBuildMode()}
 <h3>Use Proxy</h3>
 <Checkbox bind:checked={useProxy} label="Use Restful-UI Proxy to call API"></Checkbox>
 {/if}

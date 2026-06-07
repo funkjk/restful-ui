@@ -17,7 +17,7 @@ jobs:
       pages: write
       id-token: write
     env:
-      BUILD_STATIC: 'true'
+      BUILD_MODE: static
       BUILD_BASE_PATH: /restful-ui
       STORE_TYPE: inmemory
       KV_REST_API_URL: https://build.invalid
@@ -40,7 +40,7 @@ jobs:
       - name: Generate SvelteKit types
         run: pnpm exec svelte-kit sync
 
-      - name: Build static site (Explorer edition)
+      - name: Build static site (static build mode)
         run: pnpm run build:gh-pages
 
       - name: Upload Pages artifact

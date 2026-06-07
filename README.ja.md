@@ -43,14 +43,14 @@ OpenAPI → 一覧 GET → テーブルで 1 件選択 → GET 詳細 / PUT / DE
 
 ## ライブデモ
 
-| エディション | URL | 含まれる機能 |
+| ビルドモード | URL | 含まれる機能 |
 |-------------|-----|-------------|
-| **Explorer**（静的） | [GitHub Pages](https://funkjk.github.io/restful-ui/) | 上記の探索・実行、パスツリー、同梱サンプル spec |
-| **Full**（ホスト型） | [Vercel](https://restful-ui.vercel.app/) | ＋ CORS 用プロキシ（任意）、設定の保存、MCP over HTTP |
+| **静的**（Explorer デモ） | [GitHub Pages](https://funkjk.github.io/restful-ui/) | 上記の探索・実行、パスツリー、同梱サンプル spec |
+| **サーバー**（Full デモ） | [Vercel](https://restful-ui.vercel.app/) | ＋ CORS 用プロキシ（任意）、設定の保存、MCP over HTTP |
 
-ローカルの `pnpm run dev` は **Full 版相当**（API ルート・プロキシ・設定保存・MCP）です。
+ローカルの `pnpm run dev` は **サーバービルドモード**（API ルート・プロキシ・設定保存・MCP）です。
 
-**§2 の探索・実行は Explorer でも利用できます。** 設定のサーバー保存・プロキシ・MCP は Full 版（またはローカル dev）のみです。
+**§2 の探索・実行は静的ビルドモードでも利用できます。** 設定のサーバー保存・プロキシ・MCP はサーバービルドモード（またはローカル dev）のみです。
 
 ## 他の OpenAPI UI との違い
 
@@ -58,38 +58,38 @@ OpenAPI → 一覧 GET → テーブルで 1 件選択 → GET 詳細 / PUT / DE
 
 一般的な OpenAPI UI が「仕様の閲覧と単発の Try it out」に重点を置くのに対し、RESTful UI は **REST 的な path 設計の API を、一覧から個別リソース、下位リソースへ辿りながら実行する** ことに重点を置いています。実行ロジックは MCP 連携でも再利用できます。
 
-## エディション比較
+## ビルドモード比較
 
-| | Explorer（GitHub Pages） | Full（Vercel / ローカル dev） |
-|--|--------------------------|-------------------------------|
+| | 静的（`BUILD_MODE=static`） | サーバー（`BUILD_MODE=server`、既定） |
+|--|------------------------------|--------------------------------------|
 | 探索・Try it out（§2） | 可 | 可 |
-| ビルド | `BUILD_STATIC=true`、静的のみ | サーバーアダプタ（既定: Vercel） |
+| ビルド | `BUILD_MODE=static`、静的アダプタ | サーバーアダプタ（既定: Vercel） |
 | Try it out の通信 | ブラウザ → 対象 API **直接** | 同上（プロキシ OFF 時） |
 | CORS 用プロキシ | なし（サーバーなし） | 任意・**既定 OFF**（Settings） |
-| OpenAPI 設定の保存 | なし | ConfigStore + Clerk |
+| OpenAPI 設定の保存 | なし | ConfigStore |
 | MCP over HTTP | なし | `/api/mcp` など |
 
 ## プロキシ（CORS 対策）
 
 ブラウザの Try it out は **クロスオリジン** の `fetch` になります。対象 API が CORS を許可していないと、レスポンスが UI に表示されないことがあります。
 
-**プロキシ ON**（Full のみ、Settings の「Use Restful-UI Proxy」）では、ブラウザは同一オリジンの `/api/proxy` のみを呼び、RESTful UI サーバーが対象 API に転送します。返却時に CORS ヘッダを付与するため、CORS 未対応の API でも試行しやすくなります。
+**プロキシ ON**（サーバービルドモードのみ、Settings の「Use Restful-UI Proxy」）では、ブラウザは同一オリジンの `/api/proxy` のみを呼び、RESTful UI サーバーが対象 API に転送します。返却時に CORS ヘッダを付与するため、CORS 未対応の API でも試行しやすくなります。
 
-**既定は OFF** です。CORS が通る API や、試行内容をホストに載せたくない場合はそのまま直接呼び出しで十分です。Explorer（静的ホスト）ではプロキシは使えません。
+**既定は OFF** です。CORS が通る API や、試行内容をホストに載せたくない場合はそのまま直接呼び出しで十分です。静的ビルドモードではプロキシは使えません。
 
 ## プライバシーとデータの行き先
 
 **プロキシ OFF（既定）** — Try it out はブラウザから **対象 API へ直接** `fetch` します。URL・ヘッダ・ボディ・API キーは **RESTful UI のサーバーには送られません**。
 
-**プロキシ ON**（Full のみ） — リクエストはホストの `/api/proxy` を経由し、**運用者のサーバーに内容が届きます**（本番ではログ無効化を推奨）。
+**プロキシ ON**（サーバービルドモードのみ） — リクエストはホストの `/api/proxy` を経由し、**運用者のサーバーに内容が届きます**（本番ではログ無効化を推奨）。
 
 **あわせて**
 
 - 対象 API にはブラウザから送信されます（相手側のログ・CORS は RESTful UI の管轄外）
-- **保存した OpenAPI 設定**（ConfigStore）と **Clerk ログイン**は Full 版のサーバー側機能（Try it out とは別経路）
+- **保存した OpenAPI 設定**（ConfigStore）はサーバービルドモードのサーバー側機能（Try it out とは別経路）
 - §2.5 のキャッシュはブラウザ内のみで、試行レスポンスをサーバーに送る設計ではありません
 
-詳細: [docs/ja/privacy-and-requests.md](docs/ja/privacy-and-requests.md)
+詳細: [docs/ja/network-and-security.md](docs/ja/network-and-security.md)
 
 ## クイックスタート
 
@@ -99,17 +99,18 @@ cp .env.example .env
 pnpm run dev    # http://localhost:4210
 ```
 
-Clerk・`STORE_TYPE` などは [docs/ja/development.md](docs/ja/development.md) を参照してください。
+`STORE_TYPE` などは [docs/ja/deployment.md](docs/ja/deployment.md) を参照してください。
 
 ## ドキュメント
 
 | ドキュメント | 内容 |
 |-------------|------|
 | [docs/ja/](docs/ja/README.md) | 日本語ドキュメント一覧 |
-| [docs/ja/privacy-and-requests.md](docs/ja/privacy-and-requests.md) | CORS・プロキシ・通信経路・保存データ |
-| [docs/ja/development.md](docs/ja/development.md) | ローカル開発、環境変数、スクリプト、テスト |
-| [docs/ja/deploy-gh-pages.md](docs/ja/deploy-gh-pages.md) | GitHub Pages（Explorer）デプロイ |
-| [docs/ja/self-host.md](docs/ja/self-host.md) | Full 版の自己ホスト |
+| [docs/ja/exploring-apis.md](docs/ja/exploring-apis.md) | API の探索・OpenAPI 拡張 |
+| [docs/ja/deployment.md](docs/ja/deployment.md) | ビルドモードとデプロイ |
+| [docs/ja/development.md](docs/ja/development.md) | 内部構成・プラグイン |
+| [docs/ja/network-and-security.md](docs/ja/network-and-security.md) | 通信経路・セキュリティ |
+| [docs/ja/mcp.md](docs/ja/mcp.md) | MCP 連携 |
 | [README.md](README.md) | English README |
 
 ## 技術スタック

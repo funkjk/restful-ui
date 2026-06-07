@@ -2,13 +2,20 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
+function resolveBuildMode(env: Record<string, string>): BuildMode {
+	const isE2ETest = env.NODE_ENV === 'test' || env.TEST_MODE === 'e2e';
+	if (isE2ETest) {
+		return 'server';
+	}
+	const raw = process.env.BUILD_MODE ?? env.BUILD_MODE ?? 'server';
+	return raw === 'static' ? 'static' : 'server';
+}
+
+type BuildMode = 'static' | 'server';
+
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '')
-	// e2eテスト時はBUILD_STATICをfalseに設定
-	const isE2ETest = env.NODE_ENV === 'test' || env.TEST_MODE === 'e2e';
-	const buildStatic = isE2ETest
-		? 'false'
-		: (process.env.BUILD_STATIC ?? env.BUILD_STATIC ?? 'false');
+	const buildMode = resolveBuildMode(env);
 	const basePath = process.env.BUILD_BASE_PATH ?? ""
 	
 	// 実際の環境変数の値を使用（E2Eテスト時は'test'、それ以外は'production'）
@@ -35,10 +42,9 @@ export default defineConfig(({ mode }) => {
 		},
 		define: {
 			'process.env.NODE_ENV': JSON.stringify(nodeEnv),
-			'process.env.BUILD_STATIC': JSON.stringify(buildStatic),
+			'process.env.BUILD_MODE': JSON.stringify(buildMode),
 			'global': 'globalThis',
-			// 環境変数BUILD_STATICを定義（e2eテスト時はfalse）
-			'import.meta.env.BUILD_STATIC': `"${buildStatic}"`,
+			'import.meta.env.BUILD_MODE': JSON.stringify(buildMode),
 			'import.meta.env.BUILD_BASE_PATH': `"${basePath}"`,
 			// ビルド日時をISO形式（日本時間）で定義
 			'import.meta.env.BUILD_TIME': JSON.stringify(

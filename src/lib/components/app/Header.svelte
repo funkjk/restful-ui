@@ -1,13 +1,13 @@
 <script>
   import { UserButton, SignedIn, SignedOut, SignInButton } from 'svelte-clerk';
-  const BUILD_STATIC = import.meta.env.BUILD_STATIC;
+  import { isServerBuildMode } from '$lib/utils/build-mode';
 </script>
 
 <header>
   <nav>
   </nav>
   <div class="auth-section">
-    {#if BUILD_STATIC !== 'true'}
+    {#if isServerBuildMode()}
       <SignedIn>
         <UserButton />
       </SignedIn>
