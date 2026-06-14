@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import cssescape from 'css.escape'
-import { config } from 'process';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -8,6 +7,8 @@ test('test config api', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'SET' }).click();
   await page.getByRole('button', { name: 'SETTING' }).click();
+  await page.locator('.base-path input').fill('http://localhost:4210/api');
+  await page.getByRole('button', { name: 'SAVE' }).click();
   const selConfigPost = cssescape('?*page=operation&path=/configs&method=post');
   await page.locator(`a[href$="${selConfigPost}"]`).click();
   await expect(page).toHaveURL(/\/#\?\*page=operation&path=\/configs&method=post/);

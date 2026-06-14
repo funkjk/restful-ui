@@ -8,6 +8,8 @@
 
 OpenAPI 仕様をもとにエンドポイントを展開し、パラメータを指定してブラウザから実行できます。同一の実行コア（`RestfulOperation`）は MCP（AI クライアント向け）でも利用できます。
 
+![RESTful UI のデモ — OpenAPI を読み込み、エンドポイントを試行し、レスポンスを表示](docs/assets/restfului-example.gif)
+
 ## 何が便利か
 
 - **OpenAPI からそのまま実行** — 仕様を解析し、エンドポイント・メソッド・パラメータを UI に展開して Try it out できる
