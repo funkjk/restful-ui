@@ -8,6 +8,8 @@
 
 Endpoints are derived from your OpenAPI document; you set parameters and call APIs from the browser. The same execution core (`RestfulOperation`) also powers MCP for AI clients.
 
+![RESTful UI demo — load an OpenAPI spec, try an endpoint, and view the response](docs/assets/restfului-example.gif)
+
 ## What makes it useful
 
 - **Run from OpenAPI** — Parse the spec, surface endpoints, methods, and parameters in the UI, and try requests immediately
