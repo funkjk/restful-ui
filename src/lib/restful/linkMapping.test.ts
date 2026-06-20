@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { LinkMapping } from "$lib/types/link-mapping";
+import { DefaultLinkSupport } from "./RestfulInterfaces";
 import {
+	buildUserLinkGroups,
 	buildUserLinkSearchParams,
 	extractPathPrefixCandidates,
 	findMappingsForColumn,
@@ -8,7 +10,10 @@ import {
 	getAvailableTargetParams,
 	migrateLinkMapping,
 	pathMatchesPrefix,
+	resolveMethodForPath,
+	resolveMethodsForPath,
 } from "./linkMapping";
+import { createRestfulOperation, OperationParameter } from "./RestfulOperation";
 
 const petstoreDocument = {
 	paths: {
@@ -120,6 +125,65 @@ describe("migrateLinkMapping", () => {
 		).toMatchObject({
 			targetParam: "petId",
 		});
+	});
+});
+
+describe("resolveMethodsForPath", () => {
+	it("returns all defined methods for a path", () => {
+		expect(resolveMethodsForPath(petstoreDocument, "/pet/{petId}")).toEqual([
+			"get",
+			"post",
+			"delete",
+		]);
+	});
+
+	it("returns only defined methods when GET is missing", () => {
+		expect(
+			resolveMethodsForPath(petstoreDocument, "/pet/{petId}/uploadImage"),
+		).toEqual(["post"]);
+	});
+});
+
+describe("resolveMethodForPath", () => {
+	it("returns the first defined method", () => {
+		expect(resolveMethodForPath(petstoreDocument, "/pet/{petId}")).toBe("get");
+	});
+
+	it("falls back to first available method when GET is missing", () => {
+		expect(
+			resolveMethodForPath(petstoreDocument, "/pet/{petId}/uploadImage"),
+		).toBe("post");
+	});
+});
+
+describe("buildUserLinkGroups", () => {
+	it("includes each HTTP method defined on matching paths", () => {
+		const operation = createRestfulOperation(
+			new OperationParameter("/pet/findByStatus", "get", [
+				["status", "available"],
+			]),
+			petstoreDocument,
+		);
+		const groups = buildUserLinkGroups(
+			new DefaultLinkSupport("/"),
+			operation,
+			[petstoreMapping],
+			"id",
+			"123",
+		);
+		expect(groups).toHaveLength(1);
+		expect(groups[0].paths).toEqual([
+			expect.objectContaining({ openApiPath: "/pet/{petId}", method: "get" }),
+			expect.objectContaining({ openApiPath: "/pet/{petId}", method: "post" }),
+			expect.objectContaining({
+				openApiPath: "/pet/{petId}",
+				method: "delete",
+			}),
+			expect.objectContaining({
+				openApiPath: "/pet/{petId}/uploadImage",
+				method: "post",
+			}),
+		]);
 	});
 });
 

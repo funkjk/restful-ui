@@ -179,7 +179,7 @@
 										href={pathEntry.href}
 										style="color: #1976d2; text-decoration: underline; font-size: 0.875rem; word-break: break-all; display: block;"
 									>
-										{pathEntry.openApiPath}
+										{pathEntry.method} {pathEntry.openApiPath}
 									</a>
 								{/each}
 							</div>
