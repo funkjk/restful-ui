@@ -47,7 +47,7 @@ test("user link mapping from findByStatus to pet by id", async ({ page }) => {
 		.click();
 	await expect(page.getByText("User Links:")).toBeVisible();
 	await expect(page.getByText("/pet/{petId}").first()).toBeVisible();
-	const userLink = page.getByRole("link", { name: "/pet/{petId}", exact: true });
+	const userLink = page.getByRole("link", { name: "get /pet/{petId}", exact: true });
 	await expect(userLink).toBeVisible();
 	await userLink.click();
 

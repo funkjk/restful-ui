@@ -201,7 +201,7 @@ Swagger / OpenAPI 本体を変更せず、**Settings > Links** または operati
 
 ### テーブルからの利用
 
-登録済み列に **list** ボタンが表示されます。ダイアログ内 **User Links** では **target path prefix をグループ見出し**（例: `/pet/{petId}`）とし、その下にマッチする各 OpenAPI path（例: `/pet/{petId}`, `/pet/{petId}/uploadImage`）をリンク表示します。HTTP メソッドは UI に表示せず、内部では GET を優先して遷移します。
+登録済み列に **list** ボタンが表示されます。ダイアログ内 **User Links** では **target path prefix をグループ見出し**（例: `/pet/{petId}`）とし、その下にマッチする各 OpenAPI path の **定義済み HTTP メソッドごと**に **method + path**（例: `get /pet/{petId}`, `post /pet/{petId}`, `delete /pet/{petId}`, `post /pet/{petId}/uploadImage`）をリンク表示します。
 
 ### 複数 placeholder の例
 

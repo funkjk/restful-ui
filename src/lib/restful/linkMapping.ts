@@ -161,25 +161,24 @@ export function findTargetPaths(
 		.sort();
 }
 
-export function resolveMethodForPath(
+export function resolveMethodsForPath(
 	document: OpenAPI.Document,
 	path: string,
-): string | null {
+): string[] {
 	const pathItem = document.paths?.[path] as
 		| Record<string, unknown>
 		| undefined;
 	if (!pathItem) {
-		return null;
+		return [];
 	}
-	if (pathItem.get) {
-		return "get";
-	}
-	for (const method of methods) {
-		if (pathItem[method]) {
-			return method;
-		}
-	}
-	return null;
+	return methods.filter((method) => pathItem[method]);
+}
+
+export function resolveMethodForPath(
+	document: OpenAPI.Document,
+	path: string,
+): string | null {
+	return resolveMethodsForPath(document, path)[0] ?? null;
 }
 
 export function buildUserLinkSearchParams(
@@ -202,15 +201,9 @@ export function buildUserLinkHref(
 	currentOperation: RestfulOperation,
 	mapping: LinkMapping,
 	targetOpenApiPath: string,
+	method: string,
 	value: string,
 ): string | null {
-	const method = resolveMethodForPath(
-		currentOperation.document,
-		targetOpenApiPath,
-	);
-	if (!method) {
-		return null;
-	}
 	const inherited = currentOperation.getAdditionalParameters(
 		targetOpenApiPath,
 	);
@@ -227,9 +220,15 @@ export function buildUserLinkHref(
 	});
 }
 
+export type UserLinkPathEntry = {
+	openApiPath: string;
+	method: string;
+	href: string;
+};
+
 export type UserLinkGroup = {
 	mapping: LinkMapping;
-	paths: { openApiPath: string; href: string }[];
+	paths: UserLinkPathEntry[];
 };
 
 export function buildUserLinkGroups(
@@ -249,18 +248,27 @@ export function buildUserLinkGroups(
 	).map((mapping) => ({
 		mapping,
 		paths: findTargetPaths(currentOperation.document, mapping.targetPath)
-			.map((openApiPath) => ({
-				openApiPath,
-				href:
-					buildUserLinkHref(
-						linkSupport,
-						currentOperation,
-						mapping,
-						openApiPath,
-						value,
-					) ?? "",
-			}))
-			.filter((entry) => entry.href),
+			.flatMap((openApiPath) =>
+				resolveMethodsForPath(currentOperation.document, openApiPath)
+					.map((method) => {
+						const href =
+							buildUserLinkHref(
+								linkSupport,
+								currentOperation,
+								mapping,
+								openApiPath,
+								method,
+								value,
+							) ?? "";
+						if (!href) {
+							return null;
+						}
+						return { openApiPath, method, href };
+					})
+					.filter(
+						(entry): entry is UserLinkPathEntry => entry !== null,
+					),
+			),
 	})).filter((group) => group.paths.length > 0);
 }
 

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "node .cursor/hooks/agentmemory-bridge.mjs session-start"
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "node .cursor/hooks/agentmemory-bridge.mjs session-end"
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "node .cursor/hooks/agentmemory-bridge.mjs prompt-submit"
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "node .cursor/hooks/agentmemory-bridge.mjs pre-tool-use",
+        "matcher": "Read|Write|Grep|Glob|Shell"
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "node .cursor/hooks/agentmemory-bridge.mjs post-tool-use"
+      }
+    ],
+    "postToolUseFailure": [
+      {
+        "command": "node .cursor/hooks/agentmemory-bridge.mjs post-tool-failure"
+      }
+    ],
+    "preCompact": [
+      {
+        "command": "node .cursor/hooks/agentmemory-bridge.mjs pre-compact"
+      }
+    ],
+    "subagentStart": [
+      {
+        "command": "node .cursor/hooks/agentmemory-bridge.mjs subagent-start"
+      }
+    ],
+    "subagentStop": [
+      {
+        "command": "node .cursor/hooks/agentmemory-bridge.mjs subagent-stop"
+      }
+    ],
+    "stop": [
+      {
+        "command": "node .cursor/hooks/agentmemory-bridge.mjs stop",
+        "loop_limit": null
+      }
+    ]
+  }
+}

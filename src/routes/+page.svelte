@@ -1,5 +1,4 @@
 <script>
-    import UrlBasePage from "$lib/components/restful/call/url-base/UrlBasePage.svelte";
-    
+	import ExplorerPage from "$lib/components/restful/call/explorer/ExplorerPage.svelte";
 </script>
-<UrlBasePage></UrlBasePage>
+<ExplorerPage></ExplorerPage>

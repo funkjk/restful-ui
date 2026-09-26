@@ -59,8 +59,18 @@ export const POST = async ({ request }: RequestEvent) => {
     }
 
     try {
+      if (!config.openApiUrl?.trim()) {
+        return json({
+          success: false,
+          error: 'MCP requires an OpenAPI URL; inline documents are not supported yet',
+        }, { status: 400 });
+      }
+
       // create MCP server and initialize
-      const mcpServer = await createOpenApiMcpServer(config);
+      const mcpServer = await createOpenApiMcpServer({
+        ...config,
+        openApiUrl: config.openApiUrl,
+      });
       setMcpServer("default", mcpServer, config);
 
       // in HTTP mode, actual startup is not required

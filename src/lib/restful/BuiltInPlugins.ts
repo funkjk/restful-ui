@@ -1,8 +1,11 @@
 import { defaultLogger } from "$lib/utils/logger";
 import { buildProxyRequestUrl } from "$lib/utils/proxy";
+import type { RequestSettings } from "$lib/types/request-config";
 import type { RestApiResponse } from "./apiFetch";
 import type { InputRestParameters, RestfulOperation } from "./RestfulOperation";
 import { EmptyRestfulPlugin, ExecutePluginChain, FetchPluginChain, RequestPathPluginChain } from "./RestfulPlugin";
+import { evaluateEntries } from "./variables/evaluateEntries";
+import { interpolate, interpolateHeaders } from "./variables/interpolate";
 
 
 // using any for Promise or reactive objecect
@@ -170,13 +173,8 @@ export abstract class UseRestfulUIProxyPlugin extends EmptyRestfulPlugin {
     }
     abstract getProxyUrl(): string;
 }
-export interface RequestSetting {
-    headers: { name: string, value: string }[],
-    additionalQueryParameter?: string,
-    basePath?: string,
-    useProxy: boolean,
-    proxyBaseUrl?: string,
-}
+/** Shared with RequestSettings so MCP and UI keep the same shape. */
+export type RequestSetting = RequestSettings;
 
 export abstract class AbstractRequestSettingApplyPlugin extends EmptyRestfulPlugin {
     abstract getRequestSetting():RequestSetting
@@ -200,16 +198,39 @@ export abstract class AbstractRequestSettingApplyPlugin extends EmptyRestfulPlug
         return requestPath
     }
 
-    doExecute(_restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
+    async doExecute(_restfulOperation: RestfulOperation, chain: ExecutePluginChain, inputParameters: InputRestParameters, input: RequestInfo | URL, init?: RequestInit): Promise<RestApiResponse> {
         const setting = this.getRequestSetting()
         const nextInit = init ?? {}
+        let headers: Record<string, string> = { ...(nextInit.headers as Record<string, string> | undefined) }
         if (setting.headers) {
-            const additionalHeaders: any = {}
             for (const header of setting.headers) {
-                additionalHeaders[header.name] = header.value
+                headers[header.name] = header.value
             }
-            nextInit.headers = { ...nextInit.headers, ...additionalHeaders }
         }
+
+        const bodyRaw = nextInit.body
+        const body =
+            bodyRaw == null
+                ? ""
+                : typeof bodyRaw === "string"
+                  ? bodyRaw
+                  : JSON.stringify(bodyRaw)
+
+        const variables = await evaluateEntries(setting.variables?.entries, {
+            method: String(nextInit.method ?? "GET"),
+            path: String(input),
+            body,
+        })
+
+        headers = interpolateHeaders(headers, variables)
+        input = interpolate(String(input), variables)
+        if (Object.keys(variables).length > 0) {
+            defaultLogger.info(
+                `Variables applied: ${Object.keys(variables).join(", ")}`,
+            )
+        }
+
+        nextInit.headers = headers
         return chain.next(inputParameters, input, nextInit)
     }
 }
