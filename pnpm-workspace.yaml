@@ -1,5 +1,8 @@
+packages:
+  - '.'
+
 allowBuilds:
-  '@clerk/shared': set this to true or false
-  '@parcel/watcher': set this to true or false
-  '@vercel/speed-insights': set this to true or false
-  esbuild: set this to true or false
+  '@clerk/shared': true
+  '@parcel/watcher': true
+  '@vercel/speed-insights': true
+  esbuild: true
