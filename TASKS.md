@@ -23,9 +23,8 @@
  - tag filter
  - deprecated api
  - oauth
- - oas file upload
- - oas file editor
  - enable linking url data in datatable
+ - Variables settings with CEL expressions and ${name} interpolation (headers and query); per-entry Persist flag
 
 
 
@@ -58,6 +57,8 @@
  - add move left right button to Object datatable
  - hold datetime with caching reqesut
  - get request cache only hold default parameter
+ - oas file upload
+ - oas file editor
 
 
 ## Extension

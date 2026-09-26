@@ -33,7 +33,9 @@
 
     function save() {
         const storageHeaders = headers.filter((e) => e.name);
+        const current = get(config.storage.requestSetting);
         config.storage.requestSetting.set({
+            ...current,
             headers: storageHeaders,
             additionalQueryParameter,
             basePath,
@@ -43,10 +45,17 @@
         notifyMessage.notify("Save");
     }
     function clear() {
+        const current = get(config.storage.requestSetting);
         headers = [];
         addHeader();
         additionalQueryParameter = "";
         basePath = "";
+        config.storage.requestSetting.set({
+            ...current,
+            headers: [],
+            additionalQueryParameter: "",
+            basePath: "",
+        });
     }
 </script>
 
@@ -66,6 +75,7 @@
 {/if}
 
 <h3>Request Headers</h3>
+<p class="hint">Header values may use <code>{'${name}'}</code> from Variables.</p>
 {#each headers as header, index (index)}
     <div>
         <Textfield bind:value={header.name} label="name" style="width:30%;"
@@ -77,7 +87,18 @@
 <Button onclick={addHeader}>Add</Button>
 
 <h3>additional Query Parameters</h3>
+<p class="hint">Example: <code>{'nonce=${nonce}&t=${ts}'}</code> (from Variables).</p>
 <Textfield bind:value={additionalQueryParameter} label="value" style="width:100%;"></Textfield>
 
 <Button onclick={save}>Save</Button>
 <Button onclick={clear}>Clear</Button>
+
+<style>
+    .hint {
+        opacity: 0.85;
+        margin: 0.25rem 0 0.75rem;
+    }
+    code {
+        font-size: 0.9em;
+    }
+</style>

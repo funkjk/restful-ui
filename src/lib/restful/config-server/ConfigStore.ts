@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { ServerConfig, ServerConfigResponse } from './ServerSupport';
+import { validateOpenApiSource } from './ServerSupport';
 import { InMemoryConfigStore } from './InMemoryConfigStore';
 import { getConfigStore } from './getConfigStore';
 
@@ -64,9 +65,7 @@ export async function listConfigs(userId?: string): Promise<ServerConfigResponse
 }
 
 function validateConfig(config: ServerConfig): void {
-    if (!config.openApiUrl) {
-        throw new Error('OpenAPI URL is required in config');
-    }
+    validateOpenApiSource(config);
     if (!config.serverName) {
         throw new Error('Server name is required in config');
     }

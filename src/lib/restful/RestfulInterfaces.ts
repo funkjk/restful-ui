@@ -26,6 +26,10 @@ export enum RuningMode {
 export interface RestfulComponentConfig {
     documentUrl?: string;
     documentRaw?: string;
+    /** Display label for documentRaw (filename or "pasted spec"). */
+    documentLabel?: string;
+    /** Apply edited inline OpenAPI text (Paste/File sources only). */
+    applyInlineDocument?: (text: string, label: string) => void | Promise<void>;
     storage: {
         responses: any;
         parameterHistories: any;

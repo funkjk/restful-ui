@@ -46,13 +46,6 @@ export const POST = async (event: RequestEvent) => {
     
     const config = await event.request.json() as ServerConfig;
 
-    if (!config.openApiUrl) {
-      return json({
-        success: false,
-        error: 'OpenAPI URL is required in config',
-      }, { status: 400 });
-    }
-
     const configId = await saveConfig(config, undefined, userId);
 
     logger.info('Configuration saved', { configurationId: configId, userId, serverName: config.serverName });
@@ -70,10 +63,15 @@ export const POST = async (event: RequestEvent) => {
     }
     
     console.error('Failed to save config:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    const isValidation =
+      message.includes('required') ||
+      message.includes('exceeds 2MB') ||
+      message.includes('OpenAPI');
     return json({
       success: false,
-      error: `Failed to save config: ${error instanceof Error ? error.message : String(error)}`,
-    }, { status: 500 });
+      error: `Failed to save config: ${message}`,
+    }, { status: isValidation ? 400 : 500 });
   }
 };
 
