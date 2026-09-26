@@ -45,11 +45,12 @@ export function persistStoreValue<T>(
     value: T,
 ): void {
     store.update((storeValue) => {
+        const next = { ...(storeValue ?? {}) };
         if (value) {
-            storeValue[key] = value;
+            next[key] = value;
         } else {
-            delete storeValue[key];
+            delete next[key];
         }
-        return storeValue;
+        return next;
     });
 }

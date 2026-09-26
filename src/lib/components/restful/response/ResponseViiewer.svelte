@@ -10,7 +10,7 @@
 import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
     import { setContext } from "svelte";
     import SelectTableKey from "./SelectTableKey.svelte";
-    import { syncObject } from "$lib/utils/ObjectStore";
+    import { loadStoreValue, persistStoreValue } from "$lib/utils/ObjectStore";
     import type { SelectedRoot } from "$lib/utils/object-array";
     import { CardType,isTooBigByDepth, type DisplayTypes } from "$lib/utils/utils";
     import { findMappingsForOperation } from "$lib/restful/linkMapping";
@@ -98,11 +98,22 @@ import { type SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter
     let filter = $state("");
     let selectedColumns = $state<SelectedRoot>({selected:[]});
     let displayTypes = $state<DisplayTypes>({});
+    let hydratedKey = $state("");
+    $effect.pre(() => {
+        tableKey = loadStoreValue(selectedTableKeys, key, "");
+        filter = loadStoreValue(dataTableFilters, key, "");
+        selectedColumns = loadStoreValue(dataTableSelectedColumn, key, {selected:[]});
+        displayTypes = loadStoreValue(dataTableDisplayTypes, key, {});
+        hydratedKey = key;
+    });
     $effect(() => {
-        filter = syncObject(filter, dataTableFilters, key, "");
-        tableKey = syncObject(tableKey, selectedTableKeys, key, "");
-        selectedColumns = syncObject(selectedColumns,dataTableSelectedColumn , key, {selected:[]});
-        displayTypes = syncObject(displayTypes,dataTableDisplayTypes , key, {});
+        if (hydratedKey !== key) {
+            return;
+        }
+        persistStoreValue(selectedTableKeys, key, tableKey);
+        persistStoreValue(dataTableFilters, key, filter);
+        persistStoreValue(dataTableSelectedColumn, key, selectedColumns);
+        persistStoreValue(dataTableDisplayTypes, key, displayTypes);
     });
     // reset filter when tableKey is set
     function selectTableKey(key: string) {

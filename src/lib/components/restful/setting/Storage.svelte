@@ -4,7 +4,7 @@
     import Button from "@smui/button";
     import { onMount } from "svelte";
     import { JSONEditor, Mode } from "svelte-jsoneditor";
-    import { get, type Readable, type Writable } from "svelte/store";
+    import { type Readable, type Writable } from "svelte/store";
     let { config }: { config: RestfulComponentConfig } = $props();
     const keys = [
         "dataTableFilters",
@@ -14,15 +14,28 @@
         "responses",
         "selectedTableKeys",
     ];
-    const inputValue = keys.reduce((prev, current) => {
-         prev[current] = { json: {} };
-         return prev
-    }, {} as any);
+    let inputValue = $state(
+        keys.reduce((prev, current) => {
+            prev[current] = { json: {} };
+            return prev;
+        }, {} as Record<string, { json: unknown }>),
+    );
+
+    function cloneJson(value: unknown) {
+        if (value == null || typeof value !== "object") {
+            return {};
+        }
+        return JSON.parse(JSON.stringify(value));
+    }
+
     onMount(() => {
-        keys.forEach(key => {
-            const store = (config.storage as any)[key]  as Readable<any> 
-            inputValue[key] = { json: get(store) };
-        })
+        const unsubs = keys.map((key) => {
+            const store = (config.storage as any)[key] as Readable<any>;
+            return store.subscribe((value) => {
+                inputValue[key] = { json: cloneJson(value) };
+            });
+        });
+        return () => unsubs.forEach((unsub) => unsub());
     });
     function save() {
         keys.forEach(key => {
