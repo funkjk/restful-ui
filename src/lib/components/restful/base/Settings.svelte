@@ -5,6 +5,7 @@
 	import Radio from "@smui/radio";
 	import FormField from "@smui/form-field";
 	import Request from "../setting/Request.svelte";
+	import Variables from "../setting/variables/Variables.svelte";
 	import LinkMappings from "../setting/LinkMappings.svelte";
 	import Persist from "../setting/Persist.svelte";
 	import Document from "../setting/Document.svelte";
@@ -21,6 +22,7 @@
 	let options = $derived.by((): SettingOption[] => {
 		const list: SettingOption[] = [
 			{ name: "Request", value: Request },
+			{ name: "Variables", value: Variables },
 			{ name: "Links", value: LinkMappings },
 			{ name: "Storage", value: Storage },
 		];
