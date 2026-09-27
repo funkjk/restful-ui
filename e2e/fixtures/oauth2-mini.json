@@ -1,0 +1,59 @@
+{
+	"openapi": "3.0.3",
+	"info": {
+		"title": "OAuth2 PKCE mini API",
+		"version": "1.0.0"
+	},
+	"servers": [
+		{
+			"url": "https://api.oauth-mock.test/v1"
+		}
+	],
+	"components": {
+		"securitySchemes": {
+			"mockOAuth": {
+				"type": "oauth2",
+				"flows": {
+					"authorizationCode": {
+						"authorizationUrl": "https://auth.oauth-mock.test/oauth2/authorize",
+						"tokenUrl": "https://auth.oauth-mock.test/oauth2/token",
+						"scopes": {
+							"account.read": "Read account information",
+							"files.read": "Read files"
+						}
+					}
+				}
+			}
+		}
+	},
+	"security": [
+		{
+			"mockOAuth": ["account.read"]
+		}
+	],
+	"paths": {
+		"/me": {
+			"get": {
+				"summary": "Get current account",
+				"operationId": "getMe",
+				"responses": {
+					"200": {
+						"description": "Current account",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"name": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -11,6 +11,7 @@ import type { RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 import { RuningMode, DefaultLinkSupport } from "$lib/restful/RestfulInterfaces";
 import { getAppBasePath } from "$lib/utils/app-base";
 import { persisted } from "svelte-persisted-store";
+import { SecurityApplyPlugin } from "$lib/restful/security/SecurityApplyPlugin";
 
 function uniqueArray<T>(arr: T[], fn: (a1: T, a2: T) => boolean) {
     return arr.filter(
@@ -100,6 +101,14 @@ export class SvelteRestfulProxy extends UseRestfulUIProxyPlugin {
     }
 }
 
+export function createSvelteSecurityPlugin(storageKey: string, requestSetting: Writable<RequestSetting>): SecurityApplyPlugin {
+    return new SecurityApplyPlugin({
+        storageKey,
+        getSettings: () => get(requestSetting),
+        updateSettings: (updater) => requestSetting.update(updater),
+    })
+}
+
 export function createRestfulComponentConfig(storageKey: string, baseConfig?: Partial<RestfulComponentConfig>): RestfulComponentConfig {
     // response may be too big, so use ServiceWorker
     const responses = baseConfig?.storage?.responses ?? swPersisted(
@@ -163,6 +172,7 @@ export function createRestfulComponentConfig(storageKey: string, baseConfig?: Pa
         },
         additionalPlugins: [
             new SetRequestPlugin(requestSetting),
+            createSvelteSecurityPlugin(storageKey, requestSetting),
             new SvelteRestfulProxy(requestSetting),
         ] as RestfulPlugin[],
         displaySupport: baseConfig?.displaySupport ?? { getArrayResponse: (restfulOperation, responseBody) => Array.isArray(responseBody) ? responseBody : null },

@@ -5,17 +5,30 @@ export interface RequestHeader {
 
 export interface VariableEntry {
   name: string;
-  /** CEL expression evaluated at request time */
   expression: string;
-  /**
-   * When false, omitted from ConfigStore Persist / server save.
-   * Still kept in session storage for local use. Default true.
-   */
   persist?: boolean;
 }
 
 export interface RequestVariables {
   entries: VariableEntry[];
+}
+
+export interface PersistableValue<T> {
+  value: T;
+  persist?: boolean;
+}
+
+export interface OAuth2PkceSettings {
+  clientId?: PersistableValue<string>;
+  authorizationUrl?: PersistableValue<string>;
+  tokenUrl?: PersistableValue<string>;
+  scopes?: PersistableValue<string[]>;
+  offlineAccess?: PersistableValue<boolean>;
+  refreshToken?: PersistableValue<string>;
+}
+
+export interface SecuritySettings {
+  oauth2Pkce?: OAuth2PkceSettings;
 }
 
 export interface RequestSettings {
@@ -25,20 +38,34 @@ export interface RequestSettings {
   useProxy: boolean;
   proxyBaseUrl?: string;
   variables?: RequestVariables;
+  security?: SecuritySettings;
 }
 
-/** Strip variable entries marked persist:false for server/ConfigStore payloads. */
-export function toPersistedRequestSettings(
-  settings: RequestSettings,
-): RequestSettings {
+function isPersisted(entry: { persist?: boolean } | undefined): boolean {
+  return entry !== undefined && entry.persist !== false;
+}
+
+function pickPersisted<T extends object>(record: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(record).filter(([, entry]) => isPersisted(entry)),
+  ) as Partial<T>;
+}
+
+/** Strip entries marked persist:false for server/ConfigStore payloads. */
+export function toPersistedRequestSettings(settings: RequestSettings): RequestSettings {
   const entries = settings.variables?.entries;
-  if (!entries?.length) {
+  const oauth2Pkce = settings.security?.oauth2Pkce;
+  if (!entries?.length && !oauth2Pkce) {
     return settings;
   }
-  const persistedEntries = entries.filter((e) => e.persist !== false);
+  const persistedEntries = entries?.filter(isPersisted) ?? [];
+  const persistedOAuth2Pkce = oauth2Pkce ? pickPersisted(oauth2Pkce) : {};
   return {
     ...settings,
-    variables:
-      persistedEntries.length > 0 ? { entries: persistedEntries } : undefined,
+    variables: persistedEntries.length > 0 ? { entries: persistedEntries } : undefined,
+    security:
+      Object.keys(persistedOAuth2Pkce).length > 0
+        ? { ...settings.security, oauth2Pkce: persistedOAuth2Pkce }
+        : undefined,
   };
 }

@@ -116,7 +116,7 @@ import { SvelteCacheStore } from "$lib/adapters/svelte/RestfulSvelteAdapter";
 						operation not found
 					{/if}
 				{:else if restApiPage == PAGE.SETTING}
-					<Settings {config}></Settings>
+					<Settings {config} {document}></Settings>
 				{:else}
 					<GeneralJsonCard data={document} title="api"
 					></GeneralJsonCard>

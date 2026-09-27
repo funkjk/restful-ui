@@ -13,6 +13,7 @@ import SwaggerParser from '@apidevtools/swagger-parser';
 import type { OpenAPI } from 'openapi-types';
 import { ConsoleMessageLogger, LoggingRestfulPlugin } from '$lib/restful/BuiltInPlugins';
 import { McpRequestSettingsPlugin } from './McpRequestSettingsPlugin';
+import { SecurityApplyPlugin } from '$lib/restful/security/SecurityApplyPlugin';
 import type { RequestSettings } from '$lib/types/request-config';
 import { defaultLogger } from '$lib/utils/logger';
 import type { RestfulPlugin } from '$lib/restful/RestfulPlugin';
@@ -58,6 +59,10 @@ export class OpenApiMcpServer {
     this.plugins = [
       new LoggingRestfulPlugin(new ConsoleMessageLogger()),
       new McpRequestSettingsPlugin(requestSettings),
+      new SecurityApplyPlugin({
+        storageKey: `mcp-${config.serverName}`,
+        getSettings: () => requestSettings,
+      }),
     ];
 
     this.server = new Server(

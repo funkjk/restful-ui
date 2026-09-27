@@ -7,6 +7,7 @@
 	} from "$lib/restful/RestfulInterfaces";
 	import {
 		createRestfulComponentConfig,
+		createSvelteSecurityPlugin,
 		SetLoadingPlugin,
 		SetRequestPlugin,
 		SvelteRestfulProxy,
@@ -117,6 +118,7 @@
 			new LoggingRestfulPlugin(messageLogger),
 			new SetLoadingPlugin(loading),
 			new SetRequestPlugin(requestSetting),
+			createSvelteSecurityPlugin(storageKey, requestSetting),
 			new SvelteRestfulProxy(requestSetting),
 		];
 		localConfig.storage.requestSetting = requestSetting;

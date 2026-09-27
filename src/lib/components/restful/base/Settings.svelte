@@ -1,28 +1,42 @@
+<script module lang="ts">
+	let lastSelectedName = "";
+</script>
+
 <script lang="ts">
 	import type { Component } from "svelte";
+	import type { OpenAPI } from "openapi-types";
 	import { type RestfulComponentConfig } from "$lib/restful/RestfulInterfaces";
 	import Storage from "../setting/Storage.svelte";
 	import Radio from "@smui/radio";
 	import FormField from "@smui/form-field";
 	import Request from "../setting/Request.svelte";
 	import Variables from "../setting/variables/Variables.svelte";
+	import Security from "../setting/Security.svelte";
 	import LinkMappings from "../setting/LinkMappings.svelte";
 	import Persist from "../setting/Persist.svelte";
 	import Document from "../setting/Document.svelte";
 	import { isServerBuildMode } from "$lib/utils/build-mode";
+	import { OAUTH2_CODE_PARAM, OAUTH2_ERROR_PARAM } from "$lib/restful/security/oauth2Pkce";
 
-	let { config }: { config: RestfulComponentConfig } = $props();
+	let {
+		config,
+		document,
+	}: { config: RestfulComponentConfig; document?: OpenAPI.Document } = $props();
 
 	const isInlineDocument = $derived(
 		Boolean(config.documentRaw?.trim() && !config.documentUrl?.trim()),
 	);
 
-	type SettingOption = { name: string; value: Component<{ config: RestfulComponentConfig }> };
+	type SettingOption = {
+		name: string;
+		value: Component<{ config: RestfulComponentConfig; document?: OpenAPI.Document }>;
+	};
 
 	let options = $derived.by((): SettingOption[] => {
 		const list: SettingOption[] = [
 			{ name: "Request", value: Request },
 			{ name: "Variables", value: Variables },
+			{ name: "Security", value: Security },
 			{ name: "Links", value: LinkMappings },
 			{ name: "Storage", value: Storage },
 		];
@@ -35,7 +49,15 @@
 		return list;
 	});
 
-	let selectedName = $state("");
+	function isOAuthCallback(): boolean {
+		const params = new URLSearchParams(window.location.search);
+		return params.has(OAUTH2_CODE_PARAM) || params.has(OAUTH2_ERROR_PARAM);
+	}
+
+	if (isOAuthCallback()) {
+		lastSelectedName = "Security";
+	}
+	let selectedName = $state(lastSelectedName);
 
 	$effect(() => {
 		if (!options.some((o) => o.name === selectedName)) {
@@ -50,7 +72,11 @@
 
 {#each options as option (option.name)}
 	<FormField>
-		<Radio bind:group={selectedName} value={option.name} />
+		<Radio
+			bind:group={selectedName}
+			value={option.name}
+			input$onchange={() => (lastSelectedName = option.name)}
+		/>
 		{#snippet label()}
 			{option.name}
 		{/snippet}
@@ -59,5 +85,5 @@
 
 {#if selected}
 	{@const Component = selected.value}
-	<Component {config} />
+	<Component {config} {document} />
 {/if}

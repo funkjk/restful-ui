@@ -30,4 +30,23 @@ describe("toPersistedRequestSettings", () => {
 		});
 		expect(settings.variables).toBeUndefined();
 	});
+
+	it("keeps only persisted OAuth2 PKCE fields", () => {
+		const settings = toPersistedRequestSettings({
+			headers: [],
+			useProxy: false,
+			security: {
+				oauth2Pkce: {
+					clientId: { value: "app", persist: true },
+					tokenUrl: { value: "https://example.com/token" },
+					scopes: { value: ["read"], persist: false },
+					refreshToken: { value: "r", persist: false },
+				},
+			},
+		});
+		expect(settings.security?.oauth2Pkce).toEqual({
+			clientId: { value: "app", persist: true },
+			tokenUrl: { value: "https://example.com/token" },
+		});
+	});
 });
